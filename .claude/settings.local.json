@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3:*)",
+      "Bash(export:*)",
+      "Bash(python3.exe:*)",
+      "Bash(python:*)",
+      "Bash(set PYTHONIOENCODING=utf-8:*)"
+    ]
+  }
+}
