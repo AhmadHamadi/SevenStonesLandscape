@@ -1676,6 +1676,7 @@ ul { list-style: none; }
   padding-bottom: var(--space-xl);
   border-bottom: 1px solid rgba(0,0,0,0.08);
 }
+.footer-logo-link { display: inline-block; text-decoration: none; }
 .footer-brand img { height: 52px; margin-bottom: var(--space-xs); }
 .footer-brand-name {
   font-size: 1rem;
@@ -1746,6 +1747,7 @@ ul { list-style: none; }
   font-size: 0.78rem;
   color: var(--text-muted);
 }
+.footer-legal { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 2px 4px; }
 .footer-bottom a { color: inherit; transition: color var(--transition); }
 .footer-bottom a:hover { color: var(--cta); }
 

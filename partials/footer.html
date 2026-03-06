@@ -1,4 +1,4 @@
-<footer id="footer" aria-label="Site footer">
+<footer id="footer" role="contentinfo" aria-label="Site footer">
   <div class="container">
     <div class="footer-cta-top">
       <a href="/contact.html" class="btn btn--cta">Get a Free Quote</a>
@@ -7,12 +7,14 @@
 
       <!-- Brand -->
       <div class="footer-brand">
-        <img
-          src="/assets/images/logo.png"
-          alt="Seven Stones Landscape - Hamilton hardscaping and landscaping"
-          width="104"
-          height="52"
-        />
+        <a href="/" class="footer-logo-link" aria-label="Seven Stones Landscape home">
+          <img
+            src="/assets/images/logo.png"
+            alt="Seven Stones Landscape - Hamilton hardscaping and landscaping"
+            width="104"
+            height="52"
+          />
+        </a>
         <p class="footer-brand-name">Seven Stones Landscape</p>
         <p>Premium hardscaping and landscaping across Hamilton, Burlington, Oakville, Ancaster, Dundas, Stoney Creek, Grimsby, and the Golden Horseshoe. <a href="/about.html">Learn about our team</a>.</p>
         <div class="footer-social">
@@ -26,26 +28,30 @@
       </div>
 
       <!-- Services -->
-      <div class="footer-col">
+      <nav class="footer-col" aria-label="Footer services navigation">
         <h4>Services</h4>
-        <ul>
+        <ul role="list">
           <li><a href="/services.html">All Services</a></li>
-          <li><a href="/services/interlock-patios.html">Interlock Patios</a></li>
-          <li><a href="/services/concrete/">Concrete</a></li>
+          <li><a href="/services/interlock-patios.html">Interlock Patios &amp; Driveways</a></li>
+          <li><a href="/services/concrete/">Concrete Driveways &amp; Patios</a></li>
+          <li><a href="/services/concrete/driveways.html">Concrete Driveways</a></li>
+          <li><a href="/services/concrete/stamped-patios.html">Stamped Concrete Patios</a></li>
+          <li><a href="/services/concrete/exposed-aggregate.html">Exposed Aggregate</a></li>
+          <li><a href="/services/concrete/steps-walkways.html">Concrete Steps &amp; Walkways</a></li>
           <li><a href="/services/retaining-walls.html">Retaining Walls</a></li>
           <li><a href="/services/sod-installation.html">Sod Installation</a></li>
-          <li><a href="/services/yard-grading.html">Yard Grading</a></li>
+          <li><a href="/services/yard-grading.html">Yard Grading &amp; Drainage</a></li>
           <li><a href="/services/landscape-stone.html">Landscape Stone</a></li>
           <li><a href="/services/walkways.html">Walkways</a></li>
           <li><a href="/services/backyard-landscaping.html">Backyard Landscaping</a></li>
           <li><a href="/services/front-yard-landscaping.html">Front Yard Landscaping</a></li>
         </ul>
-      </div>
+      </nav>
 
       <!-- Areas -->
-      <div class="footer-col">
+      <nav class="footer-col" aria-label="Footer service areas navigation">
         <h4>Service Areas</h4>
-        <ul>
+        <ul role="list">
           <li><a href="/service-areas/hamilton.html">Hamilton</a></li>
           <li><a href="/service-areas/burlington.html">Burlington</a></li>
           <li><a href="/service-areas/oakville.html">Oakville</a></li>
@@ -56,7 +62,7 @@
           <li><a href="/service-areas/milton.html">Milton</a></li>
           <li><a href="/service-areas/mississauga.html">Mississauga</a></li>
         </ul>
-      </div>
+      </nav>
 
       <!-- Contact -->
       <div class="footer-col">
@@ -82,13 +88,17 @@
 
     <div class="footer-bottom">
       <span>&copy; 2025 Seven Stones Landscape. All rights reserved.</span>
-      <span>
-        <a href="/about.html">About</a> &middot;
-        <a href="/blog/">Blog</a> &middot;
-        <a href="/contact.html">Contact</a> &middot;
-        <a href="#">Privacy Policy</a> &middot;
-        <a href="#">Terms of Service</a>
-      </span>
+      <nav class="footer-legal" aria-label="Legal and site links">
+        <a href="/about.html">About</a>
+        <span aria-hidden="true">&middot;</span>
+        <a href="/blog/">Blog</a>
+        <span aria-hidden="true">&middot;</span>
+        <a href="/contact.html">Contact</a>
+        <span aria-hidden="true">&middot;</span>
+        <a href="/privacy.html">Privacy Policy</a>
+        <span aria-hidden="true">&middot;</span>
+        <a href="/terms-of-service.html">Terms of Service</a>
+      </nav>
       <span>Hamilton, ON &mdash; Hardscaping &amp; Landscaping Across the Golden Horseshoe</span>
     </div>
   </div>
