@@ -205,6 +205,16 @@
     });
   }
 
+  function showFormThankYou() {
+    var params = typeof URLSearchParams !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+    if (!params || !params.get('submitted')) return;
+    var el = document.getElementById('form-thank-you');
+    if (el) {
+      el.hidden = false;
+      el.style.display = 'block';
+    }
+  }
+
   function injectAndInit() {
     var promises = [];
     if (headerPlaceholder) promises.push(fetch(base + 'partials/header.html').then(function(r) { return r.text(); }));
@@ -213,6 +223,7 @@
     if (promises.length === 0) {
       replacePlaceholders();
       runUI();
+      showFormThankYou();
       return;
     }
 
@@ -225,10 +236,12 @@
       replacePlaceholders();
       runUI();
       setPageNav();
+      showFormThankYou();
     }).catch(function() {
       replacePlaceholders();
       runUI();
       setPageNav();
+      showFormThankYou();
     });
   }
 

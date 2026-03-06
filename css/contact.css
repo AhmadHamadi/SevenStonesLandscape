@@ -144,6 +144,19 @@
   color: var(--form-label);
   margin-bottom: var(--space-xs);
 }
+.form-thank-you {
+  display: none;
+  margin-bottom: var(--space-md);
+  padding: var(--space-md);
+  background: rgba(72, 187, 120, 0.15);
+  border: 1px solid rgba(72, 187, 120, 0.4);
+  border-radius: var(--form-radius);
+  color: #fff;
+  font-size: 0.95rem;
+}
+.form-thank-you[hidden] { display: none !important; }
+.form-thank-you:not([hidden]) { display: block !important; }
+
 .contact-form-intro {
   font-size: 0.95rem;
   color: var(--form-label);

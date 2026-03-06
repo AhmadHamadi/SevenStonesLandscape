@@ -1,72 +1,104 @@
-# Form submissions → both emails (automatic)
+# Form submissions on Vercel → both emails
 
-This site uses **Netlify Forms**. All forms use the same form name **`quote`**. When someone fills the form and clicks send, you can have **both** email addresses get the submission automatically — no manual forwarding, no Make.com required (unless you want it).
-
----
-
-## 1. Bot prevention (already done)
-
-- Every form has a **honeypot** field: `name="bot-field"` in a hidden paragraph with class `form-honeypot`.
-- Netlify ignores submissions where the honeypot is filled (treated as spam).
-- CSS in `css/styles.css` hides the honeypot off-screen so bots that fill all fields still hit it.
+This site is deployed on **Vercel**. Form submissions are handled by a serverless function that sends one email to **both** addresses using **Resend**. No Netlify or Make.com needed.
 
 ---
 
-## 2. Single form: `quote`
+## 1. How it works
 
-There is **only one Netlify form** on the site: **`quote`**. A hidden field **`form_source`** indicates where the submission came from (hero, full, contact, hamilton, burlington, oakville, ancaster, dundas, waterdown, stoney-creek, milton, mississauga).
-
-**Fields on every submission:** `first_name`, `last_name`, `email`, `phone`, `city`, `timeline`, `services`, `message`, `form_source`.
-
----
-
-## 3. How to know Netlify is connected to this website
-
-- **Right site:** In Netlify, the site you’re logged into should be the one that **deploys this project** (same Git repo — e.g. GitHub/GitLab/Bitbucket — or the same “Deploy manually” build). The site name and URL (e.g. `yoursite.netlify.app` or your custom domain) are what you use for this website.
-- **Forms tab:** After the site has been deployed at least once, go to **Site dashboard → Forms**. You should see a form named **`quote`**. If you see it, Netlify has detected the form on this site and will receive submissions.
-- **Test:** On the **live** site (the Netlify URL or your domain), fill out any quote form and click send. Then in Netlify go to **Forms → quote → Submissions**. If the test submission appears there, the site and form are connected. If you’ve already set up email notifications, both inboxes should also receive the notification for that test.
-
-If you don’t see a form named `quote` under Forms, make sure the latest code (with `data-netlify="true"` and `name="quote"` on the form) has been deployed, then trigger a new deploy and check again.
+- Every form has **action="/api/quote"** and **method="POST"**.
+- On submit, the browser sends the form to **`/api/quote`** (Vercel serverless function).
+- The function checks the **bot-field** (honeypot); if it’s filled, it treats the submission as spam and doesn’t email.
+- Otherwise it sends one email via **Resend** to:
+  - **john.scime.mcmaster@gmail.com**
+  - **ahmadhamadi2002@gmail.com**
+- The user is redirected to **/contact.html?submitted=1** and sees a thank-you message.
 
 ---
 
-## 4. Option A — Netlify only (no Make): both emails automatically
+## 2. What you need to do (one-time)
 
-**Easiest:** Use Netlify’s built-in email notifications so both inboxes get every submission. No webhooks, no Make, no code.
+### 1) Resend account and API key
 
-1. In **Netlify**: open your site → **Site configuration** → **Notifications** (or **Integrations**).
-2. Under **Form submission notifications**, click **Add notification** (or **New notification**).
-3. Choose **Email notification**.
-4. Select the form **`quote`** (or “Notify for all form submissions” if that’s the only form).
-5. Enter the first email: **john.scime.mcmaster@gmail.com**.
-6. Save.
-7. **Add a second notification**: click **Add notification** again → **Email notification** → same form **`quote`** → enter the second email: **ahmadhamadi2002@gmail.com** → Save.
+1. Sign up at [resend.com](https://resend.com) (free tier is enough).
+2. In the Resend dashboard, create an **API Key** and copy it (starts with `re_`).
+3. (Optional) Add and verify a domain so the “From” address is e.g. `quotes@sevenstoneslandscape.ca`. Until then, emails are sent from Resend’s default (e.g. `onboarding@resend.dev`).
 
-After that, every time someone submits the form, **both** addresses receive the notification email from Netlify automatically. You don’t send anything to Make or do anything manually.
+### 2) Vercel environment variables
 
-If your Netlify UI only allows one email per notification type, add two separate “Email notification” entries (one per address). If you don’t see a way to add a second email notification, use Option B below.
+1. In **Vercel**: your project → **Settings** → **Environment Variables**.
+2. Add:
+   - **Name:** `RESEND_API_KEY`  
+     **Value:** your Resend API key (e.g. `re_xxxxxxxx`).  
+     **Environment:** Production (and Preview if you want to test there).
+3. (Optional) If you verified a domain in Resend and want a custom “From”:
+   - **Name:** `EMAIL_FROM`  
+     **Value:** `Seven Stones Landscape <quotes@yourdomain.com>`  
+     (Replace with your real domain.)
 
----
+### 3) Redeploy
 
-## 5. Option B — Netlify + Make.com (also automatic after one-time setup)
-
-If you need custom email content, or Netlify won’t let you add two email notifications for the same form:
-
-1. In **Netlify**: **Form submission notifications** → **Add notification** → **Outgoing webhook**. Set the URL to your **Make.com webhook** URL.
-2. In **Make.com**: Create a scenario with **Webhooks → Custom webhook** as the trigger, then add **Email** (e.g. Gmail) modules to send to **john.scime.mcmaster@gmail.com** and **ahmadhamadi2002@gmail.com** (two modules, or one with both in the To field if your app supports it). Build subject/body from the webhook payload (`first_name`, `last_name`, `email`, `phone`, `form_source`, etc.).
-3. Turn the scenario **on**.
-
-Once that’s set up, form submit → Netlify sends to Make → Make sends to both emails. No manual step when someone fills the form.
+After saving the env vars, trigger a new deploy (e.g. **Deployments** → … on latest → **Redeploy**) so the function gets the new variables.
 
 ---
 
-## Quick checklist
+## 3. Verifying it’s connected
 
-**Confirm connection:** Netlify dashboard → your site → **Forms** → form **`quote`** is listed. Submit once on the live site and check **Forms → quote → Submissions** (and your email).
+- **Right project:** In Vercel you should be in the project that deploys this repo (same Git repo or same “Import”).
+- **API route:** After deploy, the route **`/api/quote`** is available at your Vercel URL (e.g. `https://yoursite.vercel.app/api/quote`).
+- **Test:** On the **live** site, fill out any quote form and submit. You should:
+  1. Be redirected to the contact page with a thank-you message.
+  2. Receive the same email at **both** inboxes (check spam the first time).
 
-**Option A — Netlify only:**
+If the email doesn’t arrive, check **Vercel** → **Project** → **Logs** (or **Functions**) for errors, and confirm **RESEND_API_KEY** is set and redeployed.
 
-- [ ] Netlify → Notifications → Form submission notifications.
-- [ ] Add **Email notification** for form `quote` → **john.scime.mcmaster@gmail.com**.
-- [ ] Add **Email notification** for form `quote` → **ahmadhamadi2002@gmail.com**.
-- [ ] Test: submit the form once; confirm both inboxes receive the email.
+---
+
+## 4. Form fields and “form_source”
+
+All forms send the same fields: **first_name**, **last_name**, **email**, **phone**, **city**, **timeline**, **services**, **message**, and a hidden **form_source** so you can see where the submission came from:
+
+| form_source   | Page / form              |
+|---------------|--------------------------|
+| hero          | Home hero form           |
+| full          | Home full quote section  |
+| contact       | Contact page             |
+| hamilton      | Hamilton service area    |
+| burlington    | Burlington service area  |
+| oakville      | Oakville service area    |
+| ancaster      | Ancaster service area    |
+| dundas        | Dundas service area      |
+| waterdown     | Waterdown service area   |
+| stoney-creek  | Stoney Creek service area|
+| milton        | Milton service area      |
+| mississauga   | Mississauga service area |
+
+The email body includes “from [form_source]” so you can tell which page was used.
+
+---
+
+## 5. Code audit (Vercel + form logic)
+
+Verified so you can be sure every line is correct:
+
+- **api/quote.js**
+  - Only **POST** is accepted; other methods get 405 with `Allow: POST`.
+  - **req.body** is normalized: if Vercel passes an object (normal case), it’s used; if body is a string (e.g. raw), it’s parsed with `URLSearchParams` so form data is never lost.
+  - **Honeypot:** if `bot-field` has any non-empty value, the request is treated as spam: **no email** is sent, and the user is still **302 redirected** to `/contact.html?submitted=1` (so bots don’t see a different response).
+  - **RESEND_API_KEY** is checked before doing anything; if missing, the function returns 500 and does not redirect.
+  - **Subject:** uses “Quote request from [first last]” when name is present, otherwise “New quote request”.
+  - **reply_to** is set only when the submitter’s email is non-empty (trimmed), so Resend never gets an invalid reply_to.
+  - **One response only:** every path does exactly one of: `res.redirect(302, ...)`, `res.status(405).json(...)`, or `res.status(500).json(...)` with an explicit `return`, so the response is never sent twice.
+- **Forms (all pages)**
+  - Every form uses **action="/api/quote"**, **method="POST"**, hidden **form_source**, and honeypot **bot-field**; no Netlify-specific attributes.
+- **Thank-you**
+  - Success and spam both redirect to **/contact.html?submitted=1**. The contact page has **#form-thank-you**; **main.js**’s `showFormThankYou()` runs on load (in all injectAndInit paths) and shows that block when `?submitted` is in the URL, so the user always sees the thank-you message after a valid or spam submit.
+
+---
+
+## 6. Quick checklist
+
+- [ ] Resend account created; API key copied.
+- [ ] Vercel env var **RESEND_API_KEY** set (and **EMAIL_FROM** if you use a custom domain).
+- [ ] Project redeployed after adding env vars.
+- [ ] Test: submit the form on the live site; both inboxes receive the email and you see the thank-you page.

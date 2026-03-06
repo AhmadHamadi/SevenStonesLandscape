@@ -75,8 +75,7 @@
       <div class="hero-form-card reveal">
         <h2>Get a Free Estimate</h2>
         <p class="sub">Respond within <strong>24 hours</strong> &mdash; no obligation.</p>
-        <form class="hero-form" name="quote" method="POST" data-netlify="true" netlify-honeypot="bot-field" novalidate>
-          <input type="hidden" name="form-name" value="quote" />
+        <form class="hero-form" name="quote" method="POST" action="/api/quote" novalidate>
           <input type="hidden" name="form_source" value="hero" />
           <input type="hidden" name="timeline" value="" />
           <p class="form-honeypot" aria-hidden="true">
@@ -695,8 +694,7 @@
       <!-- Right: form -->
       <div class="quote-form-wrap reveal">
         <h3>Request Your Free Hardscaping or Landscaping Quote</h3>
-        <form class="full-form" name="quote" method="POST" data-netlify="true" netlify-honeypot="bot-field" novalidate>
-          <input type="hidden" name="form-name" value="quote" />
+        <form class="full-form" name="quote" method="POST" action="/api/quote" novalidate>
           <input type="hidden" name="form_source" value="full" />
           <p class="form-honeypot" aria-hidden="true">
             <label>Leave this empty: <input name="bot-field" type="text" tabindex="-1" autocomplete="off" /></label>

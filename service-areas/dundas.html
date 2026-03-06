@@ -177,8 +177,7 @@
       <h2 id="quote-heading" class="section-title">Request a Free Quote — Dundas Landscaping</h2>
       <p class="section-intro">Tell us about your project. We'll respond within 24 hours.</p>
       <div class="city-quote-form-wrap">
-        <form class="full-form" name="quote" method="POST" data-netlify="true" netlify-honeypot="bot-field" novalidate aria-label="Request a quote">
-          <input type="hidden" name="form-name" value="quote" />
+        <form class="full-form" name="quote" method="POST" action="/api/quote" novalidate aria-label="Request a quote">
           <input type="hidden" name="form_source" value="dundas" />
           <p class="form-honeypot" aria-hidden="true">
             <label>Leave this empty: <input name="bot-field" type="text" tabindex="-1" autocomplete="off" /></label>

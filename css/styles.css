@@ -373,7 +373,8 @@ ul { list-style: none; }
 .nav-logo {
   display: flex;
   align-items: center;
-  flex-shrink: 0;
+  flex-shrink: 1;
+  min-width: 0;
   margin: 0;
   padding: 0;
   padding-top: 6px;
@@ -384,6 +385,7 @@ ul { list-style: none; }
 .nav-logo img {
   display: block;
   width: auto;
+  max-width: 100%;
   height: 100px;
   object-fit: contain;
   vertical-align: middle;
@@ -391,7 +393,8 @@ ul { list-style: none; }
 .nav-links {
   display: flex;
   align-items: center;
-  gap: var(--space-lg);
+  flex-wrap: nowrap;
+  gap: var(--space-md);
 }
 .nav-links a {
   font-size: 0.9rem;
@@ -399,18 +402,24 @@ ul { list-style: none; }
   color: var(--text-dark);
   letter-spacing: 0.02em;
   transition: color var(--transition);
+  white-space: nowrap;
 }
 .nav-links a:hover { color: var(--cta); }
-.nav-cta { margin-left: var(--space-sm); }
+.nav-cta {
+  margin-left: var(--space-sm);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
 .nav-phone {
   font-weight: 700;
   font-size: 1rem;
   color: var(--cta) !important;
+  white-space: nowrap;
 }
 
 /* Services dropdown */
-.nav-item--dropdown { position: relative; }
-.nav-dropdown-trigger { display: inline-flex; align-items: center; gap: 4px; }
+.nav-item--dropdown { position: relative; flex-shrink: 0; }
+.nav-dropdown-trigger { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
 .nav-dropdown-trigger::after {
   content: '';
   width: 0;
@@ -587,12 +596,29 @@ ul { list-style: none; }
 .nav-mobile-dropdown-inner {
   overflow: hidden;
   min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 8px;
 }
 .nav-mobile-dropdown a {
+  display: block;
+  width: 100%;
   font-size: 1rem;
-  padding: 12px 24px 12px 40px;
+  font-weight: 500;
+  padding: 10px 24px 10px 40px;
   text-align: left;
   border: none;
+  box-sizing: border-box;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  line-height: 1.4;
+  border-left: 3px solid transparent;
+  margin-left: 0;
+  transition: border-color var(--transition), color var(--transition);
+}
+.nav-mobile-dropdown a:hover {
+  border-left-color: var(--cta);
 }
 .nav-mobile .close-btn {
   position: absolute;
