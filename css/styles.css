@@ -555,6 +555,11 @@ ul { list-style: none; }
   box-sizing: border-box;
 }
 .nav-mobile a:hover { color: var(--cta); }
+.nav-mobile-link--home {
+  display: block !important;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  max-width: 320px;
+}
 
 /* Mobile dropdown sections */
 .nav-mobile-section {
