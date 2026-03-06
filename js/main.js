@@ -95,7 +95,7 @@
         mobileNav.classList.remove('open');
         mobileNav.querySelectorAll('.nav-mobile-section.open').forEach(function(s) {
           s.classList.remove('open');
-          var t = s.querySelector('.nav-mobile-trigger');
+          var t = s.querySelector('.nav-mobile-expand');
           if (t) t.setAttribute('aria-expanded', 'false');
         });
       }
@@ -112,11 +112,12 @@
         a.addEventListener('click', closeMobile);
       });
       mobileNav.querySelectorAll('[data-mobile-dropdown]').forEach(function(section) {
-        var trigger = section.querySelector('.nav-mobile-trigger');
-        if (trigger) trigger.addEventListener('click', function(e) {
+        var expandBtn = section.querySelector('.nav-mobile-expand');
+        if (expandBtn) expandBtn.addEventListener('click', function(e) {
+          e.preventDefault();
           e.stopPropagation();
           section.classList.toggle('open');
-          trigger.setAttribute('aria-expanded', section.classList.contains('open'));
+          expandBtn.setAttribute('aria-expanded', section.classList.contains('open'));
         });
       });
     }

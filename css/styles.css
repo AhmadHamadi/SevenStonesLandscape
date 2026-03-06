@@ -567,36 +567,54 @@ ul { list-style: none; }
   max-width: 320px;
   border-bottom: 1px solid rgba(255,255,255,0.1);
 }
-.nav-mobile-trigger {
+.nav-mobile-trigger-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  padding: 16px 24px;
-  background: none;
-  border: none;
+  padding: 0;
+  gap: 8px;
+}
+.nav-mobile-trigger-link {
+  flex: 1;
+  display: block;
+  padding: 16px 24px 16px 24px;
   font-family: var(--font-body);
   font-size: 1.25rem;
   font-weight: 500;
   color: var(--text-light);
-  cursor: pointer;
+  text-decoration: none;
   text-align: left;
   transition: color var(--transition);
   -webkit-tap-highlight-color: transparent;
 }
-.nav-mobile-trigger:hover { color: var(--cta); }
-.nav-mobile-trigger::after {
-  content: '';
+.nav-mobile-trigger-link:hover { color: var(--cta); }
+.nav-mobile-expand {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  background: none;
+  border: none;
+  color: var(--text-light);
+  cursor: pointer;
+  transition: color var(--transition);
+  -webkit-tap-highlight-color: transparent;
+}
+.nav-mobile-expand:hover { color: var(--cta); }
+.nav-mobile-chevron {
   display: block;
   width: 10px;
   height: 10px;
   border-right: 2px solid currentColor;
   border-bottom: 2px solid currentColor;
   transform: rotate(45deg);
-  margin-left: 8px;
   transition: transform var(--transition);
 }
-.nav-mobile-section.open .nav-mobile-trigger::after {
+.nav-mobile-section.open .nav-mobile-chevron {
   transform: rotate(-135deg);
 }
 .nav-mobile-dropdown {
@@ -915,6 +933,15 @@ ul { list-style: none; }
   grid-template-columns: repeat(3, 1fr);
   gap: var(--space-md);
 }
+.service-card-link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+.service-card-link:hover .service-card {
+  transform: translateY(-8px);
+  box-shadow: var(--shadow);
+}
 .service-card {
   background: #fff;
   border-radius: var(--radius-lg);
@@ -946,6 +973,7 @@ ul { list-style: none; }
 }
 /* Hide placeholder icon when service has a photo */
 .si-interlock .service-img-inner,
+.si-concrete .service-img-inner,
 .si-fences .service-img-inner,
 .si-pools .service-img-inner,
 .si-grading .service-img-inner,
@@ -958,6 +986,7 @@ ul { list-style: none; }
 }
 /* Service photos – fill card area, no white border */
 .si-interlock,
+.si-concrete,
 .si-fences,
 .si-pools,
 .si-grading,
@@ -967,6 +996,7 @@ ul { list-style: none; }
   background-position: center;
 }
 .si-interlock { background-image: url('../assets/images/interlockandpatio.jpg'); }
+.si-concrete  { background-image: url('../assets/images/c11.jpeg'); }
 .si-fences    { background-image: url('../assets/images/fence1.jpg'); }
 .si-pools     { background-image: url('../assets/images/pool1.jpg'); }
 .si-grading   { background-image: url('../assets/images/sod1.jpg'); }

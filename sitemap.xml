@@ -31,6 +31,12 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://sevenstoneslandscape.com/blog/index.html</loc>
+    <lastmod>2026-03-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://sevenstoneslandscape.com/services.html</loc>
     <lastmod>2025-03-06</lastmod>
     <changefreq>monthly</changefreq>
@@ -80,6 +86,36 @@
   </url>
   <url>
     <loc>https://sevenstoneslandscape.com/services/front-yard-landscaping.html</loc>
+    <lastmod>2025-03-06</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sevenstoneslandscape.com/services/concrete/</loc>
+    <lastmod>2025-03-06</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sevenstoneslandscape.com/services/concrete/driveways.html</loc>
+    <lastmod>2025-03-06</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sevenstoneslandscape.com/services/concrete/stamped-patios.html</loc>
+    <lastmod>2025-03-06</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sevenstoneslandscape.com/services/concrete/exposed-aggregate.html</loc>
+    <lastmod>2025-03-06</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sevenstoneslandscape.com/services/concrete/steps-walkways.html</loc>
     <lastmod>2025-03-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
@@ -171,6 +207,24 @@
   <url>
     <loc>https://sevenstoneslandscape.com/blog/low-maintenance-landscaping-ontario.html</loc>
     <lastmod>2025-03-06</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://sevenstoneslandscape.com/blog/why-ontario-concrete-cracks-2026-guide.html</loc>
+    <lastmod>2026-03-06</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://sevenstoneslandscape.com/blog/stamped-concrete-vs-interlock-ontario.html</loc>
+    <lastmod>2026-03-06</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://sevenstoneslandscape.com/blog/modern-curb-appeal-trends-2026.html</loc>
+    <lastmod>2026-03-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>

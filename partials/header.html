@@ -45,6 +45,16 @@
             </ul>
           </li>
           <li class="nav-item--dropdown">
+            <a href="/services/concrete/" class="nav-dropdown-trigger" aria-haspopup="true" aria-expanded="false" id="nav-concrete-trigger">Concrete</a>
+            <ul class="nav-dropdown" aria-labelledby="nav-concrete-trigger" role="menu">
+              <li role="none"><a href="/services/concrete/" role="menuitem">All Concrete</a></li>
+              <li role="none"><a href="/services/concrete/driveways.html" role="menuitem">Concrete Driveways</a></li>
+              <li role="none"><a href="/services/concrete/stamped-patios.html" role="menuitem">Stamped Patios</a></li>
+              <li role="none"><a href="/services/concrete/exposed-aggregate.html" role="menuitem">Exposed Aggregate</a></li>
+              <li role="none"><a href="/services/concrete/steps-walkways.html" role="menuitem">Steps &amp; Walkways</a></li>
+            </ul>
+          </li>
+          <li class="nav-item--dropdown">
             <a href="/service-areas/hamilton.html" class="nav-dropdown-trigger" aria-haspopup="true" aria-expanded="false" id="nav-areas-trigger">Service Areas</a>
             <ul class="nav-dropdown nav-dropdown--areas" aria-labelledby="nav-areas-trigger" role="menu">
               <li role="none"><a href="/service-areas/hamilton.html" role="menuitem">Hamilton</a></li>
@@ -77,7 +87,10 @@
     <a href="/about.html">About</a>
 
     <div class="nav-mobile-section" data-mobile-dropdown>
-      <button type="button" class="nav-mobile-trigger" aria-expanded="false" aria-controls="nav-mobile-services" id="nav-mobile-services-btn">Services</button>
+      <div class="nav-mobile-trigger-row">
+        <a href="/services.html" class="nav-mobile-trigger-link">Services</a>
+        <button type="button" class="nav-mobile-expand" aria-expanded="false" aria-controls="nav-mobile-services" id="nav-mobile-services-btn" aria-label="Toggle Services submenu"><span class="nav-mobile-chevron" aria-hidden="true"></span></button>
+      </div>
       <div id="nav-mobile-services" class="nav-mobile-dropdown" role="region" aria-labelledby="nav-mobile-services-btn">
         <div class="nav-mobile-dropdown-inner">
           <a href="/services.html">All Services</a>
@@ -94,7 +107,26 @@
     </div>
 
     <div class="nav-mobile-section" data-mobile-dropdown>
-      <button type="button" class="nav-mobile-trigger" aria-expanded="false" aria-controls="nav-mobile-areas" id="nav-mobile-areas-btn">Service Areas</button>
+      <div class="nav-mobile-trigger-row">
+        <a href="/services/concrete/" class="nav-mobile-trigger-link">Concrete</a>
+        <button type="button" class="nav-mobile-expand" aria-expanded="false" aria-controls="nav-mobile-concrete" id="nav-mobile-concrete-btn" aria-label="Toggle Concrete submenu"><span class="nav-mobile-chevron" aria-hidden="true"></span></button>
+      </div>
+      <div id="nav-mobile-concrete" class="nav-mobile-dropdown" role="region" aria-labelledby="nav-mobile-concrete-btn">
+        <div class="nav-mobile-dropdown-inner">
+          <a href="/services/concrete/">All Concrete</a>
+          <a href="/services/concrete/driveways.html">Concrete Driveways</a>
+          <a href="/services/concrete/stamped-patios.html">Stamped Patios</a>
+          <a href="/services/concrete/exposed-aggregate.html">Exposed Aggregate</a>
+          <a href="/services/concrete/steps-walkways.html">Steps &amp; Walkways</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-mobile-section" data-mobile-dropdown>
+      <div class="nav-mobile-trigger-row">
+        <a href="/service-areas/hamilton.html" class="nav-mobile-trigger-link">Service Areas</a>
+        <button type="button" class="nav-mobile-expand" aria-expanded="false" aria-controls="nav-mobile-areas" id="nav-mobile-areas-btn" aria-label="Toggle Service Areas submenu"><span class="nav-mobile-chevron" aria-hidden="true"></span></button>
+      </div>
       <div id="nav-mobile-areas" class="nav-mobile-dropdown" role="region" aria-labelledby="nav-mobile-areas-btn">
         <div class="nav-mobile-dropdown-inner">
           <a href="/service-areas/hamilton.html">Hamilton</a>

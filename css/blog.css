@@ -386,6 +386,12 @@
   font-size: 0.9rem;
   font-weight: 500;
 }
+.blog-cta-mid {
+  margin: var(--space-xl) 0;
+  text-align: center;
+}
+.blog-cta-mid .btn { min-width: 200px; }
+
 .blog-cta-bottom {
   margin-top: var(--space-2xl);
   padding-top: var(--space-xl);
@@ -393,3 +399,11 @@
   text-align: center;
 }
 .blog-cta-bottom .btn { min-width: 200px; }
+
+.blog-service-area-footer {
+  margin-top: var(--space-lg);
+  padding-top: var(--space-md);
+  font-size: 0.95rem;
+  color: var(--text-muted, #666);
+  text-align: center;
+}
