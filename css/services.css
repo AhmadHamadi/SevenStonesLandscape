@@ -1,0 +1,76 @@
+/* ===== SERVICES PAGE ===== */
+.services-page { background: var(--bg-white); }
+
+/* In-page anchors (from nav dropdown) clear fixed header */
+.services-main .service-card { scroll-margin-top: var(--header-height); }
+@media (max-width: 900px) {
+  .services-main .service-card { scroll-margin-top: var(--header-height-mobile); }
+}
+
+/* 1. Hero */
+.services-hero {
+  position: relative;
+  min-height: 420px;
+  display: flex;
+  align-items: center;
+  padding: var(--space-2xl) 0;
+}
+.services-hero-bg {
+  position: absolute;
+  inset: 0;
+  background: url('/assets/images/hero.jpg') no-repeat center;
+  background-size: cover;
+}
+.services-hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, rgba(26, 31, 46, 0.55) 0%, rgba(26, 31, 46, 0.2) 45%, rgba(26, 31, 46, 0.08) 100%);
+}
+.services-hero .container { position: relative; z-index: 1; }
+.services-hero-content { max-width: 560px; }
+.services-hero-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--cta);
+  margin-bottom: var(--space-xs);
+}
+.services-hero-title {
+  font-family: var(--font-display);
+  font-size: clamp(2.25rem, 5vw, 3.5rem);
+  font-weight: 600;
+  line-height: 1.15;
+  color: #fff;
+  margin-bottom: var(--space-md);
+  letter-spacing: -0.02em;
+}
+.services-hero-intro {
+  font-size: 1.05rem;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.65;
+  margin-bottom: var(--space-lg);
+}
+.btn--services-cta {
+  background: var(--cta);
+  color: #fff;
+  padding: 14px 28px;
+  border-radius: var(--radius);
+  font-weight: 600;
+  transition: background var(--transition), transform var(--transition);
+}
+.btn--services-cta:hover {
+  background: var(--cta-hover);
+  transform: translateY(-2px);
+}
+
+/* Nav current (Services link active) */
+.services-page .nav-links a[href*="services"],
+.services-page .nav-mobile a[href*="services"] {
+  color: var(--cta);
+  font-weight: 600;
+}
+.services-page .nav-links a[href*="services"].nav-dropdown-trigger {
+  border-bottom: 2px solid var(--cta);
+  padding-bottom: 2px;
+}

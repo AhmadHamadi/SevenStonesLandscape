@@ -1,0 +1,257 @@
+/* ===== ABOUT US PAGE ===== */
+.about-page { background: var(--bg-white); }
+
+/* 1. Hero banner */
+.about-hero {
+  position: relative;
+  min-height: 420px;
+  display: flex;
+  align-items: center;
+  padding: var(--space-2xl) 0;
+}
+.about-hero-bg {
+  position: absolute;
+  inset: 0;
+  background: url('/assets/images/hero.jpg') no-repeat center;
+  background-size: cover;
+}
+.about-hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, rgba(26, 31, 46, 0.55) 0%, rgba(26, 31, 46, 0.2) 45%, rgba(26, 31, 46, 0.08) 100%);
+}
+.about-hero .container {
+  position: relative;
+  z-index: 1;
+}
+.about-hero-content {
+  max-width: 520px;
+}
+.about-hero-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--cta);
+  margin-bottom: var(--space-xs);
+}
+.about-hero-title {
+  font-family: var(--font-display);
+  font-size: clamp(2.25rem, 5vw, 3.5rem);
+  font-weight: 600;
+  line-height: 1.15;
+  color: var(--text-light);
+  margin-bottom: var(--space-md);
+  letter-spacing: -0.02em;
+}
+.about-hero-intro {
+  font-size: 1.05rem;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.65;
+  margin-bottom: var(--space-lg);
+}
+.btn--about-cta {
+  background: var(--cta);
+  color: #fff;
+  padding: 14px 28px;
+  border-radius: var(--radius);
+  font-weight: 600;
+  transition: background var(--transition), transform var(--transition);
+}
+.btn--about-cta:hover {
+  background: var(--cta-hover);
+  transform: translateY(-2px);
+}
+
+/* 2. Why Choose Us */
+.about-why { background: var(--bg-white); }
+.about-why-header {
+  text-align: center;
+  max-width: 640px;
+  margin: 0 auto var(--space-xl);
+}
+.about-why-header .section-label { color: var(--stone); }
+.about-why-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-xl);
+  align-items: start;
+}
+.about-why-card {
+  text-align: center;
+  padding: 0 var(--space-sm);
+}
+.about-why-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto var(--space-md);
+  color: var(--dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.about-why-icon svg {
+  width: 48px;
+  height: 48px;
+}
+.about-why-card-title {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: var(--dark);
+  margin-bottom: var(--space-sm);
+  line-height: 1.25;
+}
+.about-why-card-text {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  line-height: 1.65;
+}
+
+/* 3. Enhance section */
+.about-enhance { background: var(--bg-grey); }
+.about-enhance-inner {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-2xl);
+  align-items: center;
+}
+.about-enhance-image {
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+.about-enhance-image img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+.about-enhance-content .section-label { color: var(--stone); }
+.about-enhance-intro {
+  font-size: 1.05rem;
+  color: var(--text-muted);
+  line-height: 1.65;
+  margin: var(--space-sm) 0 var(--space-lg);
+}
+.about-stats {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+.about-stat-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--dark);
+}
+.about-stat-value {
+  font-weight: 700;
+  color: var(--cta);
+}
+.about-stat-bar {
+  height: 10px;
+  background: var(--bg-grey-alt);
+  border-radius: 99px;
+  overflow: hidden;
+}
+.about-stat-fill {
+  display: block;
+  height: 100%;
+  background: var(--cta);
+  border-radius: 99px;
+  transition: width 0.8s ease;
+}
+
+/* 4. Our Process — dark background so light text is readable */
+.about-process.section--dark {
+  background: var(--dark);
+  padding: var(--space-xl) 0;
+}
+.about-process-content .section-title--light {
+  color: #fff;
+  margin-bottom: var(--space-md);
+}
+.about-process-text {
+  margin-bottom: var(--space-lg);
+  max-width: 520px;
+}
+.about-process-text p {
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.7;
+  margin-bottom: var(--space-md);
+}
+.about-process-text strong {
+  color: #fff;
+  font-weight: 600;
+}
+.about-process-inner {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-2xl);
+  align-items: center;
+}
+.about-process-image {
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+}
+.about-process-image img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* 5. CTA band (uses .cta-bottom-bg from styles.css; text colors set in styles.css for contrast on photo) */
+.about-cta-inner {
+  text-align: center;
+  max-width: 560px;
+  margin: 0 auto;
+}
+.about-cta-inner .section-title--light { margin-bottom: var(--space-sm); }
+.about-cta-inner .section-intro--light { margin-bottom: var(--space-lg); }
+.about-cta-inner .cta-band-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+}
+
+/* Nav current (About link active) */
+.nav-links a.nav-current,
+.nav-mobile a.nav-current {
+  color: var(--cta);
+  font-weight: 600;
+}
+.nav-links a.nav-current {
+  border-bottom: 2px solid var(--cta);
+  padding-bottom: 2px;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .about-hero-overlay {
+    background: linear-gradient(180deg, rgba(26, 31, 46, 0.75) 0%, rgba(26, 31, 46, 0.6) 100%);
+  }
+  .about-why-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-xl);
+  }
+  .about-enhance-inner,
+  .about-process-inner {
+    grid-template-columns: 1fr;
+  }
+  .about-process-image { order: -1; }
+}
+
+@media (max-width: 600px) {
+  .about-hero {
+    min-height: 360px;
+    padding: var(--space-xl) 0;
+  }
+  .about-hero-title { font-size: 2rem; }
+}
