@@ -305,6 +305,15 @@ ul { list-style: none; }
 }
 @media (max-width: 900px) {
   .main-with-hero { padding-top: var(--header-height-mobile); }
+  /* Extra breathing room so hero titles don’t touch the navbar on mobile */
+  .contact-hero-content,
+  .about-hero-content,
+  .services-hero-content,
+  .service-hero-content,
+  .city-hero-content,
+  .blog-hero-content {
+    padding-top: 24px;
+  }
 }
 
 /* Top bar (above navbar): grey */
@@ -530,7 +539,7 @@ ul { list-style: none; }
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 0 16px 32px;
+  padding: 24px 16px 32px;
   padding-bottom: calc(32px + env(safe-area-inset-bottom, 0));
   -webkit-overflow-scrolling: touch;
 }
@@ -838,7 +847,7 @@ ul { list-style: none; }
 @media (max-width: 900px) {
   .hero-content {
     grid-template-columns: 1fr;
-    padding-top: var(--header-height-mobile);
+    padding-top: calc(var(--header-height-mobile) + 24px);
     gap: var(--space-xl);
   }
   .hero-text h1 { font-size: clamp(2rem, 7vw, 2.85rem); }
