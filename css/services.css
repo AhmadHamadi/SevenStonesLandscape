@@ -7,13 +7,13 @@
   .services-main .service-card { scroll-margin-top: var(--header-height-mobile); }
 }
 
-/* 1. Hero */
+/* 1. Hero — same gradient as home; wider text, shorter height */
 .services-hero {
   position: relative;
-  min-height: 420px;
+  min-height: 300px;
   display: flex;
   align-items: center;
-  padding: var(--space-2xl) 0;
+  padding: var(--space-xl) 0;
 }
 .services-hero-bg {
   position: absolute;
@@ -24,10 +24,15 @@
 .services-hero-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(105deg, rgba(26, 31, 46, 0.55) 0%, rgba(26, 31, 46, 0.2) 45%, rgba(26, 31, 46, 0.08) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(26, 31, 46, 0.88) 0%,
+    rgba(26, 31, 46, 0.60) 50%,
+    rgba(26, 31, 46, 0.40) 100%
+  );
 }
 .services-hero .container { position: relative; z-index: 1; }
-.services-hero-content { max-width: 560px; }
+.services-hero-content { max-width: 920px; }
 .services-hero-label {
   font-size: 0.75rem;
   font-weight: 600;
@@ -51,6 +56,19 @@
   line-height: 1.65;
   margin-bottom: var(--space-lg);
 }
+.services-hero-intro a {
+  color: var(--cta);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.services-hero-intro a:hover { color: #fff; }
+.services-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  align-items: center;
+  margin-top: var(--space-md);
+}
 .btn--services-cta {
   background: var(--cta);
   color: #fff;
@@ -62,6 +80,71 @@
 .btn--services-cta:hover {
   background: var(--cta-hover);
   transform: translateY(-2px);
+}
+.btn--services-outline {
+  background: transparent;
+  color: #fff;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  padding: 12px 24px;
+  border-radius: var(--radius);
+  font-weight: 600;
+  transition: background var(--transition), border-color var(--transition), color var(--transition);
+}
+.btn--services-outline:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: #fff;
+  color: #fff;
+}
+
+/* 3. Why Choose Seven Stones */
+.services-why-header {
+  text-align: center;
+  max-width: 720px;
+  margin: 0 auto var(--space-lg);
+}
+.services-why-header .section-title--light { color: var(--text-dark); }
+.services-why-header .section-intro--light { color: var(--text-muted); }
+.services-why-header .section-intro--light a {
+  color: var(--cta);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.services-why-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-width: 560px;
+  margin-left: auto;
+  margin-right: auto;
+  display: grid;
+  gap: var(--space-sm);
+  font-size: 1rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+.services-why-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-sm);
+}
+.services-why-list li::before {
+  content: '✓';
+  color: var(--cta);
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+/* 4. Service area teaser */
+.services-areas-header {
+  text-align: center;
+  max-width: 720px;
+  margin: 0 auto;
+}
+.services-areas-header .section-intro { margin-top: var(--space-sm); }
+.services-areas-header .section-intro a {
+  color: var(--cta);
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 /* Nav current (Services link active) */

@@ -85,6 +85,21 @@ Never aim for “generic AI” look: same fonts, same purple gradients, same cen
 
 ---
 
+## 7. SEO (seo, roier-seo, programmatic-seo, seo-optimizer)
+
+When working on search visibility, rankings, or content strategy, use the project's four SEO skills in `.cursor/skills/`:
+
+| Skill | Use for |
+|--------|--------|
+| **seo** | Technical SEO: crawlability, robots.txt, sitemap, canonicals, meta robots, URL structure, HTTPS. On-page: title/meta, headings, image SEO, internal linking. Structured data (Organization, Article, Product, FAQ, Breadcrumbs). Mobile & international SEO. Audit checklist. |
+| **roier-seo** | Running Lighthouse/PageSpeed audits (live or local), auto-fixing meta tags, structured data, Core Web Vitals, accessibility. Use when user says "audit my site", "check SEO", "fix SEO issues". |
+| **programmatic-seo** | Building many SEO pages from templates and data: location pages, comparison pages, directory pages, "[service] in [city]", integrations, glossary. Use for "programmatic SEO", "pages at scale", "template pages". |
+| **seo-optimizer** | Content and strategy: keyword research, on-page optimization, E-E-A-T, topic clusters, featured snippets, local SEO (Google Business, LocalBusiness schema), monitoring. Use for "improve rankings", "keyword strategy", "content for SEO". |
+
+**Before any SEO task:** Read the relevant skill(s) from `.cursor/skills/<skill-name>/SKILL.md` and follow their patterns.
+
+---
+
 ## Skills and agent referenced
 
 | Source | Use for |
@@ -95,6 +110,10 @@ Never aim for “generic AI” look: same fonts, same purple gradients, same cen
 | **senior-frontend** | Performance, structure, production-ready UI |
 | **ui-design-system** | Design tokens, consistency, handoff |
 | **theme-factory** | Themed color/font sets if you want a named theme |
+| **seo** | Technical + on-page SEO, structured data, sitemap, audit checklist |
+| **roier-seo** | Lighthouse audits, auto-fixing SEO/performance/accessibility |
+| **programmatic-seo** | Pages at scale, templates, location/comparison/directory pages |
+| **seo-optimizer** | Keyword strategy, content SEO, E-E-A-T, local SEO, monitoring |
 | **expert-react-frontend-engineer** (agent) | React-specific; use for any future React work |
 
 You’re set to make design decisions and reviews using these standards.

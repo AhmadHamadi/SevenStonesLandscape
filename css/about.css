@@ -1,13 +1,13 @@
 /* ===== ABOUT US PAGE ===== */
 .about-page { background: var(--bg-white); }
 
-/* 1. Hero banner */
+/* 1. Hero banner — same gradient as home; wider text, shorter height */
 .about-hero {
   position: relative;
-  min-height: 420px;
+  min-height: 280px;
   display: flex;
   align-items: center;
-  padding: var(--space-2xl) 0;
+  padding: var(--space-lg) 0;
 }
 .about-hero-bg {
   position: absolute;
@@ -18,14 +18,19 @@
 .about-hero-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(105deg, rgba(26, 31, 46, 0.55) 0%, rgba(26, 31, 46, 0.2) 45%, rgba(26, 31, 46, 0.08) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(26, 31, 46, 0.88) 0%,
+    rgba(26, 31, 46, 0.60) 50%,
+    rgba(26, 31, 46, 0.40) 100%
+  );
 }
 .about-hero .container {
   position: relative;
   z-index: 1;
 }
 .about-hero-content {
-  max-width: 520px;
+  max-width: 920px;
 }
 .about-hero-label {
   font-size: 0.75rem;
@@ -37,18 +42,32 @@
 }
 .about-hero-title {
   font-family: var(--font-display);
-  font-size: clamp(2.25rem, 5vw, 3.5rem);
+  font-size: clamp(2.25rem, 5vw, 3.25rem);
   font-weight: 600;
-  line-height: 1.15;
+  line-height: 1.2;
   color: var(--text-light);
   margin-bottom: var(--space-md);
   letter-spacing: -0.02em;
+  max-width: 920px;
 }
 .about-hero-intro {
   font-size: 1.05rem;
   color: rgba(255, 255, 255, 0.9);
   line-height: 1.65;
   margin-bottom: var(--space-lg);
+}
+.about-hero-intro a {
+  color: var(--cta);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.about-hero-intro a:hover { color: #fff; }
+.about-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  align-items: center;
+  margin-top: var(--space-md);
 }
 .btn--about-cta {
   background: var(--cta);
@@ -62,15 +81,227 @@
   background: var(--cta-hover);
   transform: translateY(-2px);
 }
+.btn--about-outline {
+  background: transparent;
+  color: #fff;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  padding: 12px 24px;
+  border-radius: var(--radius);
+  font-weight: 600;
+  transition: background var(--transition), border-color var(--transition), color var(--transition);
+}
+.btn--about-outline:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: #fff;
+  color: #fff;
+}
 
-/* 2. Why Choose Us */
-.about-why { background: var(--bg-white); }
-.about-why-header {
+/* 2. Trust badges */
+.about-trust.section { padding: var(--space-lg) 0; }
+.about-trust-badges {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-lg) var(--space-xl);
+}
+.about-trust-item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--dark);
+  text-decoration: none;
+}
+.about-trust-item img {
+  display: block;
+  height: 36px;
+  width: auto;
+  object-fit: contain;
+}
+.about-trust-item--text {
+  cursor: default;
+}
+.about-trust-icon {
+  color: var(--cta);
+  font-size: 1.1rem;
+}
+
+/* 3. Our Story */
+.about-story-header { margin-bottom: var(--space-lg); }
+.about-story-header .section-label { color: var(--stone); }
+.about-story-content p {
+  font-size: 1.05rem;
+  color: var(--text-muted);
+  line-height: 1.7;
+  margin-bottom: var(--space-md);
+}
+.about-story-content a {
+  color: var(--cta);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.about-story-content a:hover { color: var(--cta-hover); }
+
+/* 4. Founder's story */
+.about-founder-inner {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-2xl);
+  align-items: center;
+}
+.about-founder-image {
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+.about-founder-image img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+.about-founder-caption {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-top: var(--space-sm);
+  font-style: italic;
+}
+.about-founder-content .section-label { color: var(--stone); }
+.about-founder-content .section-title { margin-bottom: var(--space-md); }
+.about-founder-content p {
+  font-size: 1rem;
+  color: var(--text-muted);
+  line-height: 1.7;
+}
+
+/* 5. Experience */
+.about-experience-header { margin-bottom: var(--space-lg); }
+.about-experience-header .section-label { color: var(--stone); }
+.about-experience-content p {
+  font-size: 1.05rem;
+  color: var(--text-muted);
+  line-height: 1.7;
+}
+
+/* 6. Philosophy */
+.about-philosophy-header { margin-bottom: var(--space-lg); }
+.about-philosophy-header .section-label { color: var(--stone); }
+.about-philosophy-content p {
+  font-size: 1.05rem;
+  color: var(--text-muted);
+  line-height: 1.7;
+  margin-bottom: var(--space-md);
+}
+
+/* 7. Meet the Team */
+.about-team-header {
   text-align: center;
   max-width: 640px;
   margin: 0 auto var(--space-xl);
 }
+.about-team-header .section-label { color: var(--stone); }
+.about-team-header .section-intro {
+  margin-top: var(--space-sm);
+  font-size: 1rem;
+  color: var(--text-muted);
+  line-height: 1.65;
+}
+.about-team-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-xl);
+  align-items: start;
+}
+.about-team-card {
+  text-align: center;
+  padding: var(--space-lg);
+  background: var(--bg-white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+}
+.about-team-photo {
+  width: 120px;
+  height: 120px;
+  margin: 0 auto var(--space-md);
+  background: var(--bg-grey-alt);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-align: center;
+  padding: var(--space-sm);
+}
+.about-team-name {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--dark);
+  margin-bottom: var(--space-xs);
+}
+.about-team-role {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--cta);
+  margin-bottom: var(--space-sm);
+}
+.about-team-bio {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+/* 8. Service Area & Community */
+.about-community-header { margin-bottom: var(--space-lg); }
+.about-community-header .section-label { color: var(--stone); }
+.about-community-content p {
+  font-size: 1.05rem;
+  color: var(--text-muted);
+  line-height: 1.7;
+  margin-bottom: var(--space-md);
+}
+.about-community .city-chips {
+  margin-top: var(--space-lg);
+  flex-wrap: wrap;
+}
+
+/* 9. Social proof summary */
+.about-social-proof-inner {
+  text-align: center;
+  max-width: 640px;
+  margin: 0 auto;
+}
+.about-social-proof-inner .section-title { margin-bottom: var(--space-md); }
+.about-social-proof-text {
+  font-size: 1.05rem;
+  color: var(--text-muted);
+  line-height: 1.7;
+  margin-bottom: var(--space-lg);
+}
+.about-social-proof-text a {
+  color: var(--cta);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.about-social-proof-text a:hover { color: var(--cta-hover); }
+.about-social-proof-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  justify-content: center;
+}
+
+/* 2. Why Choose Us (legacy – kept if reused elsewhere) */
+.about-why { background: var(--bg-white); }
+.about-why-header {
+  text-align: center;
+  max-width: 720px;
+  margin: 0 auto var(--space-xl);
+}
 .about-why-header .section-label { color: var(--stone); }
+.about-why-header .section-intro { margin-top: var(--space-sm); }
 .about-why-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -166,6 +397,7 @@
 }
 
 /* 4. Our Process — dark background so light text is readable */
+.about-process-content .btn--outline { margin-bottom: 0; margin-right: 12px; }
 .about-process.section--dark {
   background: var(--dark);
   padding: var(--space-xl) 0;
@@ -205,7 +437,20 @@
   display: block;
 }
 
-/* 5. CTA band (uses .cta-bottom-bg from styles.css; text colors set in styles.css for contrast on photo) */
+/* 5. Where We Serve */
+.about-areas { padding: var(--space-2xl) 0; }
+.about-areas-header {
+  text-align: center;
+  max-width: 720px;
+  margin: 0 auto var(--space-lg);
+}
+.about-areas-header .section-intro { margin-top: var(--space-sm); }
+.about-areas .city-chips {
+  justify-content: center;
+  margin-top: var(--space-md);
+}
+
+/* 6. CTA band (uses .cta-bottom-bg from styles.css; text colors set in styles.css for contrast on photo) */
 .about-cta-inner {
   text-align: center;
   max-width: 560px;
@@ -235,23 +480,40 @@
 /* Responsive */
 @media (max-width: 900px) {
   .about-hero-overlay {
-    background: linear-gradient(180deg, rgba(26, 31, 46, 0.75) 0%, rgba(26, 31, 46, 0.6) 100%);
+    background: linear-gradient(
+      135deg,
+      rgba(26, 31, 46, 0.88) 0%,
+      rgba(26, 31, 46, 0.60) 50%,
+      rgba(26, 31, 46, 0.40) 100%
+    );
   }
   .about-why-grid {
     grid-template-columns: 1fr;
     gap: var(--space-xl);
   }
   .about-enhance-inner,
-  .about-process-inner {
+  .about-process-inner,
+  .about-founder-inner {
     grid-template-columns: 1fr;
   }
   .about-process-image { order: -1; }
+  .about-founder-image { order: -1; }
+  .about-team-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 600px) {
   .about-hero {
-    min-height: 360px;
-    padding: var(--space-xl) 0;
+    min-height: 260px;
+    padding: var(--space-md) 0;
   }
-  .about-hero-title { font-size: 2rem; }
+  .about-hero-content { max-width: 100%; }
+  .about-hero-title { font-size: 2rem; max-width: none; }
+  .about-trust-badges {
+    gap: var(--space-md) var(--space-lg);
+  }
+  .about-trust-item {
+    font-size: 0.85rem;
+  }
 }

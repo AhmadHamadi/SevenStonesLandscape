@@ -9,8 +9,8 @@
 
   function replacePlaceholders() {
     var body = document.body;
-    var phone = (body && body.getAttribute('data-phone')) || '[PHONE]';
-    var email = (body && body.getAttribute('data-email')) || '[EMAIL]';
+    var phone = (body && body.getAttribute('data-phone')) || '+1 (289) 700-0312';
+    var email = (body && body.getAttribute('data-email')) || 'john.scime.mcmaster@gmail.com';
     var phoneClean = phone.replace(/\s/g, '');
 
     document.querySelectorAll('a[href="tel:[PHONE]"], a[href^="tel:"]').forEach(function(a) {
@@ -53,9 +53,12 @@
     } else if (path.indexOf('contact') !== -1) {
       nav && nav.querySelectorAll('a[href*="contact"]').forEach(function(a) { a.classList.add('nav-current'); });
       mobile && mobile.querySelectorAll('a[href*="contact"]').forEach(function(a) { a.classList.add('nav-current'); });
-    } else if (path.indexOf('blog') !== -1) {
-      nav && nav.querySelectorAll('a[href*="blog"]').forEach(function(a) { a.classList.add('nav-current'); });
-      mobile && mobile.querySelectorAll('a[href*="blog"]').forEach(function(a) { a.classList.add('nav-current'); });
+    } else if (path.indexOf('/blog') !== -1) {
+      nav && nav.querySelectorAll('a[href*="/blog"]').forEach(function(a) { a.classList.add('nav-current'); });
+      mobile && mobile.querySelectorAll('a[href*="/blog"]').forEach(function(a) { a.classList.add('nav-current'); });
+    } else if (path.indexOf('service-areas') !== -1) {
+      nav && nav.querySelectorAll('a[href*="service-areas"]').forEach(function(a) { a.classList.add('nav-current'); });
+      mobile && mobile.querySelectorAll('a[href*="service-areas"]').forEach(function(a) { a.classList.add('nav-current'); });
     } else if (path.indexOf('services') !== -1) {
       nav && nav.querySelectorAll('a[href*="services"]').forEach(function(a) { a.classList.add('nav-current'); });
       mobile && mobile.querySelectorAll('a[href*="services"]').forEach(function(a) { a.classList.add('nav-current'); });
@@ -88,7 +91,14 @@
       document.body.style.overflow = 'hidden';
     }
     function closeMobile() {
-      if (mobileNav) mobileNav.classList.remove('open');
+      if (mobileNav) {
+        mobileNav.classList.remove('open');
+        mobileNav.querySelectorAll('.nav-mobile-section.open').forEach(function(s) {
+          s.classList.remove('open');
+          var t = s.querySelector('.nav-mobile-trigger');
+          if (t) t.setAttribute('aria-expanded', 'false');
+        });
+      }
       if (toggle) { toggle.classList.remove('open'); toggle.setAttribute('aria-expanded', 'false'); }
       document.body.style.overflow = '';
     }
@@ -97,9 +107,19 @@
       mobileNav && mobileNav.classList.contains('open') ? closeMobile() : openMobile();
     });
     if (closeBtn) closeBtn.addEventListener('click', closeMobile);
-    if (mobileNav) mobileNav.querySelectorAll('a').forEach(function(a) {
-      a.addEventListener('click', closeMobile);
-    });
+    if (mobileNav) {
+      mobileNav.querySelectorAll('a').forEach(function(a) {
+        a.addEventListener('click', closeMobile);
+      });
+      mobileNav.querySelectorAll('[data-mobile-dropdown]').forEach(function(section) {
+        var trigger = section.querySelector('.nav-mobile-trigger');
+        if (trigger) trigger.addEventListener('click', function(e) {
+          e.stopPropagation();
+          section.classList.toggle('open');
+          trigger.setAttribute('aria-expanded', section.classList.contains('open'));
+        });
+      });
+    }
     document.addEventListener('keydown', function(e) {
       if (e.key === 'Escape' && mobileNav && mobileNav.classList.contains('open')) closeMobile();
     });

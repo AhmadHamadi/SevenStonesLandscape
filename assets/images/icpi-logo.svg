@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="80" height="36" viewBox="0 0 80 36" fill="none" role="img" aria-label="ICPI Certified">
+  <rect width="80" height="36" rx="4" fill="rgba(255,255,255,0.15)"/>
+  <text x="40" y="23" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="white" text-anchor="middle">ICPI</text>
+  <text x="40" y="32" font-family="Arial, sans-serif" font-size="7" fill="rgba(255,255,255,0.8)" text-anchor="middle">Certified</text>
+</svg>
