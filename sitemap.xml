@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://sevenstoneslandscape.com/</loc>
@@ -7,28 +7,34 @@
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://sevenstoneslandscape.com/about</loc>
+    <loc>https://sevenstoneslandscape.com/about/</loc>
     <lastmod>2026-03-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://sevenstoneslandscape.com/contact</loc>
+    <loc>https://sevenstoneslandscape.com/contact/</loc>
     <lastmod>2026-03-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://sevenstoneslandscape.com/privacy</loc>
+    <loc>https://sevenstoneslandscape.com/privacy/</loc>
     <lastmod>2026-03-06</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://sevenstoneslandscape.com/terms-of-service</loc>
+    <loc>https://sevenstoneslandscape.com/terms-of-service/</loc>
     <lastmod>2026-03-06</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.4</priority>
+  </url>
+  <url>
+    <loc>https://sevenstoneslandscape.com/faq/</loc>
+    <lastmod>2026-03-13</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
   </url>
   <url>
     <loc>https://sevenstoneslandscape.com/blog/</loc>
@@ -37,55 +43,61 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://sevenstoneslandscape.com/services</loc>
+    <loc>https://sevenstoneslandscape.com/services/</loc>
     <lastmod>2026-03-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://sevenstoneslandscape.com/services/interlock-patios</loc>
+    <loc>https://sevenstoneslandscape.com/services/interlock-patios/</loc>
     <lastmod>2026-03-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://sevenstoneslandscape.com/services/retaining-walls</loc>
+    <loc>https://sevenstoneslandscape.com/services/pools-and-pool-surrounds/</loc>
+    <lastmod>2026-03-13</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sevenstoneslandscape.com/services/retaining-walls/</loc>
     <lastmod>2026-03-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://sevenstoneslandscape.com/services/sod-installation</loc>
+    <loc>https://sevenstoneslandscape.com/services/sod-installation/</loc>
     <lastmod>2026-03-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://sevenstoneslandscape.com/services/yard-grading</loc>
+    <loc>https://sevenstoneslandscape.com/services/yard-grading/</loc>
     <lastmod>2026-03-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://sevenstoneslandscape.com/services/landscape-stone</loc>
+    <loc>https://sevenstoneslandscape.com/services/landscape-stone/</loc>
     <lastmod>2026-03-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://sevenstoneslandscape.com/services/walkways</loc>
+    <loc>https://sevenstoneslandscape.com/services/walkways/</loc>
     <lastmod>2026-03-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://sevenstoneslandscape.com/services/backyard-landscaping</loc>
+    <loc>https://sevenstoneslandscape.com/services/backyard-landscaping/</loc>
     <lastmod>2026-03-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://sevenstoneslandscape.com/services/front-yard-landscaping</loc>
+    <loc>https://sevenstoneslandscape.com/services/front-yard-landscaping/</loc>
     <lastmod>2026-03-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
@@ -97,142 +109,153 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://sevenstoneslandscape.com/services/concrete/driveways</loc>
+    <loc>https://sevenstoneslandscape.com/services/concrete/driveways/</loc>
     <lastmod>2026-03-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://sevenstoneslandscape.com/services/concrete/stamped-patios</loc>
+    <loc>https://sevenstoneslandscape.com/services/concrete/stamped-patios/</loc>
     <lastmod>2026-03-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://sevenstoneslandscape.com/services/concrete/exposed-aggregate</loc>
+    <loc>https://sevenstoneslandscape.com/services/concrete/exposed-aggregate/</loc>
     <lastmod>2026-03-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://sevenstoneslandscape.com/services/concrete/steps-walkways</loc>
+    <loc>https://sevenstoneslandscape.com/services/concrete/steps-walkways/</loc>
     <lastmod>2026-03-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://sevenstoneslandscape.com/service-areas/hamilton</loc>
+    <loc>https://sevenstoneslandscape.com/service-areas/hamilton/</loc>
     <lastmod>2026-03-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://sevenstoneslandscape.com/service-areas/burlington</loc>
+    <loc>https://sevenstoneslandscape.com/service-areas/burlington/</loc>
     <lastmod>2026-03-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://sevenstoneslandscape.com/service-areas/oakville</loc>
+    <loc>https://sevenstoneslandscape.com/service-areas/oakville/</loc>
     <lastmod>2026-03-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://sevenstoneslandscape.com/service-areas/ancaster</loc>
+    <loc>https://sevenstoneslandscape.com/service-areas/ancaster/</loc>
     <lastmod>2026-03-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://sevenstoneslandscape.com/service-areas/dundas</loc>
+    <loc>https://sevenstoneslandscape.com/service-areas/dundas/</loc>
     <lastmod>2026-03-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://sevenstoneslandscape.com/service-areas/waterdown</loc>
+    <loc>https://sevenstoneslandscape.com/service-areas/waterdown/</loc>
     <lastmod>2026-03-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://sevenstoneslandscape.com/service-areas/stoney-creek</loc>
+    <loc>https://sevenstoneslandscape.com/service-areas/stoney-creek/</loc>
     <lastmod>2026-03-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://sevenstoneslandscape.com/service-areas/milton</loc>
+    <loc>https://sevenstoneslandscape.com/service-areas/milton/</loc>
     <lastmod>2026-03-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://sevenstoneslandscape.com/service-areas/mississauga</loc>
+    <loc>https://sevenstoneslandscape.com/service-areas/mississauga/</loc>
     <lastmod>2026-03-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://sevenstoneslandscape.com/blog/sod-vs-seed-ontario</loc>
+    <loc>https://sevenstoneslandscape.com/blog/sod-vs-seed-ontario/</loc>
     <lastmod>2026-03-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://sevenstoneslandscape.com/blog/backyard-landscaping-ideas</loc>
+    <loc>https://sevenstoneslandscape.com/blog/backyard-landscaping-ideas/</loc>
     <lastmod>2026-03-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://sevenstoneslandscape.com/blog/landscaping-cost-ontario</loc>
+    <loc>https://sevenstoneslandscape.com/blog/landscaping-cost-ontario/</loc>
     <lastmod>2026-03-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://sevenstoneslandscape.com/blog/curb-appeal-landscaping-upgrades</loc>
+    <loc>https://sevenstoneslandscape.com/blog/curb-appeal-landscaping-upgrades/</loc>
     <lastmod>2026-03-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://sevenstoneslandscape.com/blog/backyard-privacy-landscaping-ideas</loc>
+    <loc>https://sevenstoneslandscape.com/blog/backyard-privacy-landscaping-ideas/</loc>
     <lastmod>2026-03-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://sevenstoneslandscape.com/blog/low-maintenance-landscaping-ontario</loc>
+    <loc>https://sevenstoneslandscape.com/blog/low-maintenance-landscaping-ontario/</loc>
     <lastmod>2026-03-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://sevenstoneslandscape.com/blog/why-ontario-concrete-cracks-2026-guide</loc>
+    <loc>https://sevenstoneslandscape.com/blog/why-ontario-concrete-cracks-2026-guide/</loc>
     <lastmod>2026-03-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://sevenstoneslandscape.com/blog/stamped-concrete-vs-interlock-ontario</loc>
+    <loc>https://sevenstoneslandscape.com/blog/stamped-concrete-vs-interlock-ontario/</loc>
     <lastmod>2026-03-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://sevenstoneslandscape.com/blog/modern-curb-appeal-trends-2026</loc>
+    <loc>https://sevenstoneslandscape.com/blog/modern-curb-appeal-trends-2026/</loc>
     <lastmod>2026-03-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://sevenstoneslandscape.com/sitemap</loc>
+    <loc>https://sevenstoneslandscape.com/sitemap/</loc>
     <lastmod>2026-03-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
 </urlset>
+
+
+
+
+
+
+
+
+
+
+
 

@@ -1,92 +1,18 @@
+/* Utility */
+.sr-only {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 /* ===== CONTACT PAGE ===== */
 .contact-page { background: var(--bg-white); }
-
-/* 1. Hero — same gradient as home; wider text, shorter height */
-.contact-hero {
-  position: relative;
-  min-height: 280px;
-  display: flex;
-  align-items: center;
-  padding: var(--space-lg) 0;
-}
-.contact-hero-bg {
-  position: absolute;
-  inset: 0;
-  background: url('/assets/images/hero.jpg') no-repeat center;
-  background-size: cover;
-}
-.contact-hero-overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    135deg,
-    rgba(26, 31, 46, 0.88) 0%,
-    rgba(26, 31, 46, 0.60) 50%,
-    rgba(26, 31, 46, 0.40) 100%
-  );
-}
-.contact-hero .container { position: relative; z-index: 1; }
-.contact-hero-content { max-width: 920px; }
-.contact-hero-label {
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: var(--cta);
-  margin-bottom: var(--space-xs);
-}
-.contact-hero-title {
-  font-family: var(--font-display);
-  font-size: clamp(2rem, 4.5vw, 3.25rem);
-  font-weight: 600;
-  line-height: 1.15;
-  color: #fff;
-  margin-bottom: var(--space-md);
-}
-.contact-hero-intro {
-  font-size: 1.05rem;
-  color: rgba(255, 255, 255, 0.9);
-  line-height: 1.6;
-  margin-bottom: var(--space-lg);
-}
-.contact-hero-intro a {
-  color: rgba(255, 255, 255, 0.95);
-  text-decoration: underline;
-  text-underline-offset: 2px;
-}
-.contact-hero-intro a:hover { color: #fff; }
-.contact-hero-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-sm);
-  align-items: center;
-}
-.btn--contact-outline {
-  background: transparent;
-  color: #fff;
-  border: 2px solid rgba(255, 255, 255, 0.8);
-  padding: 12px 24px;
-  border-radius: var(--radius);
-  font-weight: 600;
-  transition: background var(--transition), border-color var(--transition), color var(--transition);
-}
-.btn--contact-outline:hover {
-  background: rgba(255, 255, 255, 0.15);
-  border-color: #fff;
-  color: #fff;
-}
-.btn--contact-cta {
-  background: var(--cta);
-  color: #fff;
-  padding: 14px 28px;
-  border-radius: var(--radius);
-  font-weight: 600;
-  transition: background var(--transition), transform var(--transition);
-}
-.btn--contact-cta:hover {
-  background: var(--cta-hover);
-  transform: translateY(-2px);
-}
 
 /* 2. Contact strip */
 .contact-strip { background: var(--bg-white); padding: var(--space-lg) 0; }
@@ -165,6 +91,21 @@
   opacity: 0.95;
 }
 
+/* 4. Supporting SEO copy beneath form */
+.contact-support-copy .section-title {
+  text-align: center;
+  margin-bottom: var(--space-sm);
+}
+.contact-support-copy .section-intro {
+  max-width: 980px;
+  margin: 0 auto;
+  text-align: center;
+}
+.contact-support-copy .section-intro a {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
 /* 5. Service areas */
 .contact-areas-header {
   text-align: center;
@@ -237,19 +178,15 @@
 }
 
 @media (max-width: 900px) {
-  .contact-hero-overlay {
-    background: linear-gradient(
-      135deg,
-      rgba(26, 31, 46, 0.88) 0%,
-      rgba(26, 31, 46, 0.60) 50%,
-      rgba(26, 31, 46, 0.40) 100%
-    );
-  }
-  .contact-strip-grid { grid-template-columns: 1fr; gap: var(--space-lg); }
+.contact-strip-grid { grid-template-columns: 1fr; gap: var(--space-lg); }
 }
 
 @media (max-width: 600px) {
-  .contact-hero { min-height: 320px; padding: var(--space-xl) 0; }
-  .contact-form-row { grid-template-columns: 1fr; }
+.contact-form-row { grid-template-columns: 1fr; }
   .contact-form-wrap { padding: var(--space-lg); }
 }
+
+
+
+
+

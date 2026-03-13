@@ -718,6 +718,35 @@ ul { list-style: none; }
   .nav-toggle { display: flex; }
 }
 
+@media (max-width: 700px) {
+  .top-bar-inner {
+    width: 100%;
+    padding: 0 8px;
+    box-sizing: border-box;
+  }
+  .top-bar-left {
+    width: 100%;
+    gap: 8px;
+    flex-wrap: wrap;
+    white-space: normal;
+    justify-content: center;
+  }
+  .top-bar-link {
+    max-width: 100%;
+    font-size: 0.75rem;
+  }
+  .top-bar-link span {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+}
+
+@media (max-width: 520px) {
+  .top-bar-left .top-bar-link[href^="mailto:"] {
+    display: none;
+  }
+}
+
 /* ===== 2. HERO ===== */
 #hero {
   position: relative;
@@ -1700,7 +1729,7 @@ ul { list-style: none; }
   max-width: 300px;
   margin-bottom: var(--space-md);
   color: var(--text-muted);
-  white-space: nowrap;
+  white-space: normal;
 }
 .footer-social {
   display: flex;
@@ -1743,7 +1772,7 @@ ul { list-style: none; }
   color: var(--text-muted);
   margin-bottom: 12px;
 }
-.footer-contact-item a { color: var(--text-dark); transition: color var(--transition); }
+.footer-contact-item a { color: var(--text-dark); transition: color var(--transition); overflow-wrap: anywhere; }
 .footer-contact-item a:hover { color: var(--cta); }
 .footer-contact-icon { color: var(--cta); margin-top: 2px; flex-shrink: 0; display: flex; align-items: center; }
 .footer-contact-icon svg { flex-shrink: 0; }
@@ -1757,7 +1786,7 @@ ul { list-style: none; }
   padding-top: var(--space-lg);
   font-size: 0.78rem;
   color: var(--text-muted);
-  white-space: nowrap;
+  white-space: normal;
 }
 .footer-legal { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 2px 4px; }
 .footer-bottom a { color: inherit; transition: color var(--transition); }
@@ -1901,5 +1930,11 @@ ul { list-style: none; }
 .form-group input.error,
 .form-group select.error,
 .form-group textarea.error { border-color: #e05555; }
+
+
+
+
+
+
 
 
