@@ -201,6 +201,22 @@
           e.preventDefault();
           var first = form.querySelector('.error, [required]:invalid');
           if (first) first.focus();
+        } else {
+          var btn = form.querySelector('button[type="submit"]');
+          if (btn) {
+            btn.disabled = true;
+            btn.setAttribute('aria-busy', 'true');
+            var originalText = btn.textContent;
+            btn.textContent = 'Sending…';
+            btn.dataset.originalSubmitText = originalText;
+            window.setTimeout(function() {
+              if (btn.disabled) {
+                btn.disabled = false;
+                btn.removeAttribute('aria-busy');
+                btn.textContent = btn.dataset.originalSubmitText || originalText;
+              }
+            }, 12000);
+          }
         }
       });
     });
