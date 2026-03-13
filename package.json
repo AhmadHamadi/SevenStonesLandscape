@@ -1,0 +1,9 @@
+{
+  "name": "sevenstoneslandscape",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Seven Stones Landscape website and quote form API",
+  "dependencies": {
+    "nodemailer": "^6.9.16"
+  }
+}

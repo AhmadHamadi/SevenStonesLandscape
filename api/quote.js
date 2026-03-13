@@ -1,17 +1,20 @@
 /**
- * Vercel serverless function: accept quote form POST and email both addresses via Resend.
+ * Vercel serverless function: accept quote form POST and email both addresses via SMTP (e.g. cPanel).
  *
- * Production env (Vercel): set RESEND_API_KEY (required), EMAIL_FROM (optional; else uses Resend onboarding address).
+ * Production env (Vercel): set SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS. Optional: EMAIL_FROM.
+ * Example for cPanel: host = mail.clinimedia.ca, port = 465 (SSL), user = forms@clinimedia.ca.
  * Forms POST application/x-www-form-urlencoded; Vercel parses into req.body.
- * Spam: honeypot (bot-field) + server-side validation (name + email or phone required). No API key is logged.
+ * Spam: honeypot (bot-field) + server-side validation (name + email or phone required).
  */
+
+import nodemailer from 'nodemailer';
 
 const RECIPIENTS = [
   'john.scime.mcmaster@gmail.com',
   'ahmadhamadi2002@gmail.com',
 ];
 
-const DEFAULT_FROM = 'Seven Stones Landscape <onboarding@resend.dev>';
+const DEFAULT_FROM = 'Seven Stones Landscape <forms@clinimedia.ca>';
 
 function escapeHtml(s) {
   if (s == null || s === '') return '—';
@@ -60,9 +63,13 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const apiKey = process.env.RESEND_API_KEY;
-  if (!apiKey) {
-    console.error('RESEND_API_KEY is not set');
+  const host = process.env.SMTP_HOST;
+  const port = process.env.SMTP_PORT != null ? parseInt(process.env.SMTP_PORT, 10) : 465; // 465 = SSL (recommended for cPanel)
+  const user = process.env.SMTP_USER;
+  const pass = process.env.SMTP_PASS;
+
+  if (!host || !user || !pass) {
+    console.error('SMTP not configured: need SMTP_HOST, SMTP_USER, SMTP_PASS');
     return res.status(500).json({ error: 'Server configuration error' });
   }
 
@@ -71,7 +78,7 @@ export default async function handler(req, res) {
   // Honeypot: if bot filled "Leave this empty", treat as success but do not send email
   const botValue = body['bot-field'];
   if (botValue != null && String(botValue).trim() !== '') {
-    return res.redirect(302, '/contact.html?submitted=1');
+    return res.redirect(302, '/contact/?submitted=1');
   }
 
   // Require at least name and one contact method so we don't send empty or junk emails
@@ -88,33 +95,30 @@ export default async function handler(req, res) {
   const html = buildEmailBody(body);
   const replyTo = email || undefined;
 
+  const secure = port === 465;
+
   try {
-    const payload = {
+    const transporter = nodemailer.createTransport({
+      host,
+      port: port || 465,
+      secure,
+      auth: { user, pass },
+      ...(port === 587 && { requireTLS: true }),
+    });
+
+    const mailOptions = {
       from,
       to: RECIPIENTS,
       subject,
       html,
     };
-    if (replyTo) payload.reply_to = replyTo;
+    if (replyTo) mailOptions.replyTo = replyTo;
 
-    const response = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(payload),
-    });
-
-    if (!response.ok) {
-      const err = await response.text();
-      console.error('Resend API error:', response.status, err);
-      return res.status(500).json({ error: 'Failed to send email' });
-    }
+    await transporter.sendMail(mailOptions);
   } catch (err) {
     console.error('Error sending email:', err);
     return res.status(500).json({ error: 'Failed to send email' });
   }
 
-  return res.redirect(302, '/contact.html?submitted=1');
+  return res.redirect(302, '/contact/?submitted=1');
 }
