@@ -218,8 +218,8 @@
 
   function injectAndInit() {
     var promises = [];
-    if (headerPlaceholder) promises.push(fetch(base + 'partials/header.html').then(function(r) { return r.text(); }));
-    if (footerPlaceholder) promises.push(fetch(base + 'partials/footer.html').then(function(r) { return r.text(); }));
+    if (headerPlaceholder) promises.push(fetch(base + 'partials/header').then(function(r) { return r.text(); }));
+    if (footerPlaceholder) promises.push(fetch(base + 'partials/footer').then(function(r) { return r.text(); }));
 
     if (promises.length === 0) {
       replacePlaceholders();
@@ -252,3 +252,5 @@
     injectAndInit();
   }
 })();
+
+
