@@ -907,14 +907,38 @@ ul { list-style: none; }
 }
 
 @media (max-width: 900px) {
+  #hero {
+    min-height: auto;
+    overflow: visible;
+  }
   .hero-content {
     grid-template-columns: 1fr;
     padding-top: calc(var(--header-height-mobile) + 24px);
-    gap: var(--space-xl);
+    padding-bottom: var(--space-lg);
+    gap: var(--space-lg);
+    align-items: start;
   }
   .hero-text h1 { font-size: clamp(2rem, 7vw, 2.85rem); }
+  .hero-text p { margin-bottom: var(--space-sm); }
+  .hero-actions { flex-wrap: wrap; }
+  .hero-actions .btn {
+    width: 100%;
+    justify-content: center;
+    white-space: normal;
+  }
+  .hero-trust { flex-wrap: wrap; }
   .hero-form-card { padding: var(--space-md); max-width: 480px; margin: 0 auto; }
   .hero-form .form-row { grid-template-columns: 1fr; }
+  .scroll-indicator { display: none; }
+}
+
+@media (max-width: 600px) {
+  .hero-text p {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    overflow: hidden;
+  }
 }
 
 /* ===== 3. SOCIAL PROOF BAR ===== */

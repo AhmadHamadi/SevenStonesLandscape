@@ -22,7 +22,7 @@ This site is deployed on **Vercel**. Form submissions are handled by a serverles
 
 1. Sign up at [resend.com](https://resend.com) (free tier is enough).
 2. In the Resend dashboard, create an **API Key** and copy it (starts with `re_`).
-3. (Optional) Add and verify a domain so the “From” address is e.g. `quotes@sevenstoneslandscape.com`. Until then, emails are sent from Resend’s default (e.g. `onboarding@resend.dev`).
+3. (Optional) Add and verify a domain so the “From” address is e.g. `quotes@sevenstoneslandscape.ca`. Until then, emails are sent from Resend’s default (e.g. `onboarding@resend.dev`).
 
 ### 2) Vercel environment variables
 
