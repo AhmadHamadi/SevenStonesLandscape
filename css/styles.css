@@ -122,6 +122,16 @@ ul { list-style: none; }
   transform: translateY(-2px);
   box-shadow: 0 8px 24px rgba(59,130,246,0.4);
 }
+/* Nav CTA: soft gold so it stands out against dark header (elite conversion) */
+.btn--nav-cta {
+  background: #c9a227;
+  color: #1A1F2E;
+}
+.btn--nav-cta:hover {
+  background: #d4af37;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(201, 162, 39, 0.45);
+}
 .btn--outline {
   background: transparent;
   color: var(--text-light);
@@ -251,6 +261,13 @@ ul { list-style: none; }
   border-radius: var(--form-card-radius);
   padding: var(--space-lg);
   box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+}
+/* Hero form: slight white tint + border so it pops on dark hero (elite conversion) */
+#hero .hero-form-card {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.25), 0 0 0 1px rgba(255,255,255,0.06);
 }
 .hero-form-card h2,
 .quote-form-wrap h3,
@@ -840,6 +857,14 @@ ul { list-style: none; }
 .hero-trust .stars { color: var(--cta); font-size: 1rem; letter-spacing: 1px; }
 .hero-trust p { font-size: 0.85rem; color: rgba(255,255,255,0.65); }
 
+.hero-region {
+  font-size: 0.8rem;
+  color: rgba(255,255,255,0.55);
+  margin-top: var(--space-xs);
+  margin-bottom: 0;
+}
+.hero-region a { color: rgba(255,255,255,0.7); text-decoration: underline; text-underline-offset: 2px; }
+
 .hero-badges {
   display: flex;
   flex-wrap: wrap;
@@ -1043,7 +1068,11 @@ ul { list-style: none; }
 .si-pools .service-img-inner,
 .si-grading .service-img-inner,
 .si-decks .service-img-inner,
-.si-benches .service-img-inner { display: none; }
+.si-benches .service-img-inner,
+.si-yard-grading .service-img-inner,
+.si-landscape-stone .service-img-inner,
+.si-walkways .service-img-inner,
+.si-front-yard .service-img-inner { display: none; }
 .service-img-icon {
   font-size: 3.5rem;
   line-height: 1;
@@ -1056,18 +1085,28 @@ ul { list-style: none; }
 .si-pools,
 .si-grading,
 .si-decks,
-.si-benches {
+.si-benches,
+.si-yard-grading,
+.si-landscape-stone,
+.si-walkways,
+.si-front-yard {
   background-size: cover;
   background-position: center;
 }
-.si-interlock { background-image: url('../assets/images/interlockandpatio.jpg'); }
-.si-concrete  { background-image: url('../assets/images/c11.jpeg'); }
-.si-fences    { background-image: url('../assets/images/fence1.jpg'); }
-.si-pools     { background-image: url('../assets/images/pool1.jpg'); }
-.si-grading   { background-image: url('../assets/images/sod1.jpg'); }
-.si-decks     { background-image: url('../assets/images/wood1.png'); }
-.si-benches   { background-image: url('../assets/images/bench1.jpg'); }
-.si-wall      { background: var(--bg-grey); }
+.si-interlock       { background-image: url('../assets/images/interlockandpatio.jpg'); }
+.si-concrete        { background-image: url('../assets/images/c11.jpeg'); }
+.si-fences          { background-image: url('../assets/images/fence1.jpg'); }
+.si-pools           { background-image: url('../assets/images/pool1.jpg'); }
+.si-grading         { background-image: url('../assets/images/sod1.jpg'); }
+.si-decks           { background-image: url('../assets/images/wood1.png'); }
+.si-benches         { background-image: url('../assets/images/b3.jpg'); }
+.si-wall            { background: var(--bg-grey); }
+/* All Services page: specific cover images per service */
+.si-yard-grading    { background-image: url('../assets/images/s6.jpg'); }
+.si-landscape-stone { background-image: url('../assets/images/i11.jpg'); }
+.si-walkways        { background-image: url('../assets/images/i15.jpg'); }
+.si-front-yard      { background-image: url('../assets/images/i17.jpg'); }
+.services-page .si-concrete { background-image: url('../assets/images/c3.jpeg'); }
 
 .service-body {
   padding: var(--space-md);
@@ -1782,6 +1821,13 @@ ul { list-style: none; }
   text-transform: uppercase;
   color: var(--stone);
   margin-bottom: var(--space-md);
+}
+.footer-areas-lead {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--stone);
+  letter-spacing: 0.02em;
+  margin: -4px 0 8px 0;
 }
 .footer-col ul { display: flex; flex-direction: column; gap: 10px; }
 .footer-col ul li a {
