@@ -1072,7 +1072,8 @@ ul { list-style: none; }
 .si-yard-grading .service-img-inner,
 .si-landscape-stone .service-img-inner,
 .si-walkways .service-img-inner,
-.si-front-yard .service-img-inner { display: none; }
+.si-front-yard .service-img-inner,
+.si-backyard .service-img-inner { display: none; }
 .service-img-icon {
   font-size: 3.5rem;
   line-height: 1;
@@ -1089,7 +1090,8 @@ ul { list-style: none; }
 .si-yard-grading,
 .si-landscape-stone,
 .si-walkways,
-.si-front-yard {
+.si-front-yard,
+.si-backyard {
   background-size: cover;
   background-position: center;
 }
@@ -1107,6 +1109,7 @@ ul { list-style: none; }
 .si-walkways        { background-image: url('../assets/images/i15.jpg'); }
 .si-front-yard      { background-image: url('../assets/images/i17.jpg'); }
 .services-page .si-concrete { background-image: url('../assets/images/c3.jpeg'); }
+.si-backyard             { background-image: url('../assets/images/bench1.jpg'); }
 
 .service-body {
   padding: var(--space-md);
