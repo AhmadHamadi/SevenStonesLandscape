@@ -518,6 +518,54 @@ ul { list-style: none; }
   .nav-dropdown--areas li { margin: 0; }
 }
 
+/* Service Areas nested city submenu */
+.nav-item--subdropdown { position: relative; }
+.nav-item--subdropdown > a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.nav-item--subdropdown > a::after {
+  content: "›";
+  font-size: 12px;
+  opacity: 0.7;
+}
+.nav-subdropdown {
+  position: absolute;
+  top: -8px;
+  left: calc(100% + 6px);
+  min-width: 220px;
+  margin: 0;
+  padding: 8px 0;
+  list-style: none;
+  background: #fff;
+  border-radius: var(--radius);
+  box-shadow: 0 10px 40px rgba(0,0,0,0.12);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(4px);
+  transition: opacity var(--transition), visibility var(--transition), transform var(--transition);
+  z-index: 101;
+}
+.nav-item--subdropdown:hover .nav-subdropdown,
+.nav-item--subdropdown:focus-within .nav-subdropdown {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+.nav-subdropdown a {
+  display: block;
+  padding: 10px 18px;
+  font-size: 0.875rem;
+  color: var(--text-dark);
+  white-space: nowrap;
+}
+.nav-subdropdown a:hover {
+  background: rgba(26, 31, 46, 0.06);
+  color: var(--cta);
+}
+
 /* Hamburger (dark bars on white navbar) */
 .nav-toggle {
   display: none;
@@ -680,6 +728,11 @@ ul { list-style: none; }
 }
 .nav-mobile-dropdown a:hover {
   border-left-color: var(--cta);
+}
+.nav-mobile-subitem {
+  padding-left: 56px !important;
+  font-size: 0.95rem !important;
+  color: rgba(255,255,255,0.82) !important;
 }
 .nav-mobile .close-btn {
   position: absolute;
@@ -2005,7 +2058,6 @@ ul { list-style: none; }
 .form-group input.error,
 .form-group select.error,
 .form-group textarea.error { border-color: #e05555; }
-
 
 
 
