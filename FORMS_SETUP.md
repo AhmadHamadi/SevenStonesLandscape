@@ -8,7 +8,7 @@ This site is deployed on **Vercel**. Form submissions are handled by a serverles
 
 - Every form has **action="/api/quote"** and **method="POST"**.
 - On submit, the browser sends the form to **`/api/quote`** (Vercel serverless function).
-- The function checks the **bot-field** (honeypot); if it’s filled, it treats the submission as spam and doesn’t email.
+- The function checks hidden spam traps (**bot-field** and **website**), message spam patterns, and basic rate limits; suspicious submissions are silently dropped (no email sent).
 - Otherwise it sends one email **from forms@clinimedia.ca** via your cPanel SMTP server to:
   - **john.scime.mcmaster@gmail.com**
   - **ahmadhamadi2002@gmail.com**

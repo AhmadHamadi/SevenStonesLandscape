@@ -1,10 +1,8 @@
 /**
- * Vercel serverless function: accept quote form POST and email both addresses via SMTP (e.g. cPanel).
+ * Vercel serverless function: accept quote form POST and email both addresses via SMTP.
  *
  * Production env (Vercel): set SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS. Optional: EMAIL_FROM.
- * Example for cPanel: host = mail.clinimedia.ca, port = 465 (SSL), user = forms@clinimedia.ca.
  * Forms POST application/x-www-form-urlencoded; Vercel parses into req.body.
- * Spam: honeypot (bot-field) + server-side validation (name + email or phone required).
  */
 
 import nodemailer from 'nodemailer';
@@ -15,9 +13,15 @@ const RECIPIENTS = [
 ];
 
 const DEFAULT_FROM = 'Seven Stones Landscape <forms@clinimedia.ca>';
+const EMPTY_FALLBACK = '&mdash;';
+
+const RATE_WINDOW_MS = 10 * 60 * 1000; // 10 minutes
+const RATE_MAX_REQUESTS = 5;
+const RATE_MAP_MAX_KEYS = 1000;
+const rateMap = new Map();
 
 function escapeHtml(s) {
-  if (s == null || s === '') return '—';
+  if (s == null || s === '') return EMPTY_FALLBACK;
   return String(s)
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
@@ -25,11 +29,96 @@ function escapeHtml(s) {
     .replace(/"/g, '&quot;');
 }
 
+function normalizeBody(raw) {
+  if (raw && typeof raw === 'object' && !Array.isArray(raw)) return raw;
+  if (typeof raw === 'string') {
+    try {
+      return Object.fromEntries(new URLSearchParams(raw));
+    } catch (_) {
+      return {};
+    }
+  }
+  return {};
+}
+
+function asTrimmedString(value) {
+  if (value == null) return '';
+  return String(value).trim();
+}
+
+function normalizePhone(phone) {
+  return phone.replace(/[^\d+]/g, '');
+}
+
+function isValidEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i.test(email);
+}
+
+function isReasonableName(name) {
+  if (name.length < 2 || name.length > 100) return false;
+  return /^[a-zA-Z\s.'-]+$/.test(name);
+}
+
+function isReasonablePhone(phone) {
+  const digits = phone.replace(/\D/g, '');
+  return digits.length >= 10 && digits.length <= 15;
+}
+
+function looksLikeSpamMessage(message) {
+  if (!message) return false;
+
+  const lower = message.toLowerCase();
+
+  // Most contact-form spam includes links.
+  if (/(https?:\/\/|www\.|[a-z0-9-]+\.(com|net|org|ru|xyz|info|shop|biz))/i.test(lower)) {
+    return true;
+  }
+
+  const spamPatterns = [
+    /\b(posture|casino|crypto|forex|loan|seo service|guest post)\b/i,
+    /\b(buy now|limited time|special offer|discount|free shipping)\b/i,
+    /\b(telegram|whatsapp|signal)\b/i,
+  ];
+
+  return spamPatterns.some((pattern) => pattern.test(lower));
+}
+
+function getClientIp(req) {
+  const fwd = req.headers['x-forwarded-for'];
+  if (typeof fwd === 'string' && fwd) {
+    return fwd.split(',')[0].trim();
+  }
+  return req.socket?.remoteAddress || 'unknown';
+}
+
+function isRateLimited(ip) {
+  const now = Date.now();
+
+  if (rateMap.size > RATE_MAP_MAX_KEYS) {
+    for (const [key, value] of rateMap.entries()) {
+      if (now - value.firstSeen > RATE_WINDOW_MS) {
+        rateMap.delete(key);
+      }
+    }
+  }
+
+  const current = rateMap.get(ip);
+  if (!current || now - current.firstSeen > RATE_WINDOW_MS) {
+    rateMap.set(ip, { firstSeen: now, count: 1 });
+    return false;
+  }
+
+  current.count += 1;
+  rateMap.set(ip, current);
+  return current.count > RATE_MAX_REQUESTS;
+}
+
 function buildEmailBody(body) {
   const fromPage = body.form_source || 'website';
-  const fullName = (body.full_name != null && String(body.full_name).trim()) ? String(body.full_name).trim() : '—';
-  const message = (body.message != null && String(body.message).trim()) ? String(body.message).trim() : '—';
-  const messageCapped = message.length > 2000 ? message.slice(0, 1997) + '...' : message;
+  const fullName = asTrimmedString(body.full_name) || EMPTY_FALLBACK;
+  const message = asTrimmedString(body.message) || EMPTY_FALLBACK;
+  const messageCapped = message.length > 2000 ? `${message.slice(0, 1997)}...` : message;
+
   return `
     <p><strong>New quote request</strong> (from ${escapeHtml(fromPage)})</p>
     <table style="border-collapse: collapse; max-width: 480px;">
@@ -44,27 +133,54 @@ function buildEmailBody(body) {
   `.trim();
 }
 
-/** Normalize req.body: Vercel parses urlencoded to object; fallback if string or missing. */
-function normalizeBody(raw) {
-  if (raw && typeof raw === 'object' && !Array.isArray(raw)) return raw;
-  if (typeof raw === 'string') {
-    try {
-      return Object.fromEntries(new URLSearchParams(raw));
-    } catch (_) {
-      return {};
-    }
-  }
-  return {};
-}
-
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
+  const body = normalizeBody(req.body);
+  const ip = getClientIp(req);
+
+  if (isRateLimited(ip)) {
+    // Quietly return success page for bot traffic.
+    return res.redirect(302, '/contact/?submitted=1');
+  }
+
+  // Honeypot fields: treat as success but do not send.
+  const botField = asTrimmedString(body['bot-field']);
+  const websiteField = asTrimmedString(body.website);
+  if (botField || websiteField) {
+    return res.redirect(302, '/contact/?submitted=1');
+  }
+
+  const fullName = asTrimmedString(body.full_name);
+  const email = asTrimmedString(body.email);
+  const phone = normalizePhone(asTrimmedString(body.phone));
+  const message = asTrimmedString(body.message);
+
+  if (!fullName || (!email && !phone)) {
+    return res.status(400).json({ error: 'Please provide your name and either email or phone.' });
+  }
+
+  if (!isReasonableName(fullName)) {
+    return res.status(400).json({ error: 'Please provide a valid full name.' });
+  }
+
+  if (email && !isValidEmail(email)) {
+    return res.status(400).json({ error: 'Please provide a valid email address.' });
+  }
+
+  if (phone && !isReasonablePhone(phone)) {
+    return res.status(400).json({ error: 'Please provide a valid phone number.' });
+  }
+
+  if (looksLikeSpamMessage(message)) {
+    return res.redirect(302, '/contact/?submitted=1');
+  }
+
   const host = process.env.SMTP_HOST;
-  const port = process.env.SMTP_PORT != null ? parseInt(process.env.SMTP_PORT, 10) : 465; // 465 = SSL (recommended for cPanel)
+  const port = process.env.SMTP_PORT != null ? parseInt(process.env.SMTP_PORT, 10) : 465;
   const user = process.env.SMTP_USER;
   const pass = process.env.SMTP_PASS;
 
@@ -73,28 +189,16 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'Server configuration error' });
   }
 
-  const body = normalizeBody(req.body);
-
-  // Honeypot: if bot filled "Leave this empty", treat as success but do not send email
-  const botValue = body['bot-field'];
-  if (botValue != null && String(botValue).trim() !== '') {
-    return res.redirect(302, '/contact/?submitted=1');
-  }
-
-  // Require at least name and one contact method so we don't send empty or junk emails
-  const fullName = (body.full_name != null && String(body.full_name).trim()) ? String(body.full_name).trim() : '';
-  const email = (body.email != null && String(body.email).trim()) ? String(body.email).trim() : '';
-  const phone = (body.phone != null && String(body.phone).trim()) ? String(body.phone).trim() : '';
-  if (!fullName || (!email && !phone)) {
-    return res.status(400).json({ error: 'Please provide your name and either email or phone.' });
-  }
-
   const from = process.env.EMAIL_FROM || DEFAULT_FROM;
-  const namePart = fullName || 'Customer';
-  const subject = `Quote request from ${namePart}`;
-  const html = buildEmailBody(body);
+  const subject = `Quote request from ${fullName || 'Customer'}`;
+  const html = buildEmailBody({
+    ...body,
+    full_name: fullName,
+    email,
+    phone,
+    message,
+  });
   const replyTo = email || undefined;
-
   const secure = port === 465;
 
   try {
