@@ -16,7 +16,7 @@ const DEFAULT_FROM = 'Seven Stones Landscape <forms@clinimedia.ca>';
 const EMPTY_FALLBACK = '&mdash;';
 
 const RATE_WINDOW_MS = 10 * 60 * 1000; // 10 minutes
-const RATE_MAX_REQUESTS = 5;
+const RATE_MAX_REQUESTS = 12;
 const RATE_MAP_MAX_KEYS = 1000;
 const rateMap = new Map();
 
@@ -56,7 +56,7 @@ function isValidEmail(email) {
 
 function isReasonableName(name) {
   if (name.length < 2 || name.length > 100) return false;
-  return /^[a-zA-Z\s.'-]+$/.test(name);
+  return /[A-Za-z]/.test(name) || /[^\u0000-\u007f]/.test(name);
 }
 
 function isReasonablePhone(phone) {
@@ -69,10 +69,7 @@ function looksLikeSpamMessage(message) {
 
   const lower = message.toLowerCase();
 
-  // Most contact-form spam includes links.
-  if (/(https?:\/\/|www\.|[a-z0-9-]+\.(com|net|org|ru|xyz|info|shop|biz))/i.test(lower)) {
-    return true;
-  }
+  const hasExplicitLink = /(https?:\/\/|www\.)/i.test(lower);
 
   const spamPatterns = [
     /\b(posture|casino|crypto|forex|loan|seo service|guest post)\b/i,
@@ -80,7 +77,12 @@ function looksLikeSpamMessage(message) {
     /\b(telegram|whatsapp|signal)\b/i,
   ];
 
-  return spamPatterns.some((pattern) => pattern.test(lower));
+  const spamMatchCount = spamPatterns.reduce((count, pattern) => (
+    count + (pattern.test(lower) ? 1 : 0)
+  ), 0);
+
+  // Require stronger evidence to avoid blocking legitimate long messages.
+  return (hasExplicitLink && spamMatchCount >= 1) || spamMatchCount >= 2;
 }
 
 function getClientIp(req) {
@@ -171,7 +173,7 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Please provide a valid email address.' });
   }
 
-  if (phone && !isReasonablePhone(phone)) {
+  if (phone && !email && !isReasonablePhone(phone)) {
     return res.status(400).json({ error: 'Please provide a valid phone number.' });
   }
 
