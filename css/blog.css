@@ -280,6 +280,22 @@
   margin-bottom: var(--space-md);
   letter-spacing: -0.02em;
 }
+.blog-post-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  font-size: 0.92rem;
+  color: var(--stone);
+  margin-bottom: var(--space-md);
+}
+.blog-post-meta time {
+  font-weight: 600;
+  color: var(--text);
+}
+.blog-post-meta-separator {
+  color: rgba(26, 31, 46, 0.35);
+}
 .blog-article .blog-intro-p {
   font-size: 1.15rem;
   line-height: 1.7;
