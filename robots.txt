@@ -1,4 +1,85 @@
+# robots.txt for Seven Stones Landscape
+# https://www.sevenstoneslandscape.ca/
+
+# Default: allow all well-behaved crawlers to access all public URLs.
 User-agent: *
+Allow: /
+Disallow: /api/
+
+# Explicit allow for major search-engine crawlers
+User-agent: Googlebot
+Allow: /
+
+User-agent: Googlebot-Image
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: DuckDuckBot
+Allow: /
+
+User-agent: YandexBot
+Allow: /
+
+# Explicit allow for AI / answer-engine crawlers.
+# Google-Extended and Applebot-Extended default to disallow unless explicitly allowed,
+# so we opt in here to stay eligible for Google AI Overviews and Apple Intelligence.
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Applebot
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Perplexity-User
+Allow: /
+
+User-agent: Amazonbot
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+User-agent: cohere-ai
+Allow: /
+
+User-agent: Meta-ExternalAgent
+Allow: /
+
+User-agent: MistralAI-User
+Allow: /
+
+User-agent: Bytespider
+Allow: /
+
+User-agent: DiffBot
+Allow: /
+
+User-agent: YouBot
 Allow: /
 
 Sitemap: https://www.sevenstoneslandscape.ca/sitemap.xml
