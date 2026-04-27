@@ -10,7 +10,7 @@
   function replacePlaceholders() {
     var body = document.body;
     var phone = (body && body.getAttribute('data-phone')) || '+1 (289) 700-0312';
-    var email = (body && body.getAttribute('data-email')) || 'john.scime.mcmaster@gmail.com';
+    var email = (body && body.getAttribute('data-email')) || 'info@sevenstoneslandscape.ca';
     var phoneClean = phone.replace(/\s/g, '');
 
     document.querySelectorAll('a[href="tel:[PHONE]"], a[href^="tel:"]').forEach(function(a) {
