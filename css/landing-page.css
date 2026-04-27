@@ -84,6 +84,23 @@
 @media (min-width: 540px) {
   .lp-trust-bullets { grid-template-columns: 1fr 1fr; gap: 8px 18px; }
 }
+/* Two-version subhead: long for desktop (keyword density), short for mobile (less scrolling) */
+.lp-hero-sub-short { display: none; }
+.lp-hero-sub-long { display: inline; }
+
+/* Mobile hero — trim aggressively so form is reachable in one scroll */
+@media (max-width: 720px) {
+  .lp-hero { padding: 36px 0 32px; }
+  .lp-hero-eyebrow { display: none; }
+  .lp-hero h1 { font-size: clamp(1.65rem, 7vw, 2.2rem); margin-bottom: 12px; }
+  .lp-hero-sub { font-size: 0.98rem; margin-bottom: 16px; }
+  .lp-hero-sub-short { display: inline; }
+  .lp-hero-sub-long { display: none; }
+  .lp-trust-bullets li:nth-child(n+4) { display: none; }
+  .lp-trust-bullets { margin-bottom: 16px; }
+  .lp-credential-row { display: none; }
+  .lp-hero-actions { margin-bottom: 0; }
+}
 .lp-trust-bullets li {
   color: rgba(255,255,255,0.95);
   font-size: 0.95rem;
@@ -483,21 +500,25 @@ body.lp-lightbox-locked { overflow: hidden; }
   max-width: 720px;
 }
 
-/* Photo gallery — larger cards, max 3 per row on desktop */
+/* Photo gallery — 1-up on small phones, 2-up on larger phones / tablets,
+   3-up on desktop. Bigger cards across the board. */
 .lp-gallery {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 14px;
+  grid-template-columns: 1fr;
+  gap: 16px;
 }
-@media (min-width: 720px) { .lp-gallery { grid-template-columns: repeat(2, 1fr); gap: 20px; } }
+@media (min-width: 520px) { .lp-gallery { grid-template-columns: repeat(2, 1fr); gap: 16px; } }
+@media (min-width: 768px) { .lp-gallery { grid-template-columns: repeat(2, 1fr); gap: 22px; } }
 @media (min-width: 1100px) { .lp-gallery { grid-template-columns: repeat(3, 1fr); gap: 24px; } }
 .lp-gallery-item {
   position: relative;
+  width: 100%;
   aspect-ratio: 4 / 3;
   border-radius: 12px;
   overflow: hidden;
   background: #ddd;
   box-shadow: 0 4px 16px rgba(0,0,0,0.10);
+  cursor: zoom-in;
 }
 .lp-gallery-item img {
   width: 100%;
@@ -509,12 +530,22 @@ body.lp-lightbox-locked { overflow: hidden; }
 .lp-gallery-item:hover img { transform: scale(1.05); }
 .lp-gallery-item figcaption {
   position: absolute;
-  inset: auto 0 0 0;
-  padding: 22px 16px 14px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 24px 14px 12px;
   color: #fff;
-  font-size: 0.95rem;
+  font-size: 0.92rem;
   font-weight: 600;
-  background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.78) 100%);
+  line-height: 1.3;
+  background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.82) 100%);
+  /* prevent overflow at narrow widths */
+  white-space: normal;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+@media (max-width: 519px) {
+  .lp-gallery-item figcaption { font-size: 1rem; padding: 26px 16px 14px; }
 }
 
 /* Service cards */
