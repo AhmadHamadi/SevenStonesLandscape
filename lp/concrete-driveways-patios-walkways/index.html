@@ -786,16 +786,85 @@
 
 
 <script>
-// LP form submit: serializes to URL-encoded (matches /api/quote handler),
-// redirects to /thank-you/ on success or failure so the conversion event fires.
+// LP form submit:
+//   1. Inline-validate name/email/phone — show error UI on the page (no redirect on bad input)
+//   2. Strip native validation (the form has novalidate)
+//   3. Redirect to /thank-you/ IMMEDIATELY after kicking off the request
+//   4. Send the API call in the background with keepalive so it finishes after navigation
 (function () {
   var form = document.querySelector('form[data-redirect]');
   if (!form) return;
+
+  function ensureErrorBox() {
+    var box = form.querySelector('.lp-form-error');
+    if (!box) {
+      box = document.createElement('div');
+      box.className = 'lp-form-error';
+      box.setAttribute('role', 'alert');
+      var btn = form.querySelector('button[type="submit"]');
+      btn.parentNode.insertBefore(box, btn);
+    }
+    return box;
+  }
+  function clearErrors() {
+    form.querySelectorAll('.is-invalid').forEach(function (el) { el.classList.remove('is-invalid'); });
+    form.querySelectorAll('.lp-field-error').forEach(function (el) {
+      el.classList.remove('is-shown'); el.textContent = '';
+    });
+    var box = form.querySelector('.lp-form-error');
+    if (box) { box.classList.remove('is-shown'); box.textContent = ''; }
+  }
+  function showFieldError(el, msg) {
+    el.classList.add('is-invalid');
+    var hint = el.parentNode.querySelector('.lp-field-error');
+    if (!hint) {
+      hint = document.createElement('div');
+      hint.className = 'lp-field-error';
+      el.parentNode.appendChild(hint);
+    }
+    hint.textContent = msg;
+    hint.classList.add('is-shown');
+  }
+  function isEmail(v) { return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i.test(v); }
+  function isPhone(v) {
+    var digits = (v || '').replace(/\D/g, '');
+    return digits.length >= 10 && digits.length <= 15;
+  }
+
   form.addEventListener('submit', function (e) {
-    if (!form.checkValidity()) return;
     e.preventDefault();
+    clearErrors();
+    var box = ensureErrorBox();
+
+    var nameEl  = form.querySelector('input[name="full_name"]');
+    var emailEl = form.querySelector('input[name="email"]');
+    var phoneEl = form.querySelector('input[name="phone"]');
+
+    var problems = [];
+    if (nameEl && !nameEl.value.trim()) {
+      showFieldError(nameEl, 'Please enter your full name.');
+      problems.push('name');
+    }
+    if (emailEl && !isEmail(emailEl.value.trim())) {
+      showFieldError(emailEl, 'Please enter a valid email address.');
+      problems.push('email');
+    }
+    if (phoneEl && !isPhone(phoneEl.value)) {
+      showFieldError(phoneEl, 'Please enter a valid phone number (10+ digits).');
+      problems.push('phone');
+    }
+
+    if (problems.length) {
+      box.textContent = 'Please fix the highlighted field' + (problems.length > 1 ? 's' : '') + ' above and try again.';
+      box.classList.add('is-shown');
+      var firstBad = form.querySelector('.is-invalid');
+      if (firstBad) firstBad.focus({ preventScroll: false });
+      return;
+    }
+
     var btn = form.querySelector('button[type="submit"]');
     if (btn) { btn.disabled = true; btn.textContent = 'Sending…'; }
+
     var params = new URLSearchParams();
     var els = form.elements;
     for (var i = 0; i < els.length; i++) {
@@ -804,13 +873,19 @@
       if ((el.type === 'checkbox' || el.type === 'radio') && !el.checked) continue;
       params.append(el.name, el.value);
     }
-    fetch(form.action, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: params.toString(),
-    })
-      .then(function () { window.location.href = form.dataset.redirect || '/thank-you/'; })
-      .catch(function () { window.location.href = form.dataset.redirect || '/thank-you/'; });
+
+    var redirectTo = form.dataset.redirect || '/thank-you/';
+
+    try {
+      fetch(form.action, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: params.toString(),
+        keepalive: true,
+      });
+    } catch (_) { /* swallow — we still redirect */ }
+
+    setTimeout(function () { window.location.href = redirectTo; }, 50);
   });
 })();
 </script>

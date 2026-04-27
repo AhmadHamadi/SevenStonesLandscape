@@ -245,6 +245,33 @@
   margin-top: 6px;
 }
 .lp-form button[type="submit"]:hover { background: var(--cta-hover); }
+.lp-form button[type="submit"][disabled] { opacity: 0.65; cursor: not-allowed; }
+.lp-form .lp-form-error {
+  background: #fdecec;
+  border: 1px solid #f5c1c1;
+  color: #8a1f1f;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  margin: 8px 0 4px;
+  line-height: 1.4;
+  display: none;
+}
+.lp-form .lp-form-error.is-shown { display: block; }
+.lp-form input.is-invalid,
+.lp-form select.is-invalid,
+.lp-form textarea.is-invalid {
+  border-color: #c43838;
+  box-shadow: 0 0 0 3px rgba(196, 56, 56, 0.12);
+}
+.lp-form .lp-field-error {
+  display: none;
+  color: #c43838;
+  font-size: 0.78rem;
+  font-weight: 500;
+  margin-top: 4px;
+}
+.lp-form .lp-field-error.is-shown { display: block; }
 .lp-form .lp-fine {
   font-size: 0.74rem;
   color: #777;
