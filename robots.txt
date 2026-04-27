@@ -2,6 +2,9 @@
 # https://www.sevenstoneslandscape.ca/
 
 # Default: allow all well-behaved crawlers to access all public URLs.
+# /google-ads/ pages are paid-traffic landing pages with noindex,follow set
+# in their <meta>. They are not added to the sitemap. They remain crawlable
+# so Googlebot can read the noindex tag and so internal-link signals flow.
 User-agent: *
 Allow: /
 Disallow: /api/

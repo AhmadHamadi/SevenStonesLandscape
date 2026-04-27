@@ -15,8 +15,8 @@
   <meta property="og:title" content="Concrete Contractor Hamilton, Burlington, Oakville | Seven Stones Landscape" />
   <meta property="og:description" content="Residential concrete contractor for Hamilton, Burlington, Oakville, Milton &amp; Mississauga. Concrete driveways, stamped patios, exposed aggregate, decorative steps &amp; walkways. Frost-depth footings, proper sealers. Free on-site quote." />
   <meta property="og:url" content="https://www.sevenstoneslandscape.ca/services/concrete/" />
-  <meta property="og:image" content="https://www.sevenstoneslandscape.ca/assets/images/hero.jpg" />
-  <meta property="og:image:alt" content="Concrete driveway and stamped patio contractor Hamilton Burlington Oakville Ontario" />
+  <meta property="og:image" content="https://www.sevenstoneslandscape.ca/assets/images/c3.jpeg" />
+  <meta property="og:image:alt" content="Concrete driveways and patios Ontario" />
   <meta property="og:locale" content="en_CA" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Concrete Contractor Hamilton, Burlington, Oakville | Driveways, Stamped Patios | Seven Stones Landscape" />
@@ -265,10 +265,11 @@
 
 <main id="service-main" class="main-with-hero">
   <section class="service-hero" aria-labelledby="service-heading">
-    <div class="service-hero-bg" role="img" aria-label="Concrete driveway and patio installation by Seven Stones Landscape in the Golden Horseshoe"></div>
+    <div class="service-hero-bg" role="img" aria-label="Concrete driveway and patio installation by Seven Stones Landscape in the Golden Horseshoe" style="background-image: url('/assets/images/c3.jpeg');"></div>
     <div class="service-hero-overlay"></div>
     <div class="container">
-      <div class="service-hero-content">
+      <div class="service-hero-grid">
+          <div class="service-hero-content">
         <p class="service-hero-label">Service</p>
         <h1 id="service-heading" class="service-hero-title">Concrete Driveways, Stamped Patios &amp; More in Hamilton, Burlington &amp; Oakville</h1>
         <p class="service-hero-intro">We install <strong>concrete driveways</strong>, <strong>stamped concrete patios</strong>, <strong>exposed aggregate</strong>, and <strong>concrete steps and walkways</strong> built for Ontario. Every pour uses <strong>4000 PSI air-entrained concrete</strong> to resist freeze-thaw cycles and road salt across Hamilton, Ancaster, Dundas, Waterdown, Stoney Creek, Burlington, Oakville and Mississauga. <a href="/contact/">Get your free quote</a>.</p>
@@ -278,6 +279,85 @@
         </div>
         <div class="service-trust-badges" aria-label="Credentials">
           <span class="service-badge">Licensed &amp; Insured</span>
+        </div>
+          </div>
+          <aside class="service-hero-form-wrap">
+            <div class="hero-form-card reveal">
+              <h2>Get a Free Estimate</h2>
+              <p class="sub">Respond within <strong>24 hours</strong> &mdash; no obligation.</p>
+              <form class="hero-form" name="quote" method="POST" action="/api/quote" novalidate>
+                <input type="hidden" name="form_source" value="service-hero-services-concrete" />
+                <input type="hidden" name="timeline" value="" />
+                <p class="form-honeypot" aria-hidden="true">
+                  <label>Leave this empty: <input name="bot-field" type="text" tabindex="-1" autocomplete="off" /><input name="website" type="text" tabindex="-1" autocomplete="off" /></label>
+                </p>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="sf-concre-name">Full Name *</label>
+                    <input id="sf-concre-name" name="full_name" type="text" placeholder="e.g. Jane Smith" required autocomplete="name" />
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="sf-concre-email">Email *</label>
+                    <input id="sf-concre-email" name="email" type="email" placeholder="jane@example.com" required autocomplete="email" />
+                  </div>
+                  <div class="form-group">
+                    <label for="sf-concre-phone">Phone *</label>
+                    <input id="sf-concre-phone" name="phone" type="tel" placeholder="+1 (289) 700-0312" required autocomplete="tel" />
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="sf-concre-city">City <span class="label-optional">(opt.)</span></label>
+                    <select id="sf-concre-city" name="city">
+                      <option value="" disabled selected>Select&hellip;</option>
+                      <option>Hamilton</option>
+                      <option>Burlington</option>
+                      <option>Oakville</option>
+                      <option>Ancaster</option>
+                      <option>Dundas</option>
+                      <option>Stoney Creek</option>
+                      <option>Waterdown</option>
+                      <option>Milton</option>
+                      <option>Mississauga</option>
+                      <option>Other</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label for="sf-concre-services">Service</label>
+                    <select id="sf-concre-services" name="services">
+                <option>Interlock Patios &amp; Driveways</option>
+                <option selected>Concrete Driveways &amp; Patios</option>
+                <option>Concrete Driveway</option>
+                <option>Stamped Concrete Patio</option>
+                <option>Exposed Aggregate Concrete</option>
+                <option>Concrete Steps &amp; Walkways</option>
+                <option>Retaining Walls</option>
+                <option>Walkways</option>
+                <option>Sod Installation</option>
+                <option>Yard Grading &amp; Drainage</option>
+                <option>Pools &amp; Pool Surrounds</option>
+                <option>Landscape Stone</option>
+                <option>Backyard Landscaping</option>
+                <option>Front Yard Landscaping</option>
+                <option>Benches &amp; Fire Pits</option>
+                <option>Fences &amp; Staining</option>
+                <option>Decks &amp; Pergolas</option>
+                <option>Multiple Services / Full Package</option>
+                <option>Other / Not Sure</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="sf-concre-message">Message <span class="label-optional">(optional)</span></label>
+                  <textarea id="sf-concre-message" name="message" placeholder="Tell us about your project&hellip;" rows="2"></textarea>
+                </div>
+                <button type="submit" class="btn btn--cta">Send My Request &rarr;</button>
+                <p class="fine-print">No spam. We&#39;ll only contact you about your project.</p>
+              </form>
+            </div>
+          </aside>
         </div>
       </div>
     </div>

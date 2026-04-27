@@ -15,8 +15,8 @@
   <meta property="og:title" content="Front Yard Landscaping Hamilton, Burlington, Oakville | Seven Stones Landscape" />
   <meta property="og:description" content="Curb appeal specialists in Hamilton, Burlington, Oakville, Milton &amp; Mississauga. Interlock walkways, flagstone steps, planting beds. Unilock &amp; Techo-Bloc installer. Free quote. Est. 2013." />
   <meta property="og:url" content="https://www.sevenstoneslandscape.ca/services/front-yard-landscaping/" />
-  <meta property="og:image" content="https://www.sevenstoneslandscape.ca/assets/images/hero.jpg" />
-  <meta property="og:image:alt" content="Front yard landscaping by Seven Stones Landscape" />
+  <meta property="og:image" content="https://www.sevenstoneslandscape.ca/assets/images/i7.jpg" />
+  <meta property="og:image:alt" content="Front yard landscaping and curb appeal Ontario" />
   <meta property="og:locale" content="en_CA" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Front Yard Landscaping Hamilton, Burlington, Oakville | Seven Stones Landscape" />
@@ -263,10 +263,11 @@
 <!-- INLINED_HEADER_END -->
 <main id="service-main" class="main-with-hero">
   <section class="service-hero" aria-labelledby="service-heading">
-    <div class="service-hero-bg" role="img" aria-label="Front yard landscaping Hamilton Burlington Oakville Seven Stones Landscape"></div>
+    <div class="service-hero-bg" role="img" aria-label="Front yard landscaping Hamilton Burlington Oakville Seven Stones Landscape" style="background-image: url('/assets/images/i7.jpg');"></div>
     <div class="service-hero-overlay"></div>
     <div class="container">
-      <div class="service-hero-content">
+      <div class="service-hero-grid">
+          <div class="service-hero-content">
         <p class="service-hero-label">Service</p>
         <h1 id="service-heading" class="service-hero-title">Front Yard Landscaping in Hamilton, Burlington &amp; Oakville</h1>
         <p class="service-hero-intro">Front yard landscaping and curb-appeal specialists serving Hamilton, Burlington, Oakville, Milton, Mississauga and Ancaster since 2013. Unilock and Techo-Bloc interlock walkways, Wiarton flagstone steps, Indiana limestone borders, armour stone accents, and Zone 6b planting plans built for Southern Ontario. ICPI-certified, Landscape Ontario member, $5M liability, 5-year workmanship warranty. <a href="/contact/">Free on-site quote &mdash; 24-hour response</a>.</p>
@@ -278,6 +279,85 @@
           <a href="https://www.icpi.org" target="_blank" rel="noopener noreferrer" class="service-badge-link" aria-label="ICPI Certified Installer"><img src="/assets/images/icpi-logo.svg" alt="ICPI Certified Installer" width="80" height="36" loading="lazy" decoding="async" /></a>
           <a href="https://landscapeontario.com" target="_blank" rel="noopener noreferrer" class="service-badge-link" aria-label="Landscape Ontario Member"><img src="/assets/images/landscape-ontario-logo.svg" alt="Landscape Ontario Member" width="100" height="36" loading="lazy" decoding="async" /></a>
           <span class="service-badge">Licensed &amp; Insured</span>
+        </div>
+          </div>
+          <aside class="service-hero-form-wrap">
+            <div class="hero-form-card reveal">
+              <h2>Get a Free Estimate</h2>
+              <p class="sub">Respond within <strong>24 hours</strong> &mdash; no obligation.</p>
+              <form class="hero-form" name="quote" method="POST" action="/api/quote" novalidate>
+                <input type="hidden" name="form_source" value="service-hero-services-front-yard-landscaping" />
+                <input type="hidden" name="timeline" value="" />
+                <p class="form-honeypot" aria-hidden="true">
+                  <label>Leave this empty: <input name="bot-field" type="text" tabindex="-1" autocomplete="off" /><input name="website" type="text" tabindex="-1" autocomplete="off" /></label>
+                </p>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="sf-landsc-name">Full Name *</label>
+                    <input id="sf-landsc-name" name="full_name" type="text" placeholder="e.g. Jane Smith" required autocomplete="name" />
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="sf-landsc-email">Email *</label>
+                    <input id="sf-landsc-email" name="email" type="email" placeholder="jane@example.com" required autocomplete="email" />
+                  </div>
+                  <div class="form-group">
+                    <label for="sf-landsc-phone">Phone *</label>
+                    <input id="sf-landsc-phone" name="phone" type="tel" placeholder="+1 (289) 700-0312" required autocomplete="tel" />
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="sf-landsc-city">City <span class="label-optional">(opt.)</span></label>
+                    <select id="sf-landsc-city" name="city">
+                      <option value="" disabled selected>Select&hellip;</option>
+                      <option>Hamilton</option>
+                      <option>Burlington</option>
+                      <option>Oakville</option>
+                      <option>Ancaster</option>
+                      <option>Dundas</option>
+                      <option>Stoney Creek</option>
+                      <option>Waterdown</option>
+                      <option>Milton</option>
+                      <option>Mississauga</option>
+                      <option>Other</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label for="sf-landsc-services">Service</label>
+                    <select id="sf-landsc-services" name="services">
+                <option>Interlock Patios &amp; Driveways</option>
+                <option>Concrete Driveways &amp; Patios</option>
+                <option>Concrete Driveway</option>
+                <option>Stamped Concrete Patio</option>
+                <option>Exposed Aggregate Concrete</option>
+                <option>Concrete Steps &amp; Walkways</option>
+                <option>Retaining Walls</option>
+                <option>Walkways</option>
+                <option>Sod Installation</option>
+                <option>Yard Grading &amp; Drainage</option>
+                <option>Pools &amp; Pool Surrounds</option>
+                <option>Landscape Stone</option>
+                <option>Backyard Landscaping</option>
+                <option selected>Front Yard Landscaping</option>
+                <option>Benches &amp; Fire Pits</option>
+                <option>Fences &amp; Staining</option>
+                <option>Decks &amp; Pergolas</option>
+                <option>Multiple Services / Full Package</option>
+                <option>Other / Not Sure</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="sf-landsc-message">Message <span class="label-optional">(optional)</span></label>
+                  <textarea id="sf-landsc-message" name="message" placeholder="Tell us about your project&hellip;" rows="2"></textarea>
+                </div>
+                <button type="submit" class="btn btn--cta">Send My Request &rarr;</button>
+                <p class="fine-print">No spam. We&#39;ll only contact you about your project.</p>
+              </form>
+            </div>
+          </aside>
         </div>
       </div>
     </div>

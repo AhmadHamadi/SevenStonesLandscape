@@ -128,11 +128,27 @@ function buildEmailBody(body) {
       <tr><td style="padding: 6px 12px 6px 0; vertical-align: top; font-weight: 600;">Email</td><td style="padding: 6px 0;">${escapeHtml(body.email)}</td></tr>
       <tr><td style="padding: 6px 12px 6px 0; vertical-align: top; font-weight: 600;">Phone</td><td style="padding: 6px 0;">${escapeHtml(body.phone)}</td></tr>
       <tr><td style="padding: 6px 12px 6px 0; vertical-align: top; font-weight: 600;">City</td><td style="padding: 6px 0;">${escapeHtml(body.city)}</td></tr>
+      <tr><td style="padding: 6px 12px 6px 0; vertical-align: top; font-weight: 600;">Project type</td><td style="padding: 6px 0;">${escapeHtml(body.project_type)}</td></tr>
+      <tr><td style="padding: 6px 12px 6px 0; vertical-align: top; font-weight: 600;">Service category</td><td style="padding: 6px 0;">${escapeHtml(body.services)}</td></tr>
       <tr><td style="padding: 6px 12px 6px 0; vertical-align: top; font-weight: 600;">Timeline</td><td style="padding: 6px 0;">${escapeHtml(body.timeline)}</td></tr>
-      <tr><td style="padding: 6px 12px 6px 0; vertical-align: top; font-weight: 600;">Services</td><td style="padding: 6px 0;">${escapeHtml(body.services)}</td></tr>
       <tr><td style="padding: 6px 12px 6px 0; vertical-align: top; font-weight: 600;">Message</td><td style="padding: 6px 0;">${escapeHtml(messageCapped)}</td></tr>
+      <tr><td style="padding: 6px 12px 6px 0; vertical-align: top; font-weight: 600; color:#888; font-size:12px;">Source</td><td style="padding: 6px 0; color:#888; font-size:12px;">${escapeHtml(fromPage)}</td></tr>
     </table>
   `.trim();
+}
+
+function buildSubject(body, fullName) {
+  const src = String(body.form_source || '').toLowerCase();
+  let tag = '';
+  if (src.includes('ads-concrete')) tag = '[Concrete LP] ';
+  else if (src.includes('ads-interlock')) tag = '[Interlock LP] ';
+  else if (src.includes('hero')) tag = '[Homepage] ';
+  else if (src.includes('contact')) tag = '[Contact page] ';
+  else if (src.includes('service-hero-')) {
+    const slug = src.replace('service-hero-', '').replace(/-/g, ' ');
+    tag = `[Service: ${slug}] `;
+  }
+  return `${tag}Quote request from ${fullName || 'Customer'}`;
 }
 
 export default async function handler(req, res) {
@@ -192,7 +208,7 @@ export default async function handler(req, res) {
   }
 
   const from = process.env.EMAIL_FROM || DEFAULT_FROM;
-  const subject = `Quote request from ${fullName || 'Customer'}`;
+  const subject = buildSubject(body, fullName);
   const html = buildEmailBody({
     ...body,
     full_name: fullName,
