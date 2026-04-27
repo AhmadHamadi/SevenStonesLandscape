@@ -10,7 +10,7 @@ This site is deployed on **Vercel**. Form submissions are handled by a serverles
 - On submit, the browser sends the form to **`/api/quote`** (Vercel serverless function).
 - The function checks hidden spam traps (**bot-field** and **website**), message spam patterns, and basic rate limits; suspicious submissions are silently dropped (no email sent).
 - Otherwise it sends one email **from forms@clinimedia.ca** via your cPanel SMTP server to:
-  - **john.scime.mcmaster@gmail.com**
+  - **info@sevenstoneslandscape.ca**
   - **ahmadhamadi2002@gmail.com**
 - The user is redirected to **/contact/?submitted=1** and sees a thank-you message.
 
@@ -61,7 +61,7 @@ After saving the env vars, **redeploy** the project (e.g. **Deployments** → �
 - On the **live** site, fill out any quote form and submit.
 - You should:
   1. Be redirected to the contact page with a thank-you message.
-  2. Receive the same email at **both** inboxes (john.scime.mcmaster@gmail.com and ahmadhamadi2002@gmail.com), with the email **From: Seven Stones Landscape &lt;forms@clinimedia.ca&gt;** (or your custom **EMAIL_FROM**).
+  2. Receive the same email at **both** inboxes (info@sevenstoneslandscape.ca and ahmadhamadi2002@gmail.com), with the email **From: Seven Stones Landscape &lt;forms@clinimedia.ca&gt;** (or your custom **EMAIL_FROM**).
 
 If the email doesn’t arrive, check **Vercel** → **Project** → **Logs** (or **Functions**) for SMTP errors. Common issues: wrong **SMTP_HOST** or **SMTP_PORT**, or cPanel only allowing SMTP from the server IP (in that case you may need to use a relay or “SMTP under SSL” from an allowed IP; Vercel’s IPs might need to be allowed in cPanel if your host restricts remote SMTP).
 
