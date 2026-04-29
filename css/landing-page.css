@@ -88,18 +88,27 @@
 .lp-hero-sub-short { display: none; }
 .lp-hero-sub-long { display: inline; }
 
-/* Mobile hero, trim aggressively so form is reachable in one scroll */
+/* Mobile hero, trim aggressively so form is reachable above the fold */
 @media (max-width: 720px) {
-  .lp-hero { padding: 56px 0 32px; }
+  .lp-hero { padding: 44px 0 24px; }
   .lp-hero-eyebrow { display: none; }
-  .lp-hero h1 { font-size: clamp(1.65rem, 7vw, 2.2rem); margin-bottom: 12px; }
-  .lp-hero-sub { font-size: 0.98rem; margin-bottom: 16px; }
-  .lp-hero-sub-short { display: inline; }
-  .lp-hero-sub-long { display: none; }
-  .lp-trust-bullets li:nth-child(n+4) { display: none; }
-  .lp-trust-bullets { margin-bottom: 16px; }
+  .lp-hero h1 {
+    font-size: clamp(1.45rem, 6.2vw, 1.95rem);
+    line-height: 1.18;
+    margin-bottom: 10px;
+  }
+  .lp-hero-sub { display: none; }
+  .lp-trust-bullets {
+    margin-bottom: 14px;
+    gap: 6px;
+  }
+  .lp-trust-bullets li {
+    font-size: 0.9rem;
+    line-height: 1.35;
+  }
+  .lp-trust-bullets li:nth-child(n+3) { display: none; }
   .lp-credential-row { display: none; }
-  .lp-hero-actions { margin-bottom: 0; }
+  .lp-hero-actions { margin-bottom: 0; gap: 8px; }
 }
 .lp-trust-bullets li {
   color: rgba(255,255,255,0.95);
