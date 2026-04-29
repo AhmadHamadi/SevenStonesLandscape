@@ -88,9 +88,9 @@
 .lp-hero-sub-short { display: none; }
 .lp-hero-sub-long { display: inline; }
 
-/* Mobile hero — trim aggressively so form is reachable in one scroll */
+/* Mobile hero, trim aggressively so form is reachable in one scroll */
 @media (max-width: 720px) {
-  .lp-hero { padding: 36px 0 32px; }
+  .lp-hero { padding: 56px 0 32px; }
   .lp-hero-eyebrow { display: none; }
   .lp-hero h1 { font-size: clamp(1.65rem, 7vw, 2.2rem); margin-bottom: 12px; }
   .lp-hero-sub { font-size: 0.98rem; margin-bottom: 16px; }
@@ -129,31 +129,58 @@
   gap: 12px;
   margin-bottom: 22px;
 }
-.lp-hero-actions .btn {
-  padding: 14px 26px;
-  font-size: 1rem;
+.lp-hero-actions .lp-btn-quote,
+.lp-hero-actions .lp-btn-call {
+  padding: 16px 28px;
+  font-size: 1.05rem;
   font-weight: 700;
-  border-radius: var(--radius);
+  border-radius: 14px;
+  letter-spacing: 0.01em;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1.2;
 }
 .lp-btn-call {
   background: transparent;
   color: #fff;
   border: 2px solid rgba(255,255,255,0.85);
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  text-decoration: none;
-  transition: background var(--transition), border-color var(--transition);
+  gap: 10px;
+  transition: background var(--transition), border-color var(--transition), transform var(--transition);
 }
-.lp-btn-call:hover { background: rgba(255,255,255,0.15); border-color: #fff; color: #fff; }
+.lp-btn-call:hover { background: rgba(255,255,255,0.15); border-color: #fff; color: #fff; transform: translateY(-2px); }
+.lp-btn-call-label {
+  font-size: 0.95rem;
+  font-weight: 600;
+  opacity: 0.9;
+}
+.lp-btn-call-number {
+  font-size: 1.2rem;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+}
 .lp-btn-quote {
   background: var(--cta);
   color: #fff;
-  text-decoration: none;
   border: 2px solid var(--cta);
-  transition: background var(--transition), transform var(--transition);
+  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.32);
+  transition: background var(--transition), border-color var(--transition), transform var(--transition), box-shadow var(--transition);
 }
-.lp-btn-quote:hover { background: var(--cta-hover); border-color: var(--cta-hover); color: #fff; transform: translateY(-2px); }
+.lp-btn-quote:hover { background: var(--cta-hover); border-color: var(--cta-hover); color: #fff; transform: translateY(-2px); box-shadow: 0 10px 22px rgba(37, 99, 235, 0.38); }
+
+@media (max-width: 720px) {
+  .lp-hero-actions { gap: 10px; }
+  .lp-hero-actions .lp-btn-quote,
+  .lp-hero-actions .lp-btn-call {
+    width: 100%;
+    padding: 18px 22px;
+    font-size: 1.05rem;
+    border-radius: 12px;
+  }
+  .lp-btn-call-label { font-size: 0.9rem; }
+  .lp-btn-call-number { font-size: 1.25rem; }
+}
 
 .lp-credential-row {
   display: flex;
