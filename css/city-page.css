@@ -170,6 +170,24 @@
   color: var(--stone);
   font-weight: 500;
 }
+/* Project gallery images: preserve aspect ratio, prevent stretching */
+.city-projects-placeholders img {
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  object-position: center;
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: var(--radius);
+}
+.city-projects-placeholders img[width][height] {
+  /* When width and height attrs are present, browser uses them for ratio. */
+  aspect-ratio: attr(width) / attr(height);
+}
+/* Portrait images (e.g., concrete steps photos) keep their tall ratio */
+.city-projects-placeholders img.is-portrait {
+  aspect-ratio: 3 / 4;
+}
 
 .city-quote-form-wrap {
   background: var(--form-bg);
