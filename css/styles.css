@@ -1140,12 +1140,12 @@ ul { list-style: none; }
   background-size: cover;
   background-position: center;
 }
-.si-interlock       { background-image: url('../assets/images/interlockandpatio.jpg'); }
-.si-concrete        { background-image: url('../assets/images/c11.jpeg'); }
-.si-fences          { background-image: url('../assets/images/fence1.jpg'); }
-.si-pools           { background-image: url('../assets/images/pool1.jpg'); }
-.si-grading         { background-image: url('../assets/images/sod1.jpg'); }
-.si-decks           { background-image: url('../assets/images/wood1.png'); }
+.si-interlock       { background-image: url('../assets/images/i2.jpg'); }
+.si-concrete        { background-image: url('../assets/images/c2.jpeg'); }
+.si-fences          { background-image: url('../assets/images/s8.jpg'); }
+.si-pools           { background-image: url('../assets/images/p8.jpg'); }
+.si-grading         { background-image: url('../assets/images/s2.jpg'); }
+.si-decks           { background-image: url('../assets/images/w6.png'); }
 .si-benches         { background-image: url('../assets/images/b3.jpg'); }
 .si-wall            { background: var(--bg-grey); }
 /* All Services page: specific cover images per service */
@@ -1154,7 +1154,7 @@ ul { list-style: none; }
 .si-walkways        { background-image: url('../assets/images/i15.jpg'); }
 .si-front-yard      { background-image: url('../assets/images/i17.jpg'); }
 .services-page .si-concrete { background-image: url('../assets/images/c3.jpeg'); }
-.si-backyard             { background-image: url('../assets/images/bench1.jpg'); }
+.si-backyard             { background-image: url('../assets/images/b2.jpg'); }
 
 .service-body {
   padding: var(--space-md);
@@ -1751,7 +1751,7 @@ ul { list-style: none; }
   padding: var(--space-2xl) 0;
   overflow: hidden;
   background-color: var(--bg-grey-alt);
-  background-image: url('/assets/images/bottom.jpg');
+  background-image: url('/assets/images/p8.jpg');
   background-repeat: no-repeat;
   background-position: center center;
   /* Scale image to fit section without over-zooming; use a high-res bottom.jpg for best clarity */
