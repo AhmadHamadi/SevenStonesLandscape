@@ -1140,21 +1140,21 @@ ul { list-style: none; }
   background-size: cover;
   background-position: center;
 }
-.si-interlock       { background-image: url('../assets/images/i2.jpg'); }
-.si-concrete        { background-image: url('../assets/images/c2.jpeg'); }
-.si-fences          { background-image: url('../assets/images/s8.jpg'); }
-.si-pools           { background-image: url('../assets/images/p8.jpg'); }
-.si-grading         { background-image: url('../assets/images/s2.jpg'); }
-.si-decks           { background-image: url('../assets/images/w6.png'); }
+.si-interlock       { background-image: url('../assets/images/stamped-concrete-front-porch-walkway.jpg'); }
+.si-concrete        { background-image: url('../assets/images/concrete-walkway-front-steps-white-house.jpeg'); }
+.si-fences          { background-image: url('../assets/images/front-yard-spruce-perennials-aggregate.jpg'); }
+.si-pools           { background-image: url('../assets/images/pool-stacked-stone-waterfall.jpg'); }
+.si-grading         { background-image: url('../assets/images/front-yard-sod-mulch-beds-spruce.jpg'); }
+.si-decks           { background-image: url('../assets/images/pergola-thumbnail-small.png'); }
 .si-benches         { background-image: url('../assets/images/b3.jpg'); }
 .si-wall            { background: var(--bg-grey); }
 /* All Services page: specific cover images per service */
-.si-yard-grading    { background-image: url('../assets/images/s6.jpg'); }
-.si-landscape-stone { background-image: url('../assets/images/i11.jpg'); }
-.si-walkways        { background-image: url('../assets/images/i15.jpg'); }
-.si-front-yard      { background-image: url('../assets/images/i17.jpg'); }
-.services-page .si-concrete { background-image: url('../assets/images/c3.jpeg'); }
-.si-backyard             { background-image: url('../assets/images/b2.jpg'); }
+.si-yard-grading    { background-image: url('../assets/images/backyard-blue-spruce-paver-border.jpg'); }
+.si-landscape-stone { background-image: url('../assets/images/driveway-stone-pillars-paver-entry.jpg'); }
+.si-walkways        { background-image: url('../assets/images/cedar-privacy-screen-stone-side-yard.jpg'); }
+.si-front-yard      { background-image: url('../assets/images/built-in-bench-stone-wall-patio.jpg'); }
+.services-page .si-concrete { background-image: url('../assets/images/concrete-driveway-garage-pour-finish.jpeg'); }
+.si-backyard             { background-image: url('../assets/images/square-fire-pit-paver-patio-cover.jpg'); }
 
 .service-body {
   padding: var(--space-md);
@@ -1215,7 +1215,7 @@ ul { list-style: none; }
   position: relative;
   overflow: hidden;
   min-height: 640px;
-  background-image: url('../assets/images/bbq.jpg');
+  background-image: url('../assets/images/outdoor-kitchen-cantilever-roof-travertine.jpg');
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
@@ -1751,7 +1751,7 @@ ul { list-style: none; }
   padding: var(--space-2xl) 0;
   overflow: hidden;
   background-color: var(--bg-grey-alt);
-  background-image: url('/assets/images/p8.jpg');
+  background-image: url('/assets/images/pool-stacked-stone-waterfall.jpg');
   background-repeat: no-repeat;
   background-position: center center;
   /* Scale image to fit section without over-zooming; use a high-res bottom.jpg for best clarity */
