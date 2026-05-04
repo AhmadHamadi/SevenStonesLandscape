@@ -16,8 +16,8 @@ Check:
 
 - Page is crawlable by Googlebot.
 - Page is indexable.
-- Page is eligible for snippets.
-- Important content is available in textual form.
+- Page is snippet-eligible and not blocked by `nosnippet` or overly restrictive snippet controls.
+- Important content is available as textual content and HTML text, not only images, video, canvas, or PDF files.
 - Internal links make important pages discoverable.
 - Structured data matches visible page content.
 - Business Profile and Merchant data are up to date when relevant.
@@ -41,6 +41,29 @@ OpenAI crawler controls are separate by purpose:
 
 Do not treat these as the same. A site may allow search visibility while disallowing model-training crawl, depending on business preference.
 
+### Perplexity
+
+Perplexity documents separate agents by purpose:
+
+- `PerplexityBot`: search/indexing behavior used to surface and link websites in Perplexity results.
+- `Perplexity-User`: user-requested page access from inside Perplexity; not the same as automatic crawling.
+
+If the business wants visibility in Perplexity answers, check whether `PerplexityBot` can access important public pages. If it is disallowed, explain the visibility tradeoff and confirm business preference before changing robots.txt. Also check WAF rules and IP allowlists when the robots.txt policy looks correct but Perplexity still cannot fetch the site.
+
+### Anthropic / Claude
+
+Anthropic documents separate Claude/Anthropic agents by purpose:
+
+- `ClaudeBot`: model-training crawl preference.
+- `Claude-User`: user-directed retrieval from Claude.
+- `Claude-SearchBot`: search quality and search visibility/indexing behavior.
+
+Check the current Anthropic documentation before changing robots.txt because crawler names and purposes can evolve. Separate Claude/Anthropic crawl permissions from Google Search, OpenAI search, and model-training preferences.
+
+### Google / Gemini Controls
+
+Googlebot access affects Google Search and Google AI features in Search. `Google-Extended` is a separate robots.txt product token that affects some Google AI product uses and should not be confused with normal Googlebot indexing. Do not block Googlebot when the goal is Search or Google AI visibility.
+
 ### LLMs.txt
 
 `llms.txt` can be reviewed if present, but it is not a guaranteed standard for search visibility. Do not claim it is required for Google AI features. Treat it as optional documentation for AI tools, not a replacement for crawlable, indexable, helpful web pages.
@@ -55,6 +78,13 @@ Do not treat these as the same. A site may allow search visibility while disallo
 | Googlebot access | Needed for Google Search and AI features in Search. |
 | OAI-SearchBot policy | Affects ChatGPT search visibility. |
 | GPTBot policy | Indicates whether content may be crawled for model training. |
+| PerplexityBot policy | Affects Perplexity crawl/index behavior. |
+| Perplexity-User policy | Affects user-requested Perplexity fetch behavior; not automatic indexing. |
+| ClaudeBot policy | Affects Anthropic model-training crawl preference. |
+| Claude-User policy | Affects user-directed Claude retrieval. |
+| Claude-SearchBot policy | Affects Anthropic/Claude search visibility and search quality crawling. |
+| Anthropic/Claude crawler policy | Affects Anthropic/Claude crawler access depending on current bot purpose. |
+| Google-Extended policy | Affects certain Google AI product uses, not normal Googlebot indexing. |
 | Important pages are not `noindex` | Noindex blocks search eligibility. |
 | Snippet controls are intentional | `nosnippet` and restrictive `max-snippet` can limit AI/search preview usage. |
 | CDN/WAF does not block crawlers | Infrastructure can block legitimate crawlers even when robots.txt allows them. |
@@ -64,7 +94,7 @@ Do not treat these as the same. A site may allow search visibility while disallo
 
 | Check | Why It Matters |
 |---|---|
-| Main content is text, not only images/video/canvas | AI/search systems need extractable text. |
+| Main content is HTML text, not only images/video/canvas/PDF | AI/search systems need extractable text. |
 | Important content is present in rendered HTML | Client-only content may be missed or delayed. |
 | Headings outline the page clearly | Helps humans and systems understand structure. |
 | FAQs answer real user questions | Helps direct answers and long-tail discovery. |
@@ -108,6 +138,11 @@ Do not treat these as the same. A site may allow search visibility while disallo
 | GPTBot | | | |
 | ChatGPT-User | | | |
 | Google-Extended | | | |
+| PerplexityBot | | | |
+| Perplexity-User | | | |
+| ClaudeBot | | | |
+| Claude-User | | | |
+| Claude-SearchBot | | | |
 | `nosnippet`/`max-snippet` | | | |
 
 ### Answer Block Opportunities
@@ -125,7 +160,8 @@ Do not treat these as the same. A site may allow search visibility while disallo
 - Do not claim AI visibility can be guaranteed.
 - Do not claim special schema is required for Google AI Overviews or AI Mode.
 - Do not recommend allowing training crawlers unless that matches the business owner's preference.
+- Do not confuse search/index crawlers with model-training crawlers.
+- Verify current crawler documentation before editing robots.txt rules for AI crawlers.
 - Do not hide content from users while exposing it to crawlers.
 - Do not create generic AI-written blocks with unsupported claims.
 - Prioritize crawlable, indexable, helpful, trustworthy, well-structured pages.
-

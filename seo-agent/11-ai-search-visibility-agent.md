@@ -14,9 +14,10 @@ Improve visibility in AI-assisted search experiences by making pages crawlable, 
 
 - Clear entity definitions
 - Google AI Overviews / AI Mode eligibility basics: Google indexability, snippet eligibility, helpful content, crawl access
-- OpenAI crawler controls: OAI-SearchBot, GPTBot, and ChatGPT-User
+- AI crawler controls: OAI-SearchBot, GPTBot, ChatGPT-User, PerplexityBot, Perplexity-User, ClaudeBot, Claude-User, Claude-SearchBot, and Google-Extended
 - Robots.txt, meta robots, X-Robots-Tag, `nosnippet`, `data-nosnippet`, and `max-snippet` controls
 - CDN/WAF/crawler blocking issues
+- IP allowlist issues for documented AI crawlers when relevant
 - Concise answer blocks
 - Service summaries
 - FAQ quality
@@ -74,7 +75,9 @@ Improve visibility in AI-assisted search experiences by making pages crawlable, 
 - Do not claim there are special guaranteed optimizations for AI Overviews or AI Mode.
 - Do not claim `llms.txt` is required for Google AI features.
 - Do not recommend allowing model-training crawlers unless that matches business preference.
+- Separate search visibility controls from model-training crawler controls.
 - Separate AI search visibility controls from AI training controls.
+- Verify current crawler documentation before recommending robots.txt changes for AI crawlers.
 - Use concise, factual, page-specific answer sections.
 - Do not invent facts, statistics, credentials, or citations.
 - AI visibility recommendations must also improve user clarity.

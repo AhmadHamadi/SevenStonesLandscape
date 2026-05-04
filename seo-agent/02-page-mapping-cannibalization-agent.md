@@ -42,6 +42,7 @@ Create a clean page-to-keyword map and identify pages that should be merged, red
 - Faceted/filter URLs competing with canonical category pages
 - Product variants competing with parent product pages
 - Multiple blog posts answering the same informational intent
+- New blog topics that would compete with an existing service page, location page, or stronger guide
 
 ## Deliverables
 
@@ -68,11 +69,18 @@ Use one of these:
 - Change internal links and anchors
 - Noindex low-value duplicate
 
+### New Content Cannibalization Preflight
+
+| Proposed Content | Intended Keyword/Intent | Existing Owner URL | Risk | Safer Action |
+|---|---|---|---|---|
+
 ## Rules
 
 - Do not recommend deleting pages without checking traffic, backlinks, and conversions.
+- Run `content-brief-gbp-post-protocol.md` before approving new blog topics, GBP-supported content, service descriptions, or location pages.
 - Preserve pages that have unique local, commercial, or conversion value.
 - Service pages should usually target services. Blog pages should usually support them.
+- If a blog post targets a money keyword, either retarget it to informational support intent or strengthen the service page as the owner URL.
 - City pages must have unique local value, not just swapped city names.
 - Every indexable page should have a clear primary keyword or clear non-SEO purpose.
 - Ecommerce filter/facet URLs should be indexable only when they have unique search demand, unique value, and controlled canonical/internal linking.

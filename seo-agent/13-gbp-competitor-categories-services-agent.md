@@ -29,6 +29,7 @@ Find legitimate GBP improvements that make the business more relevant and compet
 - Address visibility and pin accuracy
 - Hours and holiday hours
 - Q&A content
+- Competitor GBP post themes when visible
 - Competitor website landing page connected to GBP
 - Local pack rankings by city and keyword
 - Possible competitor spam, such as keyword-stuffed names or wrong categories
@@ -60,6 +61,11 @@ Find legitimate GBP improvements that make the business more relevant and compet
 | Factor | Current Gap | Fix | Evidence | Priority |
 |---|---|---|---|---|
 
+### GBP Post And Description Gap
+
+| Competitor Pattern | Our Gap | Recommended GBP Post/Description Direction | Evidence | Priority |
+|---|---|---|---|---|
+
 ### Spam/Policy Risk Notes
 
 | Competitor | Possible Issue | Evidence | Action |
@@ -71,6 +77,8 @@ Find legitimate GBP improvements that make the business more relevant and compet
 - Use as few categories as possible while covering the real core business.
 - Do not copy competitor spam.
 - Do not recommend keyword-stuffed business names.
+- Do not write keyword-stuffed GBP descriptions or posts.
 - Only add services the business truly offers.
 - Service additions should be supported by matching website content where possible.
+- GBP posts should point to relevant service, booking, offer, or project pages and use real photos/videos when possible.
 - Separate legitimate competitor advantages from policy-violating tactics.

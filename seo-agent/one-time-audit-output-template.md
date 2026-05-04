@@ -98,6 +98,18 @@ Include:
 | URL | Current Gap | Search Intent Problem | Trust/E-E-A-T Gap | Fix |
 |---|---|---|---|---|
 
+## 9A. Blog, GBP Post, And Content Brief Plan
+
+| Asset | Target Intent | Owner URL/Landing Page | Competitor Gap | Unique Proof Needed | Recommendation |
+|---|---|---|---|---|---|
+
+Include:
+
+- Blog Briefs for priority topics.
+- GBP Post Briefs for service, city, offer, project, seasonal, or review-driven updates.
+- New Content Cannibalization Preflight results before recommending new pages or posts.
+- No AI-slop Content Gate notes for any draft or rewrite.
+
 ## 10. Technical SEO And Code
 
 | Issue | URL/File | Evidence | Fix |
@@ -138,7 +150,7 @@ Separate:
 
 ## 16. AI Search Visibility
 
-| Page/Entity | Crawlability Gap | Extractability Gap | Entity/Trust Gap | Fix |
+| Page/Entity | AI Crawlability Gap | Extractability Gap | Entity/Trust Gap | Fix |
 |---|---|---|---|---|
 
 Focus on clear, factual, crawlable, helpful content. Do not claim guaranteed AI Overview visibility.
@@ -146,7 +158,7 @@ Focus on clear, factual, crawlable, helpful content. Do not claim guaranteed AI 
 Include:
 
 - Google AI eligibility: indexable, snippet-eligible, helpful content, textual content.
-- OpenAI crawler controls: OAI-SearchBot, GPTBot, ChatGPT-User.
+- AI crawler controls: OAI-SearchBot, GPTBot, ChatGPT-User, PerplexityBot, Perplexity-User, ClaudeBot, Claude-User, Claude-SearchBot, Google-Extended.
 - Snippet controls: `nosnippet`, `data-nosnippet`, `max-snippet`.
 - Main content extractability.
 - Entity clarity and structured data alignment.
@@ -193,6 +205,9 @@ Include GSC, GA4, GBP insights, local rank snapshots, leads, calls, forms, and p
 - Website fixes are separated from GBP fixes.
 - GSC exclusions are classified as intentional vs harmful.
 - Competitor claims are based on extracted evidence.
+- Blog and GBP post recommendations are people-first, specific, proof-backed, and not keyword-stuffed.
+- New blog/page recommendations passed the New Content Cannibalization Preflight.
+- Draft copy does not fail the No AI-slop Content Gate.
 - No fake reviews, fake schema, keyword-stuffed names, doorway pages, or link schemes.
 - The plan is prioritized by impact and effort.
 - Ranking guarantees are not promised.

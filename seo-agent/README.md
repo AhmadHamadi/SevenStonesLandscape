@@ -27,7 +27,10 @@ Use this folder by copying `seo-agent/` into any website repo or by referencing 
   - Compares the agent pack against GSC, GBP, Lighthouse, Unlighthouse, crawl tools, rank trackers, and paid crawler workflows.
 
 - `ai-crawlability-protocol.md`
-  - Rules and checks for Google AI features, OpenAI crawler controls, text extractability, snippet controls, entity clarity, and AI search readiness.
+  - Rules and checks for Google AI features, OpenAI crawler controls, Perplexity controls, Anthropic/Claude controls, Google-Extended, text extractability, snippet controls, entity clarity, and AI search readiness.
+
+- `content-brief-gbp-post-protocol.md`
+  - Rules and templates for blog briefs, GBP post briefs, GBP service descriptions, competitor-informed content, people-first content, and the No AI-slop Content Gate.
 
 - `large-codebase-review-protocol.md`
   - Efficient review process for large repos, monorepos, generated routes, CMS-driven sites, and framework-heavy projects.
@@ -142,6 +145,10 @@ These Markdown files are agent instructions, not a standalone crawler or API.
 - Client website and business audits
 - Search intent matching
 - On-page SEO
+- Blog keyword targeting, blog briefs, and content refresh planning
+- GBP post ideas, GBP post descriptions, and GBP service description guidance
+- New Content Cannibalization Preflight before new blogs/pages are recommended
+- No AI-slop Content Gate for content quality and originality
 - Technical SEO
 - Code-level SEO implementation
 - Metadata, canonicals, robots, sitemap, redirects
@@ -166,7 +173,7 @@ These Markdown files are agent instructions, not a standalone crawler or API.
 - Off-page authority, backlinks, and brand mentions
 - Core Web Vitals and mobile page experience
 - AI search visibility and answer-engine readiness
-- AI crawlability, crawler controls, snippet eligibility, text extractability, and entity clarity
+- AI crawlability, crawler controls, snippet eligibility, text extractability, entity clarity, Perplexity controls, Claude/Anthropic controls, and Google-Extended separation
 - Audit QA, contradiction checks, and self-improvement
 - Measurement, reporting, baselines, post-fix validation, and ongoing improvement
 - Quick wins and simple optimization changes that can be done immediately
@@ -229,9 +236,14 @@ Use these as the source-of-truth baseline when agent recommendations conflict:
 - Google image SEO best practices: https://developers.google.com/search/docs/appearance/google-images
 - Google title link best practices: https://developers.google.com/search/docs/appearance/title-link
 - Google spam policies: https://developers.google.com/search/docs/essentials/spam-policies
+- Google people-first content guidance: https://developers.google.com/search/docs/fundamentals/creating-helpful-content
+- Google Business Profile posts guidance: https://support.google.com/business/answer/7342169
 - Google AI features and your website: https://developers.google.com/search/docs/appearance/ai-overviews
 - Google robots meta and snippet controls: https://developers.google.com/search/docs/crawling-indexing/robots-meta-tag
-- OpenAI crawlers: https://platform.openai.com/docs/gptbot
+- OpenAI crawlers: https://developers.openai.com/api/docs/bots
+- Perplexity crawlers: https://docs.perplexity.ai/docs/resources/perplexity-crawlers
+- Anthropic/Claude crawler controls: https://support.claude.com/en/articles/8896518-does-anthropic-crawl-data-from-the-web-and-how-can-site-owners-block-the-crawler
+- Google common crawlers and Google-Extended: https://developers.google.com/crawling/docs/crawlers-fetchers/google-common-crawlers
 - Web.dev Core Web Vitals: https://web.dev/articles/vitals
 
 ## Output Standard

@@ -32,6 +32,7 @@ A quick win must be:
 - Image alt text and missing dimensions
 - Obvious schema gaps that match visible content
 - GBP missing services, photos, description improvements, Q&A, review responses, and hours
+- GBP post descriptions, service descriptions, and CTAs that can be safely improved now
 - Content sections missing buyer questions, proof, city/service relevance, or calls to action
 - Cannibalization that can be fixed by title/H1/internal link changes
 - Conversion friction on key landing pages
@@ -81,6 +82,8 @@ Use only when evidence supports them:
 - Respond to unanswered GBP reviews.
 - Add city/service proof to local landing pages.
 - Add FAQs that answer real buyer objections.
+- Draft one useful GBP post tied to a real service, offer, project, season, or customer question.
+- Improve GBP service descriptions with plain customer language and proof-backed differentiators.
 - Add clear phone/quote/contact CTAs on service pages.
 - Verify GA4/GSC/GBP tracking before claiming improvement.
 
@@ -91,4 +94,4 @@ Use only when evidence supports them:
 - Do not call a task quick if it needs major redesign, migration, content production, or stakeholder approval.
 - Always separate safe immediate fixes from strategic projects.
 - Quick wins must support the full audit's priorities, not distract from them.
-
+- Do not publish fast blog or GBP copy that fails the No AI-slop Content Gate.

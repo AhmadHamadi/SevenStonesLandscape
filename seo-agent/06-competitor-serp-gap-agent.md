@@ -19,6 +19,7 @@ Find what competitors have that this site lacks, then turn those gaps into page,
 - Service page structure
 - City/location page structure
 - Content depth
+- Competitor blog topics, content angles, proof, FAQs, and internal link patterns
 - FAQs
 - Schema usage
 - Internal linking
@@ -46,6 +47,11 @@ Find what competitors have that this site lacks, then turn those gaps into page,
 | Missing Topic/Page | Competitors Covering It | Target Intent | Recommended Page/Section |
 |---|---|---|---|
 
+### Competitor-Informed Blog Plan
+
+| Blog/Guide Topic | Competitor Pattern | What We Can Do Better | Owner URL | Priority |
+|---|---|---|---|---|
+
 ### Authority Gap Plan
 
 | Gap | Evidence | Recommended Action |
@@ -55,6 +61,7 @@ Find what competitors have that this site lacks, then turn those gaps into page,
 
 - Do not copy competitor content.
 - Extract patterns, not wording.
+- Use competitors to identify SERP expectations, weak spots, and proof gaps; do not copy their descriptions, headings, review language, or article structure.
 - Do not invent competitor titles, headings, meta descriptions, schema, categories, services, or rankings.
 - Prioritize gaps that match business value and search intent.
 - For local competitors, consider reviews and GBP strength separately from website content.

@@ -30,6 +30,8 @@ Make the audit more accurate, complete, evidence-based, and implementation-ready
 - Cannibalization findings
 - Local SEO findings
 - Content recommendations
+- Blog Briefs and GBP Post Briefs
+- New Content Cannibalization Preflight results
 - Schema recommendations
 - Authority/backlink recommendations
 - Core Web Vitals recommendations
@@ -58,12 +60,18 @@ Make the audit more accurate, complete, evidence-based, and implementation-ready
 - If this is a one-time audit, does the final output include direct answer, root causes, priorities, and 30/60/90 plan?
 - Are schema recommendations supported by visible page content?
 - Are content recommendations specific to the page and search intent?
+- Do blog topics support the correct owner URL instead of stealing service-page or location-page intent?
+- Do GBP post descriptions and service descriptions avoid keyword stuffing and unsupported claims?
+- Did content drafts pass the No AI-slop Content Gate from `content-brief-gbp-post-protocol.md`?
+- Are competitor-informed content recommendations based on patterns and proof gaps rather than copied wording?
 - Are priorities realistic?
 - Are any high-impact SEO areas missing?
 - Are any recommendations generic, vague, or unsupported?
 - Are there contradictions between agents?
 - Are AI crawlability recommendations aligned with `ai-crawlability-protocol.md`?
 - Did the audit separate AI search visibility from AI training crawler permissions?
+- Did the audit check the relevant AI crawler controls: OAI-SearchBot, GPTBot, ChatGPT-User, PerplexityBot, Perplexity-User, ClaudeBot, Claude-User, Claude-SearchBot, and Google-Extended?
+- Did the audit check whether CDN/WAF rules block allowed AI or search crawlers?
 - Did the audit avoid claiming special guaranteed AI Overview/AI Mode optimizations?
 
 ## Deliverables
@@ -95,6 +103,9 @@ Rate each area from 1 to 5:
 | Keyword Strategy | | |
 | Cannibalization | | |
 | Content/E-E-A-T | | |
+| Blog Briefs | | |
+| GBP Post Briefs | | |
+| No AI-slop Content Gate | | |
 | Local SEO | | |
 | GBP | | |
 | Competitors | | |
@@ -103,6 +114,7 @@ Rate each area from 1 to 5:
 | Page Experience | | |
 | AI Search | | |
 | AI Crawlability | | |
+| AI Crawler Controls | | |
 | Measurement/Reporting | | |
 | Quick Wins | | |
 | Large Codebase Review | | |

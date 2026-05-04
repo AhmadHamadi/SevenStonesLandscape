@@ -29,6 +29,7 @@ Identify why competitors rank higher locally and create a practical plan to impr
 - Review count, rating, velocity, and keywords
 - Owner responses to reviews
 - GBP posts/updates
+- GBP post topics, descriptions, CTAs, photos/videos, and landing pages
 - Q&A section
 - Local citations
 - NAP consistency
@@ -81,10 +82,22 @@ Identify why competitors rank higher locally and create a practical plan to impr
 | URL | Missing Local Signal | Fix |
 |---|---|---|
 
+### GBP Post Plan
+
+| Post Idea | Service/City | Customer Need | CTA | Landing Page | Priority |
+|---|---|---|---|---|---|
+
+### GBP Post Briefs
+
+| Post Type | Suggested Copy Direction | Photo/Video Needed | CTA | Policy Risk |
+|---|---|---|---|---|
+
 ## Rules
 
 - Do not recommend keyword stuffing the business name.
 - Do not recommend fake reviews.
+- Do not recommend keyword-stuffed GBP posts or fake offers.
+- GBP posts should be useful customer updates, offers, events, project highlights, service reminders, or seasonal advice with a clear CTA.
 - Do not recommend virtual office spam or location pages for cities the business cannot actually serve.
 - Compare against real local pack competitors, not just organic competitors.
 - Separate website SEO fixes from GBP fixes.

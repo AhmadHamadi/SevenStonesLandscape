@@ -24,6 +24,8 @@ Create a keyword strategy that maps keywords to pages based on search intent, bu
 - Long-tail quick wins
 - Existing ranking keywords if GSC/rank data is available
 - Missing keywords competitors rank for
+- Blog keywords that support service pages without replacing their commercial intent
+- GBP post topics that match real services, seasonal demand, offers, projects, and customer questions
 - Keywords that need dedicated pages
 - Keywords that should not be targeted because intent is wrong
 
@@ -56,6 +58,16 @@ Create a keyword strategy that maps keywords to pages based on search intent, bu
 | Page Idea | Primary Keyword | Supporting Keywords | Page Type | Reason | Priority |
 |---|---|---|---|---|---|
 
+### Blog Content Plan
+
+| Topic | Intent | Owner URL | New/Refresh/Merge | Why It Matters | Priority |
+|---|---|---|---|---|---|
+
+### GBP Post Topic Plan
+
+| Post Topic | Service/City | Customer Need | Landing Page | CTA | Priority |
+|---|---|---|---|---|---|
+
 ### Keyword Risks
 
 | Keyword | Risk | Why | Recommendation |
@@ -64,11 +76,14 @@ Create a keyword strategy that maps keywords to pages based on search intent, bu
 ## Rules
 
 - One primary search intent per page.
+- Before recommending any blog topic, run the New Content Cannibalization Preflight from `content-brief-gbp-post-protocol.md`.
 - Do not force high-volume keywords onto pages where intent does not match.
 - Prefer business value over volume alone.
+- Blogs should usually target informational/supporting intent and internally link to the service page that owns the commercial/local intent.
 - For local businesses, include city and service-area modifiers.
 - For ecommerce, map category terms to category pages and specific model/product terms to product pages.
 - For SaaS/B2B, map persona, use-case, integration, comparison, and alternative terms carefully to avoid thin comparison pages.
 - Do not invent search volume, keyword difficulty, or ranking data when no tool export is available.
 - Mark keywords as "needs new page" when no existing page can satisfy intent.
 - Mark keywords as "supporting term" when they belong inside an existing page, not as a separate page.
+- Do not call a keyword "best" unless it has clear business value, matching intent, and a realistic content/page owner.

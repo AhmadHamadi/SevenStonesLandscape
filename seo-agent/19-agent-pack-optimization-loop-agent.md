@@ -22,7 +22,9 @@ Run this loop after any substantial SEO audit:
    - `one-time-audit-output-template.md`
    - `agent-test-plan.md`
    - `external-seo-tool-benchmark.md`
+   - `ai-crawlability-protocol.md`
    - Official Google guidance linked in `README.md`
+   - Official AI crawler documentation linked in `README.md`
 4. Decide whether the issue is:
    - Bad execution
    - Missing input data
@@ -45,6 +47,7 @@ Run this loop after any substantial SEO audit:
 - Competitor evidence extraction
 - GSC indexability edge cases
 - GBP/local Maps edge cases
+- AI crawler controls, AI search visibility controls, and model-training preference separation
 - Measurement/reporting checks
 - Tool benchmark coverage
 - Validation script coverage
@@ -84,5 +87,6 @@ Run this loop after any substantial SEO audit:
 - Prefer improving existing agents over creating new ones.
 - Add a new agent only when the responsibility is distinct and recurring.
 - Every new capability should have at least one test in `agent-test-plan.md` or `validate-seo-agent-pack.ps1`.
+- When official crawler docs change, update `ai-crawlability-protocol.md`, `agent-test-plan.md`, and `validate-seo-agent-pack.ps1` together.
 - If a recommendation depends on external data, add a rule for how to handle missing access.
 - Keep the pack portable across websites and businesses.

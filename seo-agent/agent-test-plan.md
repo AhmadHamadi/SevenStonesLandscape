@@ -19,7 +19,8 @@ Use this file to test whether the agent pack is ready to import into any website
 - [ ] The pack is benchmarked against external SEO tools and crawlers.
 - [ ] The pack includes a large-codebase review protocol.
 - [ ] The pack includes an optimization loop for improving instructions, benchmarks, workflows, and tests after audits.
-- [ ] The pack includes AI crawlability checks for Google AI eligibility, OpenAI crawler controls, snippet controls, text extractability, and entity clarity.
+- [ ] The pack includes AI crawlability checks for Google AI eligibility, OpenAI crawler controls, Perplexity controls, Anthropic/Claude controls, Google-Extended, snippet controls, text extractability, and entity clarity.
+- [ ] The pack includes blog briefs, GBP post briefs, a New Content Cannibalization Preflight, and a No AI-slop Content Gate.
 
 ## One-Time Audit Scenario Tests
 
@@ -30,6 +31,18 @@ Use this file to test whether the agent pack is ready to import into any website
 | User provides URL + GBP + competitors | Run intake, competitor extraction, local/GBP, keyword, cannibalization, content, technical, measurement, and QA. |
 | User asks for the "best possible suggestions" | Prioritize by impact, evidence, effort, and business value; avoid generic checklist advice. |
 | User asks for simple changes now | Run Quick Wins Implementation Agent and separate do now, do today, do this week, and do this month. |
+
+## Blog, GBP Post, And Content Quality Scenario Tests
+
+| Scenario | Expected Agent Decision |
+|---|---|
+| User asks for best blog keywords | Map blog topics to informational/supporting intent, assign an owner URL, and avoid stealing service-page or location-page intent. |
+| User asks for a blog based on competitors | Extract competitor patterns and proof gaps, then create a Blog Brief with a unique angle, not copied wording. |
+| Proposed blog targets a money keyword already owned by a service page | Reject or retarget the blog; strengthen the service page and use the blog as supporting content with internal links. |
+| Draft reads like generic AI content | Fail it under the No AI-slop Content Gate and require real proof, local details, examples, photos, or expert input. |
+| User asks for GBP post descriptions | Create GBP Post Briefs with service/city, customer need, CTA, landing page, photo/video need, and policy risk. |
+| GBP post copy is keyword-stuffed | Reject and rewrite in plain customer language with one clear CTA. |
+| GBP service description is generic | Rewrite with real service details, service-area truth, proof-backed differentiators, and matching website support. |
 
 ## Public URL Audit Scenario Tests
 
@@ -73,11 +86,18 @@ Run these test scenarios against the Universal Website Crawl And Intake Agent an
 
 | Scenario | Expected Agent Decision |
 |---|---|
-| User asks how to improve AI crawlability | Check Google indexability/snippet eligibility, robots, OpenAI crawler controls, text extraction, structured data, entity clarity, and helpful content. |
+| User asks how to improve AI crawlability | Check Google indexability/snippet eligibility, robots, OpenAI crawler controls, Perplexity controls, Anthropic/Claude controls, Google-Extended, text extraction, structured data, entity clarity, and helpful content. |
 | Page is noindex | Mark as ineligible for normal Google Search and Google AI features unless intentionally excluded. |
 | Page uses nosnippet/max-snippet | Explain it can limit snippets and direct input for Google AI features; verify business intent. |
 | OAI-SearchBot is disallowed | Explain this can affect ChatGPT search visibility; confirm business preference before changing. |
 | GPTBot is disallowed | Explain this relates to model-training crawl; do not recommend allowing unless business wants it. |
+| PerplexityBot is disallowed | Explain this can affect Perplexity crawl/index behavior; confirm business preference before changing. |
+| Perplexity-User is disallowed | Explain this affects user-requested Perplexity fetches, not normal automatic indexing. |
+| Googlebot is blocked but Google-Extended is allowed | Flag as harmful for Google Search/AI visibility; separate Googlebot from Google-Extended. |
+| ClaudeBot is disallowed | Explain this is a model-training preference and should not be treated as a normal SEO indexing blocker. |
+| Claude-SearchBot is disallowed | Explain this can affect Anthropic/Claude search visibility; confirm business preference before changing. |
+| Claude-User is disallowed | Explain this affects user-directed Claude retrieval. |
+| Anthropic crawler controls are requested | Verify current Anthropic crawler documentation before recommending exact robots.txt rules. |
 | Important content is only in images/PDF/video | Recommend HTML text equivalents and structured summaries. |
 | Site has llms.txt | Review it as optional documentation, not a Google AI requirement. |
 | Agent suggests special AI schema | Reject unless it is normal structured data that matches visible page content. |

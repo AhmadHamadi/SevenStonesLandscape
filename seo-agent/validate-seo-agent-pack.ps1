@@ -10,6 +10,8 @@ $expectedFiles = @(
   "agent-test-plan.md",
   "existing-seo-skills-review.md",
   "external-seo-tool-benchmark.md",
+  "ai-crawlability-protocol.md",
+  "content-brief-gbp-post-protocol.md",
   "large-codebase-review-protocol.md",
   "one-time-audit-output-template.md",
   "00-audit-orchestrator.md",
@@ -88,7 +90,30 @@ $requiredCoverageTerms = @(
   "monorepo",
   "metadata",
   "sitemap",
-  "robots"
+  "robots",
+  "AI Crawlability",
+  "ai-crawlability-protocol.md",
+  "OAI-SearchBot",
+  "GPTBot",
+  "ChatGPT-User",
+  "PerplexityBot",
+  "Perplexity-User",
+  "Anthropic/Claude",
+  "ClaudeBot",
+  "Claude-User",
+  "Claude-SearchBot",
+  "Google-Extended",
+  "nosnippet",
+  "data-nosnippet",
+  "max-snippet",
+  "snippet-eligible",
+  "textual content",
+  "Blog Brief",
+  "GBP Post Brief",
+  "No AI-slop Content Gate",
+  "New Content Cannibalization Preflight",
+  "people-first content",
+  "scaled content abuse"
 )
 
 $requiredOrchestratorRefs = @(
@@ -130,6 +155,8 @@ $scenarioChecks = [ordered]@{
   "QUICK_WINS" = ($allText -like "*SEO Quick Wins Implementation Agent*" -and $allText -like "*Simple Changes To Do Now*" -and $runbook -like "*QUICK_WINS_ROUTE: 18*")
   "LARGE_CODEBASE" = ($allText -like "*large-codebase-review-protocol.md*" -and $allText -like "*monorepo*" -and $allText -like "*SEO control files*")
   "OPTIMIZATION_LOOP" = ($allText -like "*SEO Agent Pack Optimization Loop Agent*" -and $runbook -like "*OPTIMIZATION_LOOP_ROUTE: 19*" -and $allText -like "*validate-seo-agent-pack.ps1*")
+  "AI_CRAWLABILITY" = ($allText -like "*ai-crawlability-protocol.md*" -and $allText -like "*OAI-SearchBot*" -and $allText -like "*GPTBot*" -and $allText -like "*PerplexityBot*" -and $allText -like "*Perplexity-User*" -and $allText -like "*ClaudeBot*" -and $allText -like "*Claude-User*" -and $allText -like "*Claude-SearchBot*" -and $allText -like "*Google-Extended*" -and $allText -like "*nosnippet*" -and $allText -like "*snippet-eligible*")
+  "BLOG_GBP_CONTENT" = ($allText -like "*content-brief-gbp-post-protocol.md*" -and $allText -like "*Blog Brief*" -and $allText -like "*GBP Post Brief*" -and $allText -like "*No AI-slop Content Gate*" -and $allText -like "*New Content Cannibalization Preflight*")
 }
 
 $missingFiles = $expectedFiles | Where-Object { -not (Test-Path (Join-Path $root $_)) }

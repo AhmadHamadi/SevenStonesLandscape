@@ -128,6 +128,51 @@ Gap to remember:
 
 - Rankings vary by location, personalization, and time. Treat as snapshots, not absolute truth.
 
+### AI Crawlability And Crawler Controls
+
+Strengths:
+
+- Official crawler documentation can identify whether important pages are accessible to search and answer systems.
+- Robots.txt, meta robots, X-Robots-Tag, snippets, and WAF rules can explain why a site is not visible or extractable in AI-assisted search.
+- Separating search/index crawlers from model-training crawlers prevents bad recommendations.
+
+Agent pack coverage:
+
+- `11-ai-search-visibility-agent.md`
+- `ai-crawlability-protocol.md`
+- `14-agent-qa-improvement-agent.md`
+- `19-agent-pack-optimization-loop-agent.md`
+
+Gap to remember:
+
+- AI search visibility cannot be guaranteed. Crawler names, product behavior, and documentation can change, so recommendations should cite current sources and confirm business preference before changing training-crawler access.
+
+### Open-Source AI SEO Agent Packs
+
+Examples reviewed:
+
+- Claude SEO: https://claude-seo.md/
+- ultimate-seo-geo: https://rywalker.com/research/ultimate-seo-geo
+
+Strengths:
+
+- Multi-agent routing for technical SEO, content quality, local SEO, AI/GEO, and reporting.
+- Some packs include scripts, health scoring, command workflows, and parallel agents.
+- Stronger than a plain checklist because they can combine crawl findings with LLM reasoning.
+
+Agent pack coverage:
+
+- `00-audit-orchestrator.md` routes the smallest useful specialist team.
+- `14-agent-qa-improvement-agent.md` reviews contradictions and removes weak findings.
+- `19-agent-pack-optimization-loop-agent.md` updates instructions and tests after real audit misses.
+- `validate-seo-agent-pack.ps1` checks coverage terms, scenarios, agent references, protocol links, and ASCII cleanliness.
+
+Gap to remember:
+
+- Agent packs are only as good as their evidence and tools. Prefer verified crawl/GSC/GBP data over unsupported LLM claims.
+- Scores are useful for triage but should not replace issue-level evidence, priority, fix, expected impact, and owner.
+- Our pack should keep the strongest pattern from agent-style tools: audit, plan, execute-ready recommendations, QA, and tests.
+
 ## What Our Agent Pack Adds
 
 The agent pack should outperform single-purpose tools by combining:
@@ -188,4 +233,3 @@ Best:
 - Lighthouse/PageSpeed reports
 - Crawl export from a crawler
 - Lead tracking/call tracking data
-
