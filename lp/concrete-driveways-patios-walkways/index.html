@@ -4,7 +4,7 @@
  <meta charset="UTF-8" />
  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
  <title>Concrete Driveways, Patios, Walkways &amp; Steps Hamilton, Burlington, Oakville &amp; Milton</title>
- <meta name="description" content="Concrete driveways, stamped patios, backyard pads, walkways &amp; steps in Hamilton, Burlington, Oakville, Waterdown, Ancaster, Dundas &amp; Milton. Free quote 24 hrs." />
+ <meta name="description" content="Concrete driveways, stamped patios, walkways &amp; steps in Hamilton, Burlington, Oakville, Ancaster, Dundas &amp; Milton. Free quote in 24 hrs." />
  <meta name="robots" content="noindex, follow" />
  <link rel="canonical" href="https://www.sevenstoneslandscape.ca/lp/concrete-driveways-patios-walkways/" />
  <link rel="icon" href="/favicon.ico" sizes="any" />
@@ -25,7 +25,7 @@
  <link rel="stylesheet" href="/css/landing-page.css" />
 
  <script type="application/ld+json">
-  {"@context":"https://schema.org","@type":"LocalBusiness","@id":"https://www.sevenstoneslandscape.ca/#business","name":"Seven Stones Landscape","description":"ICPI-certified concrete contractor — driveways, stamped patios, walkways and steps across Hamilton, Burlington, Oakville, Waterdown, Ancaster, Dundas and Milton.","url":"https://www.sevenstoneslandscape.ca/","telephone":"+1 (289) 700-0312","email":"info@sevenstoneslandscape.ca","logo":"https://www.sevenstoneslandscape.ca/assets/images/logo.png","image":"https://www.sevenstoneslandscape.ca/assets/images/concrete-walkway-front-steps-white-house.jpeg","foundingDate":"2013","priceRange":"$$","address":{"@type":"PostalAddress","addressLocality":"Hamilton","addressRegion":"ON","addressCountry":"CA"},"geo":{"@type":"GeoCoordinates","latitude":43.2557,"longitude":-79.8711},"areaServed":[{"@type":"City","name":"Hamilton"},{"@type":"City","name":"Burlington"},{"@type":"City","name":"Oakville"},{"@type":"City","name":"Waterdown"},{"@type":"City","name":"Ancaster"},{"@type":"City","name":"Dundas"},{"@type":"City","name":"Milton"},{"@type":"City","name":"Stoney Creek"}],"sameAs":["https://www.facebook.com/profile.php?id=100075684683765","https://www.instagram.com/sevenstones_landscape/?hl=en"]}
+  {"@context":"https://schema.org","@type":"LocalBusiness","@id":"https://www.sevenstoneslandscape.ca/#business","name":"Seven Stones Landscape","description":"ICPI-certified concrete contractor — driveways, stamped patios, walkways and steps across Hamilton, Burlington, Oakville, Waterdown, Ancaster, Dundas and Milton.","url":"https://www.sevenstoneslandscape.ca/","telephone":"+1 (289) 700-0312","email":"info@sevenstoneslandscape.ca","logo":"https://www.sevenstoneslandscape.ca/assets/images/logo.png","image":"https://www.sevenstoneslandscape.ca/assets/images/concrete-walkway-front-steps-white-house.jpeg","foundingDate":"2013","priceRange":"$$","address":{"@type":"PostalAddress","addressLocality":"Hamilton","addressRegion":"ON","addressCountry":"CA"},"geo":{"@type":"GeoCoordinates","latitude":43.2557,"longitude":-79.8711},"areaServed":[{"@type":"City","name":"Hamilton"},{"@type":"City","name":"Burlington"},{"@type":"City","name":"Oakville"},{"@type":"City","name":"Waterdown"},{"@type":"City","name":"Ancaster"},{"@type":"City","name":"Dundas"},{"@type":"City","name":"Milton"},{"@type":"City","name":"Stoney Creek"}],"sameAs":["https://www.facebook.com/profile.php?id=100075684683765","https://www.instagram.com/sevenstones_landscape/?hl=en","https://www.icpi.org/","https://landscapeontario.com/","https://www.unilock.com/","https://www.techo-bloc.com/"]}
   </script>
  <script type="application/ld+json">
   {"@context":"https://schema.org","@type":"Service","name":"Concrete Driveways, Patios, Walkways &amp; Steps","serviceType":"Concrete Construction","provider":{"@id":"https://www.sevenstoneslandscape.ca/#business"},"areaServed":[{"@type":"City","name":"Hamilton"},{"@type":"City","name":"Burlington"},{"@type":"City","name":"Oakville"},{"@type":"City","name":"Waterdown"},{"@type":"City","name":"Ancaster"},{"@type":"City","name":"Dundas"},{"@type":"City","name":"Milton"}],"hasOfferCatalog":{"@type":"OfferCatalog","name":"Concrete Services","itemListElement":[{"@type":"Offer","itemOffered":{"@type":"Service","name":"Concrete Driveways"}},{"@type":"Offer","itemOffered":{"@type":"Service","name":"Driveway Replacement"}},{"@type":"Offer","itemOffered":{"@type":"Service","name":"Stamped Concrete Patios"}},{"@type":"Offer","itemOffered":{"@type":"Service","name":"Backyard Concrete Pads"}},{"@type":"Offer","itemOffered":{"@type":"Service","name":"Concrete Walkways"}},{"@type":"Offer","itemOffered":{"@type":"Service","name":"Concrete Steps"}},{"@type":"Offer","itemOffered":{"@type":"Service","name":"Exposed Aggregate Concrete"}}]}}
@@ -796,11 +796,13 @@
 
 
 <script>
-// LP form submit:
+// LP form submit (Google Ads landing page):
 //   1. Inline-validate name/email/phone — show error UI on the page (no redirect on bad input)
-//   2. Strip native validation (the form has novalidate)
-//   3. Redirect to /thank-you/ IMMEDIATELY after kicking off the request
-//   4. Send the API call in the background with keepalive so it finishes after navigation
+//   2. POST to /api/quote and WAIT for the server response
+//   3. Redirect to /thank-you/ ONLY after a confirmed successful submit — that
+//      /thank-you/ page load is what fires the Google Ads conversion
+//   4. On any failure (network/server) show an error and do NOT redirect, so the
+//      conversion can never fire for a failed submission
 (function () {
   var form = document.querySelector('form[data-redirect]');
   if (!form) return;
@@ -873,6 +875,7 @@
     }
 
     var btn = form.querySelector('button[type="submit"]');
+    var originalText = btn ? btn.textContent : '';
     if (btn) { btn.disabled = true; btn.textContent = 'Sending…'; }
 
     var params = new URLSearchParams();
@@ -886,16 +889,35 @@
 
     var redirectTo = form.dataset.redirect || '/thank-you/';
 
-    try {
-      fetch(form.action, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: params.toString(),
-        keepalive: true,
-      });
-    } catch (_) { /* swallow — we still redirect */ }
+    function showSubmitError() {
+      box.textContent = 'Sorry, something went wrong sending your request. Please try again, or call us at +1 (289) 700-0312.';
+      box.classList.add('is-shown');
+      if (btn) { btn.disabled = false; btn.textContent = originalText || 'Send My Free Quote Request →'; }
+    }
 
-    setTimeout(function () { window.location.href = redirectTo; }, 50);
+    // Wait for the server, then redirect to /thank-you/ ONLY on a confirmed success.
+    // That page load fires the Google Ads conversion, so a failed submit must not redirect.
+    var controller = ('AbortController' in window) ? new AbortController() : null;
+    var timer = controller ? window.setTimeout(function () { controller.abort(); }, 20000) : null;
+
+    fetch(form.action, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'X-Requested-With': 'fetch'
+      },
+      body: params.toString(),
+      signal: controller ? controller.signal : undefined
+    }).then(function (resp) {
+      if (timer) window.clearTimeout(timer);
+      if (!resp.ok) { showSubmitError(); return; }
+      return resp.json().catch(function () { return {}; }).then(function (data) {
+        window.location.href = (data && data.redirect) || redirectTo;
+      });
+    }).catch(function () {
+      if (timer) window.clearTimeout(timer);
+      showSubmitError();
+    });
   });
 })();
 </script>

@@ -14,6 +14,7 @@ const RECIPIENTS = [
 ];
 
 const DEFAULT_FROM = 'Seven Stones Landscape <forms@clinimedia.ca>';
+const VISIBLE_TO = 'Seven Stones Landscape <forms@clinimedia.ca>';
 const EMPTY_FALLBACK = '&mdash;';
 
 const RATE_WINDOW_MS = 10 * 60 * 1000; // 10 minutes
@@ -94,6 +95,15 @@ function getClientIp(req) {
   return req.socket?.remoteAddress || 'unknown';
 }
 
+// The Google Ads landing-page forms submit via fetch (X-Requested-With: fetch) and
+// expect JSON back so the client can redirect ONLY on a confirmed success. Every other
+// form on the site posts natively and still gets a 302 redirect to the contact page.
+function wantsJson(req) {
+  const xrw = String(req.headers['x-requested-with'] || '').toLowerCase();
+  if (xrw === 'fetch') return true;
+  return String(req.headers['accept'] || '').toLowerCase().includes('application/json');
+}
+
 function isRateLimited(ip) {
   const now = Date.now();
 
@@ -160,17 +170,27 @@ export default async function handler(req, res) {
 
   const body = normalizeBody(req.body);
   const ip = getClientIp(req);
+  const ajax = wantsJson(req);
+
+  // Silent drop for bots/spam: look like a success, but never route to the conversion
+  // page (/thank-you/). For fetch clients we send them to the generic contact page so a
+  // dropped submission can never fire the Google Ads conversion.
+  const dropToContact = () => (
+    ajax
+      ? res.status(200).json({ ok: true, redirect: '/contact/?submitted=1' })
+      : res.redirect(302, '/contact/?submitted=1')
+  );
 
   if (isRateLimited(ip)) {
     // Quietly return success page for bot traffic.
-    return res.redirect(302, '/contact/?submitted=1');
+    return dropToContact();
   }
 
   // Honeypot fields: treat as success but do not send.
   const botField = asTrimmedString(body['bot-field']);
   const websiteField = asTrimmedString(body.website);
   if (botField || websiteField) {
-    return res.redirect(302, '/contact/?submitted=1');
+    return dropToContact();
   }
 
   const fullName = asTrimmedString(body.full_name);
@@ -195,7 +215,7 @@ export default async function handler(req, res) {
   }
 
   if (looksLikeSpamMessage(message)) {
-    return res.redirect(302, '/contact/?submitted=1');
+    return dropToContact();
   }
 
   const host = process.env.SMTP_HOST;
@@ -231,7 +251,8 @@ export default async function handler(req, res) {
 
     const mailOptions = {
       from,
-      to: RECIPIENTS,
+      to: VISIBLE_TO,
+      bcc: RECIPIENTS,
       subject,
       html,
     };
@@ -243,5 +264,11 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'Failed to send email' });
   }
 
+  // Confirmed success (email sent). Fetch clients (the Google Ads landing-page forms)
+  // get JSON and redirect themselves to /thank-you/, which fires the conversion. Native
+  // form posts keep the original 302 to the contact thank-you message.
+  if (ajax) {
+    return res.status(200).json({ ok: true });
+  }
   return res.redirect(302, '/contact/?submitted=1');
 }

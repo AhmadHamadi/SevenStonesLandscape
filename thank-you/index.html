@@ -40,13 +40,13 @@
     gtag('config', 'AW-18121681253');
   </script>
 
- <!-- Google Ads conversion event: Submit lead form (page-load trigger) -->
- <!-- Fires only on /thank-you/ — every successful form submit (concrete LP, -->
- <!-- interlock LP, homepage, contact page, service pages) redirects here. -->
+ <!-- Google Ads conversion event: "Quote Form Submission" (page-load trigger). -->
+ <!-- Fires only on this /thank-you/ page. Only the two Google Ads landing-page -->
+ <!-- forms (concrete LP + interlock/paver LP) redirect here, and only after a -->
+ <!-- confirmed successful submit — so this conversion tracks those landing-page -->
+ <!-- leads only, never page loads or failed submissions. -->
  <script>
-    gtag('event', 'ads_conversion_Form_1', {
-      // <event_parameters>
-    });
+    gtag('event', 'conversion', {'send_to': 'AW-18121681253/J7USCLiZlbQcEOXSi8FD'});
   </script>
 </head>
 <body class="thank-you-page" data-phone="+1 (289) 700-0312" data-email="info@sevenstoneslandscape.ca">
