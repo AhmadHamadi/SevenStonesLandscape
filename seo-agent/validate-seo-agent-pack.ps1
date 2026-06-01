@@ -33,7 +33,12 @@ $expectedFiles = @(
   "16-competitor-evidence-extraction-agent.md",
   "17-seo-measurement-reporting-agent.md",
   "18-seo-quick-wins-implementation-agent.md",
-  "19-agent-pack-optimization-loop-agent.md"
+  "19-agent-pack-optimization-loop-agent.md",
+  "20-review-creator-agent.md",
+  "21-ai-visibility-multi-engine-agent.md",
+  "22-fact-check-citation-protocol.md",
+  "23-bing-apple-search-visibility-agent.md",
+  "24-paid-channels-lsa-google-ads-agent.md"
 )
 
 $files = Get-ChildItem -Path $root -Filter "*.md"
@@ -113,7 +118,21 @@ $requiredCoverageTerms = @(
   "No AI-slop Content Gate",
   "New Content Cannibalization Preflight",
   "people-first content",
-  "scaled content abuse"
+  "scaled content abuse",
+  "atomic-fact",
+  "Wikidata",
+  "IndexNow",
+  "Bing Webmaster Tools",
+  "Apple Business",
+  "Local Service Ads",
+  "Performance Max",
+  "Fact-Check",
+  "INP",
+  "OAI-SearchBot",
+  "AICopilot",
+  "Applebot-Extended",
+  "Reddit",
+  "Last updated"
 )
 
 $requiredOrchestratorRefs = @(
@@ -135,7 +154,11 @@ $requiredOrchestratorRefs = @(
   "SEO Agent QA And Improvement Agent",
   "SEO Measurement And Reporting Agent",
   "SEO Quick Wins Implementation Agent",
-  "SEO Agent Pack Optimization Loop Agent"
+  "SEO Agent Pack Optimization Loop Agent",
+  "AI Visibility Multi-Engine Agent",
+  "Fact-Check",
+  "Bing + Apple Search Visibility Agent",
+  "Paid Channels"
 )
 
 $scenarioChecks = [ordered]@{
@@ -191,7 +214,7 @@ $passed = (
   -not $nonAsciiFiles -and
   -not $failedScenarios -and
   -not $missingQARefs -and
-  $numbered.Count -eq 20
+  $numbered.Count -ge 25
 )
 
 if ($passed) {

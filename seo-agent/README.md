@@ -137,6 +137,21 @@ These Markdown files are agent instructions, not a standalone crawler or API.
 20. `19-agent-pack-optimization-loop-agent.md`
    - Reviews audit performance and improves the agent pack instructions, benchmarks, workflows, templates, and tests.
 
+21. `20-review-creator-agent.md`
+   - Generates Google review drafts for real customers under Google policy + Competition Bureau Canada disclosure rules with hard anti-duplication enforcement.
+
+22. `21-ai-visibility-multi-engine-agent.md`
+   - Per-engine AEO playbook for ChatGPT, Gemini, AI Overviews, AI Mode, Perplexity, Microsoft Copilot/Bing AI, Apple Intelligence, Claude, Meta AI, Grok. User agents, robots.txt directives, citation signals, llms.txt status, atomic-fact passages, measurement stack.
+
+23. `22-fact-check-citation-protocol.md`
+   - Mandatory factual-verification gate for any regulatory, statutory, cost, or specific-number claim. Primary-source URL recording, claim taxonomy, recovery workflow. Prevents fabricated bylaw / cost / regulation claims from shipping.
+
+24. `23-bing-apple-search-visibility-agent.md`
+   - Bing Webmaster Tools verification, AI Performance Report monitoring, IndexNow installation, Bing Places setup, Apple Business (formerly Apple Business Connect) optimization, Apple Maps Ads launch prep, cross-platform NAP audit.
+
+25. `24-paid-channels-lsa-google-ads-agent.md`
+   - Local Service Ads (Google Guaranteed), Google Ads Search + Performance Max, Customer Match via Data Manager API, Microsoft Ads / Copilot inventory, Apple Maps Ads (Summer 2026), enhanced conversion tracking.
+
 ## What This Covers
 
 - Keyword research and keyword-to-page mapping
@@ -181,6 +196,22 @@ These Markdown files are agent instructions, not a standalone crawler or API.
 - Large codebase and monorepo SEO review workflows
 - Optimization loop for improving agent instructions and tests over time
 - Prioritization by impact and effort
+- **Multi-engine AI citation strategy** (ChatGPT, Gemini, Perplexity, Copilot, Apple Intelligence, Claude)
+- **Atomic-fact content patterns** (40-75 word answer capsules per H2/H3)
+- **Per-engine source-pool mapping** (Bing index -> ChatGPT, Brave -> Claude, Apple Maps -> Apple Intelligence)
+- **Factual-verification gate** for regulatory/statutory/specific-number claims (Agent 22)
+- **Wikidata QID + sameAs entity chain** for Apple Intelligence and Wikipedia-weighted engines
+- **Bing Webmaster Tools AI Performance Report** monitoring
+- **Apple Business** setup (formerly Apple Business Connect; unified April 14, 2026)
+- **IndexNow** instant indexing for Bing/Yandex/DuckDuckGo
+- **Local Service Ads / Google Guaranteed** for contractor lead-gen
+- **Google Ads Performance Max** with Customer Match via Data Manager API
+- **Reddit + Quora seeding** for AI citation lift
+- **Brand listicle pitching** strategy for "Best X in [City] 2026" inclusion
+- **2026 Core Web Vitals thresholds** (LCP <=2.0s, INP <=200ms)
+- **GBP April 2026 policy compliance** (no kiosks, no name-stuffing, no incentivized reviews)
+- **GBP suspension recovery workflow** (60-minute evidence-upload window)
+- **Banned-phrase + AI-detection filter** (em-dashes, sentence rhythm, vocabulary tells)
 
 ## Ranking Expectation
 

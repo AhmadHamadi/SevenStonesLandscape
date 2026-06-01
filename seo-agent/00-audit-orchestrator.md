@@ -25,25 +25,30 @@ Create a complete SEO audit covering organic rankings, Google Search indexabilit
 
 ## Specialist Agents To Run
 
-- Universal Website Crawl And Intake Agent
-- Competitor Evidence Extraction Agent
-- Keyword Strategy Agent
-- Page Mapping and Cannibalization Agent
-- Technical SEO Code Agent
-- On-Page Content and E-E-A-T Agent
-- Local SEO and Google Maps Agent
-- Competitor SERP Gap Agent
-- Programmatic Location Pages Agent
-- Schema Entity Trust Agent
-- Authority Backlinks And Citations Agent
-- Core Web Vitals UX And Conversion Agent
-- AI Search Visibility Agent
-- Google Search Indexability Agent
-- GBP Competitor Categories And Services Agent
-- SEO Agent QA And Improvement Agent
-- SEO Measurement And Reporting Agent
-- SEO Quick Wins Implementation Agent
-- SEO Agent Pack Optimization Loop Agent
+- Universal Website Crawl And Intake Agent (15)
+- Competitor Evidence Extraction Agent (16)
+- Keyword Strategy Agent (01)
+- Page Mapping and Cannibalization Agent -- incl. pillar+cluster (02)
+- Technical SEO Code Agent -- incl. AI-bot robots.txt, image SEO, JS rendering, hreflang (03)
+- On-Page Content and E-E-A-T Agent -- incl. fact-citation gate, banned phrases (04)
+- Local SEO and Google Maps Agent -- incl. April 2026 GBP policies, suspension recovery (05)
+- Competitor SERP Gap Agent (06)
+- Programmatic Location Pages Agent -- incl. Proof-of-Work test (07)
+- Schema Entity Trust Agent -- incl. Wikidata QID, sameAs chain, Image/VideoObject (08)
+- Authority Backlinks And Citations Agent -- incl. Reddit/Quora seeding, brand listicles (09)
+- Core Web Vitals UX And Conversion Agent -- incl. 2026 LCP 2.0s + INP 200ms thresholds (10)
+- AI Search Visibility Agent -- incl. atomic-fact passages, banned phrases (11)
+- Google Search Indexability Agent -- incl. manual action recovery, Bing index parallel (12)
+- GBP Competitor Categories And Services Agent (13)
+- SEO Agent QA And Improvement Agent (14)
+- SEO Measurement And Reporting Agent (17)
+- SEO Quick Wins Implementation Agent (18)
+- SEO Agent Pack Optimization Loop Agent (19)
+- Review Creator Agent (20) -- when review drafts are part of the engagement
+- **AI Visibility Multi-Engine Agent (21)** -- per-engine playbook for ChatGPT/Gemini/Perplexity/Copilot/Apple/Claude
+- **Fact-Check & Citation Protocol (22)** -- mandatory gate before any factual claim ships
+- **Bing + Apple Search Visibility Agent (23)** -- Bing Webmaster Tools AI Performance, IndexNow, Apple Business
+- **Paid Channels -- LSA & Google Ads Agent (24)** -- when paid acquisition is part of the strategy
 
 ## Process
 
@@ -56,14 +61,50 @@ Create a complete SEO audit covering organic rankings, Google Search indexabilit
 7. Assign only the specialist agents required for the audit mode.
 8. Require evidence for every finding.
 9. Deduplicate overlapping findings.
-10. Resolve conflicts between agents.
+10. Resolve conflicts between agents (see Conflict Resolution below).
 11. Classify Search Console exclusions as intentional, harmful, or needing verification.
-12. Prioritize recommendations by business impact, ranking impact, implementation effort, and risk.
-13. Run the SEO Quick Wins Implementation Agent to separate immediate simple changes from larger strategic projects.
-14. Run the SEO Measurement And Reporting Agent when baseline, tracking, reporting, or ongoing improvement is needed.
-15. Run the QA Improvement Agent against all outputs.
-16. Run the SEO Agent Pack Optimization Loop Agent after substantial audits when instructions, tests, benchmarks, or workflows need improvement.
-17. Create a final roadmap.
+12. **Run Agent 22 (Fact-Check Protocol) against every regulatory, statutory, or specific-number claim** in any draft, GBP post, or service description before approving it. Halt content workflows on any fabrication risk.
+13. **Run Agent 21 (AI Visibility Multi-Engine) and Agent 23 (Bing + Apple)** for any audit where AI engine citations / Bing & Apple visibility / generative-search performance is in scope (now default for all contractor audits).
+14. **Run Agent 24 (Paid Channels)** when the engagement includes paid acquisition or the business is at a stage where LSA/Google Ads is the fastest lever.
+15. Prioritize recommendations by business impact, ranking impact, implementation effort, and risk.
+16. Run the SEO Quick Wins Implementation Agent to separate immediate simple changes from larger strategic projects.
+17. Run the SEO Measurement And Reporting Agent when baseline, tracking, reporting, or ongoing improvement is needed.
+18. Run the QA Improvement Agent against all outputs.
+19. Run the SEO Agent Pack Optimization Loop Agent after substantial audits when instructions, tests, benchmarks, or workflows need improvement.
+20. Create a final roadmap.
+
+## Conflict Resolution Decision Tree
+
+When two specialist agents recommend different actions for the same URL/issue:
+
+```
+1. Is one agent the canonical owner of this topic area?
+   (E.g., Agent 03 = robots.txt; Agent 05 = GBP; Agent 08 = schema;
+   Agent 11/21/23 = AI visibility; Agent 12 = indexability.)
+   -> Defer to the canonical owner agent.
+
+2. If both agents have legitimate domain claim:
+   -> Defer to the more recent / 2026-specific guidance if dated.
+
+3. If still conflicting:
+   -> Surface the conflict explicitly in the audit output:
+     "Agent X recommends A; Agent Y recommends B. Reason for tension: ...
+      Recommended path: ... because ..."
+
+4. Never silently pick one and bury the other.
+```
+
+## When to invoke agents 21-24
+
+| Trigger | Run |
+|---|---|
+| Any audit with AI engine visibility in scope (default 2026) | 21 + 11 |
+| Site needs AI citation tracking | 21 + 23 (Bing WMT AI Performance) |
+| Site is invisible in ChatGPT, Gemini, Perplexity | 21 + 11 + 08 (Wikidata) + 09 (Reddit) |
+| Site has any factual claim (bylaws, costs, regulations, stats) | 22 (always, mandatory gate) |
+| Contractor with budget for paid acquisition | 24 |
+| Site needs ChatGPT browsing visibility specifically | 23 (Bing setup) + 11 (atomic facts) |
+| Apple Maps / Siri citations matter | 23 (Apple Business) + 08 (Wikidata + sameAs) |
 
 ## Final Output Format
 
@@ -153,6 +194,26 @@ For one-time audits, follow `one-time-audit-output-template.md`. Use the format 
 
 | Opportunity | Page/Entity | Recommended Action | Priority |
 |---|---|---|---|
+
+### Multi-Engine Citation Snapshot
+
+| Query | ChatGPT | Gemini/AIO | Perplexity | Copilot/Bing AI | Apple Intelligence | Claude | Action |
+|---|---|---|---|---|---|---|---|
+
+### Bing + Apple Visibility
+
+| Surface | Status | Gap | Action | Priority |
+|---|---|---|---|---|
+
+### Fact-Check Audit (Agent 22 gate)
+
+| Page | Claim Type | Source Status | Risk | Action |
+|---|---|---|---|---|
+
+### Paid Channel Plan (if in scope)
+
+| Channel | Eligibility | Recommended Budget | Setup Status | Expected Lead Volume | Priority |
+|---|---|---|---|---|---|
 
 ### Measurement And Reporting
 

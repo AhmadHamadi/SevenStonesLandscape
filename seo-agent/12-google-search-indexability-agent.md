@@ -97,6 +97,77 @@ Google crawled the URL but did not index it. Diagnose:
 - Rendering problems
 - Content not sufficiently unique compared with canonical or competing pages
 
+## Soft 404 diagnosis decision tree
+
+If GSC labels a page as "Soft 404" or "Crawled -- currently not indexed" with suspected thin content:
+
+```
+1. Does the page return HTTP 200?            -> If not, fix status.
+2. Is the visible content <300 words?         -> Beef up substance.
+3. Is the title or H1 too generic?            -> Make it specific.
+4. Does the URL look like an error or empty
+   state ("not-found", "results=0")?          -> Convert to noindex.
+5. Is the canonical pointing elsewhere?       -> Fix canonical or accept.
+6. Is the content nearly identical to
+   another indexed page?                      -> Consolidate (301) or
+                                                differentiate.
+7. Is the page client-rendered with no
+   meaningful HTML in source?                 -> Add SSR/SSG.
+8. Has Google crawled it recently? Check via
+   URL Inspection.                            -> If not, fetch + Request
+                                                Indexing.
+```
+
+## Manual action vs algorithmic suppression decision tree
+
+GSC distinguishes **manual actions** (a human reviewer took action) from **algorithmic** ranking drops. Different recovery paths.
+
+### Manual action check
+
+1. GSC -> Security & Manual actions -> Manual actions.
+2. If any are present, the report lists the affected URLs/sections and the violation category.
+
+### Common manual action categories + recovery
+
+| Action | What triggers it | Recovery path |
+|---|---|---|
+| **Unnatural links to your site** | Paid links, link schemes, PBNs, comment spam | Identify offending links via GSC Links report + Ahrefs/SEMrush. Request removal. Disavow remaining. Submit reconsideration. |
+| **Unnatural links from your site** | Selling links without `rel="sponsored"`, link injection | Audit outbound links, mark commercial as `sponsored` or `nofollow`. Reconsideration. |
+| **Thin content** | Mass-produced, low-quality pages | Rewrite or remove. Reconsideration after substantial improvement. |
+| **User-generated spam** | Comment/forum/UGC spam | Implement moderation, remove spam, add CAPTCHA. Reconsideration. |
+| **Structured data spam** | Fake reviews, schema not matching page | Remove offending schema or align to visible content. Reconsideration. |
+| **Cloaking / sneaky redirects** | Different content for Google vs users | Remove cloaking. Reconsideration. |
+| **Pure spam / hacked content** | Compromised pages | Clean site, secure server. Reconsideration. |
+
+### Reconsideration request workflow
+
+1. Fix the root cause first.
+2. Document the fix in the reconsideration request: what was wrong, what specifically you did to fix it, what you'll do to prevent recurrence.
+3. Submit once. Resubmitting wastes Google's queue.
+4. Wait 2-6 weeks. No follow-up during the window.
+
+### Algorithmic suppression (no manual action, but ranking dropped)
+
+- Check Google's algo update history (Search Engine Land roundup, Mozcast, Semrush Sensor) for the date of the drop.
+- Common 2024-2026 causes:
+  - **Helpful Content System** -- site-wide downgrade for mixed helpful/unhelpful content.
+  - **Core update** -- broad quality reassessment.
+  - **March 2026 SpamBrain** -- scaled content abuse (AI-generated en masse, templated location pages).
+- Recovery is slow (months). No reconsideration; the algorithm re-evaluates after substantial improvement.
+
+## Bing Index coverage parallel check
+
+For every important URL, verify Bing has indexed it too. Bing's index drives ChatGPT browsing -- pages missing from Bing are missing from ChatGPT.
+
+1. Bing Webmaster Tools -> URL Inspection.
+2. Check "Indexed by Bing?" status.
+3. If not indexed:
+   - Submit via Bing WMT URL Inspection -> Request Indexing.
+   - Trigger via IndexNow ping.
+   - Verify the page is in the sitemap submitted to Bing.
+
+See Agent 23 for the full Bing setup workflow.
+
 ## Deliverables
 
 ### Indexability Triage
@@ -132,5 +203,21 @@ Google crawled the URL but did not index it. Diagnose:
 - Not all pages should be indexed; filtered URLs, duplicate variants, thank-you pages, internal search pages, and admin/private pages are often intentionally excluded.
 - If a page is blocked by robots.txt, Google may not be able to see its noindex tag.
 - Use URL Inspection live testing after changes when possible.
-- Use Request indexing for important fixed pages, but do not promise instant indexing.
+- Use Request indexing for important fixed pages, but do not promise instant indexing (10/day limit per property).
+- **Check both Google AND Bing index coverage** -- a page indexed in Google but not in Bing is missing from ChatGPT browsing citation pool.
+- **Separate manual action from algorithmic suppression** before recommending recovery actions. Wrong diagnosis = wrong path.
 - Mark data as "Needs GSC verification" if Search Console exports are not available.
+
+## Cross-references
+
+- Robots.txt + AI bot directives + JS rendering -> Agent 03.
+- Bing WMT setup + IndexNow + AI Performance Report -> Agent 23.
+- Soft-404 detection during content rewrite -> Agent 04.
+- Sitemap split (pages/image/video) -> Agent 03.
+
+## Sources (load on demand)
+
+- Google Search Central -- Page indexing report -- `developers.google.com/search/docs/crawling-indexing/page-indexing-status`
+- Google Search Central -- Manual actions -- `developers.google.com/search/docs/monitor-debug/manual-actions`
+- Mozcast / Algoroo / Semrush Sensor -- algorithm volatility trackers
+- Bing WMT URL Inspection -- `bing.com/webmasters`

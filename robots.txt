@@ -19,6 +19,12 @@ Allow: /
 User-agent: Bingbot
 Allow: /
 
+User-agent: Bingbot-EnterpriseSearch
+Allow: /
+
+User-agent: AICopilot
+Allow: /
+
 User-agent: DuckDuckBot
 Allow: /
 
@@ -52,6 +58,15 @@ Allow: /
 User-agent: Claude-Web
 Allow: /
 
+User-agent: Claude-User
+Allow: /
+
+User-agent: Claude-SearchBot
+Allow: /
+
+User-agent: claude-code
+Allow: /
+
 User-agent: anthropic-ai
 Allow: /
 
@@ -71,6 +86,12 @@ User-agent: cohere-ai
 Allow: /
 
 User-agent: Meta-ExternalAgent
+Allow: /
+
+User-agent: meta-externalagent
+Allow: /
+
+User-agent: meta-externalfetcher
 Allow: /
 
 User-agent: MistralAI-User

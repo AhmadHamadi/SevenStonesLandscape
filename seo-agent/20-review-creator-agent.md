@@ -13,7 +13,7 @@ Before generating any review, load `shared-audit-protocol.md` plus this file's f
 3. **No incentive language.** Drafts must never reference, hint at, or assume any discount, free add-on, gift, prize draw, or compensation in exchange for the review.
 4. **No gating.** The agent assumes the contractor asked every recent customer for an honest review, not a pre-screened subset.
 5. **Real customer only.** The agent must be told the customer's first name, neighbourhood, service performed, install month, and one specific detail only that customer would know. Without all 5 inputs, refuse to generate.
-6. **First-person and specific.** Generic "great work, highly recommend" reviews are not allowed — they pattern-match as templated.
+6. **First-person and specific.** Generic "great work, highly recommend" reviews are not allowed -- they pattern-match as templated.
 7. **No URLs, phone numbers, social handles, or promo codes** in review text.
 8. **No prohibited content**: no profanity, hate speech, harassment, sexual content, illegal activity, off-topic political content.
 9. **Variation across reviews.** When generating multiple drafts, each must use a completely different vocabulary set, sentence-rhythm pattern, and service angle. Two drafts mentioning the same service at the same length flag as templated.
@@ -36,7 +36,7 @@ Before generating any review, load `shared-audit-protocol.md` plus this file's f
    - **Voice**: vary diction (professional / casual / warm) across drafts so two reviews never read the same.
    - **Angle**: each draft talks about ONE specific service or detail, not all services. Reviews that list every service mentioned in the project sound like a press release, not a customer.
    - **Specificity**: include the neighbourhood + install timing + the one specific detail.
-   - **Imperfection**: include realistic human writing patterns — sentence fragments, dropped commas, casual filler, occasional lowercase brand names. Do not over-polish.
+   - **Imperfection**: include realistic human writing patterns -- sentence fragments, dropped commas, casual filler, occasional lowercase brand names. Do not over-polish.
 4. Run each draft through the 10-point Pre-Post Checklist (Section H below). If any item fails, revise or refuse.
 5. Output drafts with a posting-hygiene reminder and a 48-hour-spaced posting schedule.
 
@@ -67,7 +67,7 @@ SECTION H VERIFICATION (per draft)
 
 # Policy Backbone (load at every invocation)
 
-## Section A — Prohibited content (per Google Maps User Generated Content Policy, support.google.com/contributionpolicy/answer/7400114)
+## Section A -- Prohibited content (per Google Maps User Generated Content Policy, support.google.com/contributionpolicy/answer/7400114)
 
 - Fake engagement / fake & misleading content
 - Rating manipulation
@@ -85,7 +85,7 @@ SECTION H VERIFICATION (per draft)
 - Unclear & repetitive content
 - Conflict of interest (see Section B)
 
-## Section B — Conflict of interest exclusions
+## Section B -- Conflict of interest exclusions
 
 Reviews are categorically prohibited from:
 - The business owner or any principal
@@ -97,7 +97,7 @@ Reviews are categorically prohibited from:
 
 The Competition Bureau Canada explicitly cites family relationships as a material connection that disqualifies a review under the Competition Act false-or-misleading-representations test.
 
-## Section C — Detection signals that trigger Google removal
+## Section C -- Detection signals that trigger Google removal
 
 - Templated language across reviews
 - Multiple reviews from one IP/device/account cluster
@@ -109,21 +109,21 @@ The Competition Bureau Canada explicitly cites family relationships as a materia
 - URLs, phone numbers, contact info in review body
 - Material-connection without disclosure
 
-## Section D — Review gating prohibition
+## Section D -- Review gating prohibition
 
 - Asking only happy customers is prohibited under Google's Fake Engagement policy
 - Acceptable: ask all customers for an honest review, regardless of pre-survey sentiment
 - Prohibited: pre-screen sentiment and route only positives to Google
 - Acceptable CTA: "If you were happy with our work, please leave an honest review on Google" (note "honest" not "5-star")
 
-## Section E — Material connection disclosure (Competition Act Canada)
+## Section E -- Material connection disclosure (Competition Act Canada)
 
 - Family relationships are a material connection
 - Free or discounted service is a material connection
 - Material connections must be disclosed in plain language, prominently visible
 - Recommended approach for connected parties: do NOT post the review at all (Google removes it under Conflict of Interest regardless of disclosure)
 
-## Section F — Acceptable review-acquisition methods
+## Section F -- Acceptable review-acquisition methods
 
 - Google review short link or QR code from Business Profile dashboard
 - Email/SMS request after job completion (3-14 days post-final-walkthrough for hardscape)
@@ -131,7 +131,7 @@ The Competition Bureau Canada explicitly cites family relationships as a materia
 - Acceptable placements: invoices, business cards, thank-you cards, website footer, email signature, job-site signage
 - Prohibited: prize draws, raffles, discount-for-review, gift cards, "review and we'll waive the deposit"
 
-## Section G — Penalty schedule (per support.google.com/business/answer/14114287)
+## Section G -- Penalty schedule (per support.google.com/business/answer/14114287)
 
 - Offending review removal (automated, continuous)
 - Review-reception block (profile cannot receive new reviews)
@@ -141,7 +141,7 @@ The Competition Bureau Canada explicitly cites family relationships as a materia
 - Ranking impact (manipulation patterns degrade local-pack ranking)
 - Competition Act penalties (administrative monetary penalties, restitution, court-ordered corrective notices)
 
-## Section H — 10-point pre-post checklist (every draft must pass)
+## Section H -- 10-point pre-post checklist (every draft must pass)
 
 1. Real customer with a verifiable invoice for the work
 2. No conflict of interest (not owner/employee/subcontractor/supplier/consultant/immediate family/competitor)
@@ -156,14 +156,14 @@ The Competition Bureau Canada explicitly cites family relationships as a materia
 
 ## Source URLs (load on demand)
 
-- support.google.com/contributionpolicy/answer/7400114 — Maps UGC policy
-- support.google.com/business/answer/3474122 — Asking for reviews
-- support.google.com/business/answer/14114287 — Profile restrictions for policy violations
-- support.google.com/business/answer/13762416 — Business Profile policies overview
-- support.google.com/business/answer/7667250 — All Business Profile policies & guidelines
-- competition-bureau.canada.ca/en/deceptive-marketing-practices/types-deceptive-marketing-practices/influencer-marketing-and-competition-act — Material connection disclosure (Canada)
-- competition-bureau.canada.ca/en/deceptive-marketing-practices/types-deceptive-marketing-practices/false-or-misleading-representations-and-deceptive-marketing-practices — False/misleading representations
-- canadianlawyermag.com/practice-areas/corporate-commercial/competition-bureau-issues-warning-on-online-reviews-posted-by-employees/383338 — Bell Mobility 2015 consent agreement (employees posting reviews)
+- support.google.com/contributionpolicy/answer/7400114 -- Maps UGC policy
+- support.google.com/business/answer/3474122 -- Asking for reviews
+- support.google.com/business/answer/14114287 -- Profile restrictions for policy violations
+- support.google.com/business/answer/13762416 -- Business Profile policies overview
+- support.google.com/business/answer/7667250 -- All Business Profile policies & guidelines
+- competition-bureau.canada.ca/en/deceptive-marketing-practices/types-deceptive-marketing-practices/influencer-marketing-and-competition-act -- Material connection disclosure (Canada)
+- competition-bureau.canada.ca/en/deceptive-marketing-practices/types-deceptive-marketing-practices/false-or-misleading-representations-and-deceptive-marketing-practices -- False/misleading representations
+- canadianlawyermag.com/practice-areas/corporate-commercial/competition-bureau-issues-warning-on-online-reviews-posted-by-employees/383338 -- Bell Mobility 2015 consent agreement (employees posting reviews)
 
 ---
 
