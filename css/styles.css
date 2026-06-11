@@ -1110,11 +1110,12 @@ ul { list-style: none; }
 .si-interlock .service-img-inner,
 .si-concrete .service-img-inner,
 .si-fences .service-img-inner,
+.si-walls .service-img-inner,
 .si-pools .service-img-inner,
 .si-grading .service-img-inner,
+.si-sod .service-img-inner,
 .si-decks .service-img-inner,
 .si-benches .service-img-inner,
-.si-yard-grading .service-img-inner,
 .si-landscape-stone .service-img-inner,
 .si-walkways .service-img-inner,
 .si-front-yard .service-img-inner,
@@ -1128,11 +1129,12 @@ ul { list-style: none; }
 .si-interlock,
 .si-concrete,
 .si-fences,
+.si-walls,
 .si-pools,
 .si-grading,
+.si-sod,
 .si-decks,
 .si-benches,
-.si-yard-grading,
 .si-landscape-stone,
 .si-walkways,
 .si-front-yard,
@@ -1140,21 +1142,20 @@ ul { list-style: none; }
   background-size: cover;
   background-position: center;
 }
-.si-interlock       { background-image: url('../assets/images/stamped-concrete-front-porch-walkway.jpg'); }
-.si-concrete        { background-image: url('../assets/images/concrete-walkway-front-steps-white-house.jpeg'); }
-.si-fences          { background-image: url('../assets/images/front-yard-spruce-perennials-aggregate.jpg'); }
+/* One unique, content-matched photo per service */
+.si-interlock       { background-image: url('../assets/images/townhome-paver-patio-backyard.jpg'); }
+.si-concrete        { background-image: url('../assets/images/stamped-concrete-driveway-interlock-ribbon.jpg'); }
+.si-fences          { background-image: url('../assets/images/front-yard-spruce-perennials-aggregate.jpg'); } /* stained fence photo */
+.si-walls           { background-image: url('../assets/images/cedar-privacy-fence-segmental-wall.jpg'); }
 .si-pools           { background-image: url('../assets/images/pool-stacked-stone-waterfall.jpg'); }
-.si-grading         { background-image: url('../assets/images/front-yard-sod-mulch-beds-spruce.jpg'); }
-.si-decks           { background-image: url('../assets/images/pergola-thumbnail-small.png'); }
+.si-grading         { background-image: url('../assets/images/s4.jpg'); }
+.si-sod             { background-image: url('../assets/images/front-yard-sod-mulch-beds-spruce.jpg'); }
+.si-decks           { background-image: url('../assets/images/backyard-pergola-bar-pavers.jpg'); }
 .si-benches         { background-image: url('../assets/images/b3.jpg'); }
-.si-wall            { background: var(--bg-grey); }
-/* All Services page: specific cover images per service */
-.si-yard-grading    { background-image: url('../assets/images/backyard-blue-spruce-paver-border.jpg'); }
 .si-landscape-stone { background-image: url('../assets/images/driveway-stone-pillars-paver-entry.jpg'); }
-.si-walkways        { background-image: url('../assets/images/cedar-privacy-screen-stone-side-yard.jpg'); }
-.si-front-yard      { background-image: url('../assets/images/built-in-bench-stone-wall-patio.jpg'); }
-.services-page .si-concrete { background-image: url('../assets/images/concrete-driveway-garage-pour-finish.jpeg'); }
-.si-backyard             { background-image: url('../assets/images/square-fire-pit-paver-patio-cover.jpg'); }
+.si-walkways        { background-image: url('../assets/images/techo-bloc-walkway-granite-caps.jpg'); }
+.si-front-yard      { background-image: url('../assets/images/backyard-blue-spruce-paver-border.jpg'); }
+.si-backyard        { background-image: url('../assets/images/square-fire-pit-paver-patio-cover.jpg'); }
 
 .service-body {
   padding: var(--space-md);
@@ -2056,3 +2057,34 @@ ul { list-style: none; }
 
 
 
+
+/* ===== Mobile readability: tighter type + spacing on small screens ===== */
+@media (max-width: 600px) {
+  .section { padding: var(--space-48) 0; }
+  .section-intro { font-size: 0.95rem; line-height: 1.55; }
+  .hero-text p { font-size: 0.95rem; }
+  .services-hero-intro { font-size: 0.95rem; }
+  .section-title { font-size: 1.65rem; }
+}
+
+/* ===== Service-areas hub: services-by-city link grid ===== */
+.city-links-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: var(--space-lg) var(--space-md);
+  margin-top: var(--space-lg);
+}
+.city-links-grid h3 {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  margin-bottom: var(--space-xs);
+}
+.city-links-grid h3 a:hover { color: var(--cta); }
+.city-links-grid ul li { margin: 6px 0; }
+.city-links-grid ul a {
+  font-size: 0.95rem;
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.city-links-grid ul a:hover { color: var(--cta-hover); }
