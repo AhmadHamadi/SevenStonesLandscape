@@ -2088,3 +2088,19 @@ ul { list-style: none; }
   text-underline-offset: 2px;
 }
 .city-links-grid ul a:hover { color: var(--cta-hover); }
+
+
+/* ===== WebP overrides (browsers without image-set keep the JPEG rules above) ===== */
+.hero-bg { background-image: image-set(url('../assets/images/hero.webp') type('image/webp'), url('../assets/images/hero.jpg') type('image/jpeg')); }
+.si-backyard { background-image: image-set(url('../assets/images/square-fire-pit-paver-patio-cover.webp') type('image/webp'), url('../assets/images/square-fire-pit-paver-patio-cover.jpg') type('image/jpeg')); }
+.si-benches { background-image: image-set(url('../assets/images/b3.webp') type('image/webp'), url('../assets/images/b3.jpg') type('image/jpeg')); }
+.si-concrete { background-image: image-set(url('../assets/images/stamped-concrete-driveway-interlock-ribbon.webp') type('image/webp'), url('../assets/images/stamped-concrete-driveway-interlock-ribbon.jpg') type('image/jpeg')); }
+.si-decks { background-image: image-set(url('../assets/images/backyard-pergola-bar-pavers.webp') type('image/webp'), url('../assets/images/backyard-pergola-bar-pavers.jpg') type('image/jpeg')); }
+.si-grading { background-image: image-set(url('../assets/images/s4.webp') type('image/webp'), url('../assets/images/s4.jpg') type('image/jpeg')); }
+.si-interlock { background-image: image-set(url('../assets/images/townhome-paver-patio-backyard.webp') type('image/webp'), url('../assets/images/townhome-paver-patio-backyard.jpg') type('image/jpeg')); }
+.si-landscape-stone { background-image: image-set(url('../assets/images/driveway-stone-pillars-paver-entry.webp') type('image/webp'), url('../assets/images/driveway-stone-pillars-paver-entry.jpg') type('image/jpeg')); }
+.si-pools { background-image: image-set(url('../assets/images/pool-stacked-stone-waterfall.webp') type('image/webp'), url('../assets/images/pool-stacked-stone-waterfall.jpg') type('image/jpeg')); }
+.si-sod { background-image: image-set(url('../assets/images/front-yard-sod-mulch-beds-spruce.webp') type('image/webp'), url('../assets/images/front-yard-sod-mulch-beds-spruce.jpg') type('image/jpeg')); }
+.si-walkways { background-image: image-set(url('../assets/images/techo-bloc-walkway-granite-caps.webp') type('image/webp'), url('../assets/images/techo-bloc-walkway-granite-caps.jpg') type('image/jpeg')); }
+.si-walls { background-image: image-set(url('../assets/images/cedar-privacy-fence-segmental-wall.webp') type('image/webp'), url('../assets/images/cedar-privacy-fence-segmental-wall.jpg') type('image/jpeg')); }
+.why-visual { background-image: image-set(url('../assets/images/outdoor-kitchen-cantilever-roof-travertine.webp') type('image/webp'), url('../assets/images/outdoor-kitchen-cantilever-roof-travertine.jpg') type('image/jpeg')); }

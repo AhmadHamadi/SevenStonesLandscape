@@ -24,9 +24,9 @@
  <meta name="twitter:title" content="About Seven Stones Landscape | Hamilton Landscaping Team" />
  <meta name="twitter:description" content="Meet the Seven Stones Landscape team. Hamilton, Burlington &amp; Oakville hardscape, concrete, interlock, and outdoor construction since 2013." />
 
- <link rel="preconnect" href="https://fonts.googleapis.com" />
- <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
- <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet" />
+<link rel="preload" href="/assets/fonts/dm-sans-normal-400-latin.woff2" as="font" type="font/woff2" crossorigin />
+ <link rel="preload" href="/assets/fonts/dm-serif-display-normal-400-latin.woff2" as="font" type="font/woff2" crossorigin />
+ <link rel="stylesheet" href="/assets/fonts/fonts.css" />
 
  <link rel="stylesheet" href="/css/styles.css" />
  <link rel="stylesheet" href="/css/about.css" />
@@ -90,7 +90,7 @@
  <div class="container">
  <nav class="nav-inner" aria-label="Main navigation">
  <a href="/" class="nav-logo" aria-label="Seven Stones Landscape home">
- <img src="/assets/images/logo.png" alt="Seven Stones Landscape logo" width="178" height="100" decoding="async" fetchpriority="high" />
+ <picture><source srcset="/assets/images/logo.webp" type="image/webp" /><img src="/assets/images/logo.png" alt="Seven Stones Landscape logo" width="178" height="100" decoding="async" fetchpriority="high" /></picture>
  </a>
 
  <ul class="nav-links" role="list">
@@ -361,7 +361,7 @@
  <div class="container">
  <div class="about-founder-inner">
  <div class="about-founder-image">
- <img src="/assets/images/flagstone-front-entry-slate-portico.jpg" alt="Slate flagstone front entry steps under a brick portico" width="2040" height="1536" loading="lazy" decoding="async" />
+ <picture><source srcset="/assets/images/flagstone-front-entry-slate-portico.webp" type="image/webp" /><img src="/assets/images/flagstone-front-entry-slate-portico.jpg" alt="Slate flagstone front entry steps under a brick portico" width="1600" height="1205" loading="lazy" decoding="async" /></picture>
  <p class="about-founder-caption">Our crew on site in the Golden Horseshoe - building patios and landscapes that last.</p>
  </div>
  <div class="about-founder-content">
@@ -383,10 +383,10 @@
  </header>
 
  <div class="about-team-grid" style="display:grid; grid-template-columns:1fr; gap:var(--space-md); margin-top:var(--space-lg); max-width:920px;">
- <article class="about-team-card" style="background:var(--bg-grey-alt); border-radius:12px; padding:var(--space-md) var(--space-lg);">
+ <article id="riaad" class="about-team-card" style="background:var(--bg-grey-alt); border-radius:12px; padding:var(--space-md) var(--space-lg);">
  <p class="section-label" style="margin-bottom:6px;">Owner &amp; Project Manager</p>
  <h3 style="font-family:var(--font-display); font-size:1.4rem; margin:0 0 8px; color:var(--text-dark);">Riaad</h3>
- <p style="margin:0; line-height:1.6;">Riaad is the owner of Seven Stones Landscape and the project manager on every job. He measures every site, designs every base spec, and does the final walkthrough at completion. With the company since founding in 2013, he&#39;s the one accountable for the engineering call on retaining walls over 1 metre, the drainage decisions on Halton Till clay, and the warranty that gets put in writing.</p>
+ <p style="margin:0; line-height:1.6;">Riaad is the owner of Seven Stones Landscape and the project manager on every job. He measures every site, designs every base spec, and does the final walkthrough at completion. With the company since founding in 2013, he&#39;s the one accountable for the engineering call on retaining walls over 1 metre, the drainage decisions on Halton Till clay, and the warranty that gets put in writing. He is an <a href="https://www.icpi.org/" target="_blank" rel="noopener noreferrer">ICPI Certified Installer</a> and authors the technical guides on this site.</p>
  </article>
  <article class="about-team-card" style="background:var(--bg-grey-alt); border-radius:12px; padding:var(--space-md) var(--space-lg);">
  <p class="section-label" style="margin-bottom:6px;">Sales Manager</p>
@@ -429,7 +429,7 @@
  <div class="container">
  <div class="about-enhance-inner">
  <div class="about-enhance-image">
- <img src="/assets/images/backyard-pergola-bar-pavers.jpg" alt="Covered outdoor bar with stone veneer on a large-format paver patio" width="1728" height="1728" loading="lazy" decoding="async" />
+ <picture><source srcset="/assets/images/backyard-pergola-bar-pavers.webp" type="image/webp" /><img src="/assets/images/backyard-pergola-bar-pavers.jpg" alt="Covered outdoor bar with stone veneer on a large-format paver patio" width="1600" height="1600" loading="lazy" decoding="async" /></picture>
  </div>
  <div class="about-enhance-content">
  <p class="section-label">Hardscaping &amp; Landscaping</p>
@@ -477,7 +477,7 @@
  <a href="/contact/" class="btn btn--cta">Get In Touch</a>
  </div>
  <div class="about-process-image">
- <img src="/assets/images/hero.jpg" alt="Finished backyard landscaping by Seven Stones - sod, planting beds, and hardscaping in the Hamilton region" width="560" height="400" loading="lazy" decoding="async" />
+ <picture><source srcset="/assets/images/hero.webp" type="image/webp" /><img src="/assets/images/hero.jpg" alt="Finished backyard landscaping by Seven Stones - sod, planting beds, and hardscaping in the Hamilton region" width="560" height="400" loading="lazy" decoding="async" /></picture>
  </div>
  </div>
  </div>
@@ -583,11 +583,11 @@
  <!-- Brand -->
  <div class="footer-brand">
  <a href="/" class="footer-logo-link" aria-label="Seven Stones Landscape home">
- <img
+ <picture><source srcset="/assets/images/logo.webp" type="image/webp" /><img
  src="/assets/images/logo.png"
  alt="Seven Stones Landscape - Hardscaping and landscaping in Hamilton, Burlington and Oakville"
  width="93"
- height="52" decoding="async" loading="lazy" />
+ height="52" decoding="async" loading="lazy" /></picture>
  </a>
  <p class="footer-brand-name">Seven Stones Landscape</p>
  <p>Premium hardscaping and landscaping in <strong><a href="/service-areas/hamilton/">Hamilton</a> <a href="/service-areas/burlington/">Burlington</a> and <a href="/service-areas/oakville/">Oakville</a></strong> also serving <a href="/service-areas/ancaster/">Ancaster</a> <a href="/service-areas/dundas/">Dundas</a> <a href="/service-areas/waterdown/">Waterdown</a> <a href="/service-areas/stoney-creek/">Stoney Creek</a> <a href="/service-areas/milton/">Milton</a> and <a href="/service-areas/mississauga/">Mississauga</a> across the Golden Horseshoe. <a href="/about/">Learn about our team</a>.</p>
