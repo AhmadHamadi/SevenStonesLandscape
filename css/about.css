@@ -14,6 +14,8 @@
   inset: 0;
   background: url('/assets/images/hero.jpg') no-repeat center;
   background-size: cover;
+  /* WebP override (browsers without image-set keep the JPEG above) */
+  background-image: image-set(url('/assets/images/hero.webp') type('image/webp'), url('/assets/images/hero.jpg') type('image/jpeg'));
 }
 .about-hero-overlay {
   position: absolute;

@@ -12,24 +12,30 @@ Disallow: /api/
 # Explicit allow for major search-engine crawlers
 User-agent: Googlebot
 Allow: /
+Disallow: /api/
 
 User-agent: Googlebot-Image
 Allow: /
+Disallow: /api/
 
 User-agent: Bingbot
 Allow: /
+Disallow: /api/
 
 User-agent: Bingbot-EnterpriseSearch
 Allow: /
+Disallow: /api/
 
 User-agent: AICopilot
 Allow: /
 
 User-agent: DuckDuckBot
 Allow: /
+Disallow: /api/
 
 User-agent: YandexBot
 Allow: /
+Disallow: /api/
 
 # Explicit allow for AI / answer-engine crawlers.
 # Google-Extended and Applebot-Extended default to disallow unless explicitly allowed,

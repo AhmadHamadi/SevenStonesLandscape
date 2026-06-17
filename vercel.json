@@ -52,6 +52,7 @@
     }
   ],
   "redirects": [
+    { "source": "/:path*", "has": [{ "type": "host", "value": "sevenstoneslandscape.ca" }], "destination": "https://www.sevenstoneslandscape.ca/:path*", "permanent": true },
     { "source": "/google-ads/concrete-driveways-patios-walkways/", "destination": "/lp/concrete-driveways-patios-walkways/", "permanent": true },
     { "source": "/google-ads/concrete-driveways-patios-walkways", "destination": "/lp/concrete-driveways-patios-walkways/", "permanent": true },
     { "source": "/google-ads/interlock-patios-driveways-walkways/", "destination": "/lp/interlock-patios-driveways-walkways/", "permanent": true },
