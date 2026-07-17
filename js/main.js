@@ -186,7 +186,15 @@
       });
     });
 
-    document.querySelectorAll('form').forEach(function(form) {
+    // Quote forms submit via fetch and then navigate to /thank-you/ on a CONFIRMED success,
+    // because that page load is what fires the Google Ads conversion. Previously these posted
+    // natively and landed on /contact/?submitted=1, which fires nothing — so every lead from
+    // the homepage, contact page, service pages and city pages went untracked. Only the two
+    // /lp/ landing pages were ever counted.
+    //
+    // The .lp-form pages carry their own inline copy of this handler; skip them or they
+    // would submit twice.
+    document.querySelectorAll('form[action*="/api/quote"]:not(.lp-form)').forEach(function(form) {
       form.addEventListener('submit', function(e) {
         var valid = true;
         form.querySelectorAll('[required]').forEach(function(field) {
@@ -201,23 +209,82 @@
           e.preventDefault();
           var first = form.querySelector('.error, [required]:invalid');
           if (first) first.focus();
-        } else {
-          var btn = form.querySelector('button[type="submit"]');
-          if (btn) {
-            btn.disabled = true;
-            btn.setAttribute('aria-busy', 'true');
-            var originalText = btn.textContent;
-            btn.textContent = 'Sending…';
-            btn.dataset.originalSubmitText = originalText;
-            window.setTimeout(function() {
-              if (btn.disabled) {
-                btn.disabled = false;
-                btn.removeAttribute('aria-busy');
-                btn.textContent = btn.dataset.originalSubmitText || originalText;
-              }
-            }, 12000);
-          }
+          return;
         }
+
+        // fetch() is required for the success signal. Without it, fall through to the native
+        // post so the lead is never lost — it just will not be tracked.
+        if (typeof window.fetch !== 'function' || typeof URLSearchParams === 'undefined') return;
+
+        e.preventDefault();
+
+        var btn = form.querySelector('button[type="submit"]');
+        var originalText = btn ? btn.textContent : '';
+        if (btn) {
+          btn.disabled = true;
+          btn.setAttribute('aria-busy', 'true');
+          btn.textContent = 'Sending…';
+          btn.dataset.originalSubmitText = originalText;
+        }
+
+        function releaseButton() {
+          if (!btn) return;
+          btn.disabled = false;
+          btn.removeAttribute('aria-busy');
+          btn.textContent = btn.dataset.originalSubmitText || originalText;
+        }
+
+        // None of the 31 site forms ship an error box (only the /lp/ pages do), so build one
+        // on demand rather than falling back to a browser alert().
+        function showSubmitError() {
+          releaseButton();
+          var box = form.querySelector('.form-error');
+          if (!box) {
+            box = document.createElement('p');
+            box.className = 'form-error';
+            box.setAttribute('role', 'alert');
+            box.setAttribute('aria-live', 'polite');
+            box.style.cssText = 'margin:12px 0 0;color:#b3261e;font-weight:600;';
+            if (btn && btn.parentNode) btn.parentNode.insertBefore(box, btn);
+            else form.appendChild(box);
+          }
+          box.textContent = 'Sorry, something went wrong sending your request. Please try again, or call us at +1 (289) 700-0312.';
+          box.hidden = false;
+          box.classList.add('is-shown');
+        }
+
+        var params = new URLSearchParams();
+        var els = form.elements;
+        for (var i = 0; i < els.length; i++) {
+          var el = els[i];
+          if (!el.name) continue;
+          if ((el.type === 'checkbox' || el.type === 'radio') && !el.checked) continue;
+          params.append(el.name, el.value);
+        }
+
+        var controller = ('AbortController' in window) ? new AbortController() : null;
+        var timer = controller ? window.setTimeout(function() { controller.abort(); }, 20000) : null;
+
+        fetch(form.action, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-Requested-With': 'fetch'
+          },
+          body: params.toString(),
+          signal: controller ? controller.signal : undefined
+        }).then(function(resp) {
+          if (timer) window.clearTimeout(timer);
+          if (!resp.ok) { showSubmitError(); return; }
+          return resp.json().catch(function() { return {}; }).then(function(data) {
+            // A silently-dropped bot submission comes back with an explicit redirect to
+            // /contact/, so spam can never reach /thank-you/ and fire a conversion.
+            window.location.href = (data && data.redirect) || '/thank-you/';
+          });
+        }).catch(function() {
+          if (timer) window.clearTimeout(timer);
+          showSubmitError();
+        });
       });
     });
   }
