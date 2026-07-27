@@ -17,7 +17,6 @@ import crypto from 'crypto';
 
 const RECIPIENTS = [
   'info@sevenstoneslandscape.ca',
-  'john.scime.mcmaster@gmail.com',
   'ahmadhamadi2002@gmail.com',
 ];
 

@@ -868,6 +868,30 @@
     <image:image><image:loc>https://www.sevenstoneslandscape.ca/assets/images/hero.jpg</image:loc></image:image>
   </url>
 <url>
+    <loc>https://www.sevenstoneslandscape.ca/service-areas/grimsby/interlock-driveways/</loc>
+    <lastmod>2026-07-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+<url>
+    <loc>https://www.sevenstoneslandscape.ca/service-areas/grimsby/retaining-walls/</loc>
+    <lastmod>2026-07-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+<url>
+    <loc>https://www.sevenstoneslandscape.ca/service-areas/mount-hope/interlock-driveways/</loc>
+    <lastmod>2026-07-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+<url>
+    <loc>https://www.sevenstoneslandscape.ca/service-areas/mount-hope/retaining-walls/</loc>
+    <lastmod>2026-07-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+<url>
     <loc>https://www.sevenstoneslandscape.ca/service-areas/mount-hope/</loc>
     <lastmod>2026-06-01</lastmod>
     <changefreq>weekly</changefreq>
