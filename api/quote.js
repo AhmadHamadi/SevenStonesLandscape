@@ -20,7 +20,13 @@ const RECIPIENTS = [
   'ahmadhamadi2002@gmail.com',
 ];
 
+// SMTP fallback sends as clinimedia.ca because that is the mailbox it authenticates
+// against. Resend must send from a domain verified on the Resend account, and
+// clinimedia.ca is not one -- defaulting Resend to it would 500 every form. Keeping the
+// defaults separate means setting RESEND_API_KEY alone is safe; EMAIL_FROM still overrides
+// either transport.
 const DEFAULT_FROM = 'Seven Stones Landscape <forms@clinimedia.ca>';
+const DEFAULT_RESEND_FROM = 'Seven Stones Landscape <info@tradeleadsmarketing.com>';
 const EMPTY_FALLBACK = '&mdash;';
 
 const RATE_WINDOW_MS = 10 * 60 * 1000; // 10 minutes
@@ -198,7 +204,7 @@ function isRateLimited(ip) {
   return current.count > RATE_MAX_REQUESTS;
 }
 
-function buildEmailBody(body) {
+export function buildEmailBody(body) {
   const fromPage = body.form_source || 'website';
   const fullName = asTrimmedString(body.full_name) || EMPTY_FALLBACK;
   const message = asTrimmedString(body.message) || EMPTY_FALLBACK;
@@ -222,7 +228,7 @@ function buildEmailBody(body) {
 
 // Sent alongside the HTML as multipart/alternative. Gmail and SpamAssassin both penalise
 // HTML-only mail (MIME_HTML_ONLY), and this is a plain data dump that reads fine as text.
-function buildTextBody(body) {
+export function buildTextBody(body) {
   const fromPage = body.form_source || 'website';
   const message = asTrimmedString(body.message);
   const messageCapped = message.length > 2000 ? `${message.slice(0, 1997)}...` : message;
@@ -245,18 +251,111 @@ function buildTextBody(body) {
   ].join('\n');
 }
 
-function buildSubject(body, fullName) {
+export function buildSubject(body, fullName) {
   const src = String(body.form_source || '').toLowerCase();
   let tag = '';
   if (src.includes('ads-concrete')) tag = '[Concrete LP] ';
   else if (src.includes('ads-interlock')) tag = '[Interlock LP] ';
-  else if (src.includes('hero')) tag = '[Homepage] ';
-  else if (src.includes('contact')) tag = '[Contact page] ';
-  else if (src.includes('service-hero-')) {
-    const slug = src.replace('service-hero-', '').replace(/-/g, ' ');
+  // service-hero-* must be tested BEFORE the bare 'hero' check: every service page
+  // source contains the substring 'hero', so testing 'hero' first swallowed all 20 of
+  // them and tagged real service leads as [Homepage].
+  else if (src.startsWith('service-hero-')) {
+    const slug = src
+      .replace('service-hero-', '')
+      .replace(/^(services|solutions)-/, '')
+      .replace(/-/g, ' ');
     tag = `[Service: ${slug}] `;
   }
+  else if (src.includes('hero')) tag = '[Homepage] ';
+  else if (src.includes('contact')) tag = '[Contact page] ';
   return `${tag}Quote request from ${fullName || 'Customer'}`;
+}
+
+// --- Transports -------------------------------------------------------------
+// Resend is the preferred path: it signs DKIM for us and sends from a verified
+// domain, which is what actually fixes the spam problem documented in
+// FORMS_SETUP.md. SMTP stays as the fallback so nothing breaks until
+// RESEND_API_KEY is set in Vercel. Both build the SAME subject/html/text, so a
+// lead looks identical whichever transport carried it.
+async function sendViaResend({ from, subject, html, text, replyTo }) {
+  const payload = {
+    from,
+    to: RECIPIENTS,
+    subject,
+    text,
+    html,
+    headers: {
+      // Same anti-threading / transactional hints the SMTP path sets. Resend
+      // generates its own Message-ID, so that header is not set here.
+      'X-Entity-Ref-ID': crypto.randomUUID(),
+      'Auto-Submitted': 'auto-generated',
+    },
+  };
+  if (replyTo) payload.reply_to = replyTo;
+
+  const resp = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+      'Content-Type': 'application/json',
+      // Guards against a double-send if Vercel retries this invocation.
+      'Idempotency-Key': payload.headers['X-Entity-Ref-ID'],
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!resp.ok) {
+    const detail = await resp.text().catch(() => '');
+    throw new Error(`Resend ${resp.status}: ${detail}`);
+  }
+  return resp.json();
+}
+
+async function sendViaSmtp({ from, subject, html, text, replyTo, fromDomain }) {
+  const host = process.env.SMTP_HOST;
+  const port = process.env.SMTP_PORT != null ? parseInt(process.env.SMTP_PORT, 10) : 465;
+  const user = process.env.SMTP_USER;
+  const pass = process.env.SMTP_PASS;
+
+  if (!host || !user || !pass) {
+    throw new Error('SMTP not configured: need SMTP_HOST, SMTP_USER, SMTP_PASS');
+  }
+
+  // SPF authenticates the envelope sender (Return-Path), not the From: header. Pinning the
+  // envelope to the authenticated mailbox keeps Return-Path on the same domain we publish SPF
+  // for, so SPF passes and aligns for DMARC even if EMAIL_FROM is overridden.
+  const envelopeFrom = process.env.SMTP_ENVELOPE_FROM || user;
+  const secure = port === 465;
+
+  const transporter = nodemailer.createTransport({
+    host,
+    port: port || 465,
+    secure,
+    auth: { user, pass },
+    ...(port === 587 && { requireTLS: true }),
+  });
+
+  const mailOptions = {
+    from,
+    // Real recipients belong in To:. Previously this addressed the message To: its own
+    // From: and Bcc'd the actual team, which is indistinguishable from bulk mail to Gmail.
+    to: RECIPIENTS.join(', '),
+    subject,
+    text,
+    html,
+    // Keep the Message-ID on the From: domain; a mismatch is an extra spam signal.
+    messageId: `<${crypto.randomUUID()}@${fromDomain}>`,
+    envelope: { from: envelopeFrom, to: RECIPIENTS },
+    headers: {
+      // Stops Gmail collapsing separate leads into one thread, and marks these as
+      // transactional rather than promotional.
+      'X-Entity-Ref-ID': crypto.randomUUID(),
+      'Auto-Submitted': 'auto-generated',
+    },
+  };
+  if (replyTo) mailOptions.replyTo = replyTo;
+
+  return transporter.sendMail(mailOptions);
 }
 
 export default async function handler(req, res) {
@@ -323,17 +422,8 @@ export default async function handler(req, res) {
     return dropToContact();
   }
 
-  const host = process.env.SMTP_HOST;
-  const port = process.env.SMTP_PORT != null ? parseInt(process.env.SMTP_PORT, 10) : 465;
-  const user = process.env.SMTP_USER;
-  const pass = process.env.SMTP_PASS;
-
-  if (!host || !user || !pass) {
-    console.error('SMTP not configured: need SMTP_HOST, SMTP_USER, SMTP_PASS');
-    return res.status(500).json({ error: 'Server configuration error' });
-  }
-
-  const from = process.env.EMAIL_FROM || DEFAULT_FROM;
+  const useResend = Boolean(process.env.RESEND_API_KEY);
+  const from = process.env.EMAIL_FROM || (useResend ? DEFAULT_RESEND_FROM : DEFAULT_FROM);
   const normalized = {
     ...body,
     full_name: fullName,
@@ -345,46 +435,21 @@ export default async function handler(req, res) {
   const html = buildEmailBody(normalized);
   const text = buildTextBody(normalized);
   const replyTo = email || undefined;
-  const secure = port === 465;
-
-  // SPF authenticates the envelope sender (Return-Path), not the From: header. Pinning the
-  // envelope to the authenticated mailbox keeps Return-Path on the same domain we publish SPF
-  // for, so SPF passes and aligns for DMARC even if EMAIL_FROM is overridden.
-  const envelopeFrom = process.env.SMTP_ENVELOPE_FROM || user;
   const fromDomain = (from.match(/<([^>]+)>/)?.[1] || from).split('@')[1] || 'sevenstoneslandscape.ca';
 
+  if (!useResend && !process.env.SMTP_HOST) {
+    console.error('No mail transport configured: set RESEND_API_KEY (preferred) or SMTP_*');
+    return res.status(500).json({ error: 'Server configuration error' });
+  }
+
   try {
-    const transporter = nodemailer.createTransport({
-      host,
-      port: port || 465,
-      secure,
-      auth: { user, pass },
-      ...(port === 587 && { requireTLS: true }),
-    });
-
-    const mailOptions = {
-      from,
-      // Real recipients belong in To:. Previously this addressed the message To: its own
-      // From: and Bcc'd the actual team, which is indistinguishable from bulk mail to Gmail.
-      to: RECIPIENTS.join(', '),
-      subject,
-      text,
-      html,
-      // Keep the Message-ID on the From: domain; a mismatch is an extra spam signal.
-      messageId: `<${crypto.randomUUID()}@${fromDomain}>`,
-      envelope: { from: envelopeFrom, to: RECIPIENTS },
-      headers: {
-        // Stops Gmail collapsing separate leads into one thread, and marks these as
-        // transactional rather than promotional.
-        'X-Entity-Ref-ID': crypto.randomUUID(),
-        'Auto-Submitted': 'auto-generated',
-      },
-    };
-    if (replyTo) mailOptions.replyTo = replyTo;
-
-    await transporter.sendMail(mailOptions);
+    if (useResend) {
+      await sendViaResend({ from, subject, html, text, replyTo });
+    } else {
+      await sendViaSmtp({ from, subject, html, text, replyTo, fromDomain });
+    }
   } catch (err) {
-    console.error('Error sending email:', err);
+    console.error(`Error sending email via ${useResend ? 'Resend' : 'SMTP'}:`, err);
     return res.status(500).json({ error: 'Failed to send email' });
   }
 
