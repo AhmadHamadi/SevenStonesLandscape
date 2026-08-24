@@ -437,19 +437,58 @@ export default async function handler(req, res) {
   const replyTo = email || undefined;
   const fromDomain = (from.match(/<([^>]+)>/)?.[1] || from).split('@')[1] || 'sevenstoneslandscape.ca';
 
-  if (!useResend && !process.env.SMTP_HOST) {
+  // Try every configured transport in order rather than committing to one. A dead
+  // SMTP host previously turned every real lead into a 500 and the lead was lost with
+  // it -- with Resend configured, SMTP failing is now survivable and vice versa.
+  const transports = [];
+  if (useResend) {
+    transports.push(['Resend', () => sendViaResend({ from, subject, html, text, replyTo })]);
+  }
+  if (process.env.SMTP_HOST) {
+    transports.push(['SMTP', () => sendViaSmtp({
+      // SMTP can only send as the mailbox it authenticates against, so when it is acting
+      // as the backup for Resend it must not inherit the Resend from address.
+      from: process.env.EMAIL_FROM || DEFAULT_FROM,
+      subject, html, text, replyTo, fromDomain,
+    })]);
+  }
+
+  if (transports.length === 0) {
     console.error('No mail transport configured: set RESEND_API_KEY (preferred) or SMTP_*');
     return res.status(500).json({ error: 'Server configuration error' });
   }
 
-  try {
-    if (useResend) {
-      await sendViaResend({ from, subject, html, text, replyTo });
-    } else {
-      await sendViaSmtp({ from, subject, html, text, replyTo, fromDomain });
+  let delivered = false;
+  const failures = [];
+  for (const [name, send] of transports) {
+    try {
+      await send();
+      delivered = true;
+      if (failures.length) console.warn(`Delivered via ${name} after: ${failures.join(' | ')}`);
+      break;
+    } catch (err) {
+      failures.push(`${name}: ${err.message}`);
     }
-  } catch (err) {
-    console.error(`Error sending email via ${useResend ? 'Resend' : 'SMTP'}:`, err);
+  }
+
+  if (!delivered) {
+    // Last resort: put the lead itself in the logs. A customer who filled in the form is
+    // not getting a second chance, so the details must survive somewhere recoverable
+    // rather than disappearing with the failed send.
+    console.error('LEAD DELIVERY FAILED - transports:', failures.join(' | '));
+    console.error('LEAD DELIVERY FAILED - recover this lead:', JSON.stringify({
+      received_at: new Date().toISOString(),
+      subject,
+      full_name: fullName,
+      email,
+      phone,
+      city: asTrimmedString(body.city),
+      project_type: asTrimmedString(body.project_type),
+      services: asTrimmedString(body.services),
+      timeline: asTrimmedString(body.timeline),
+      message,
+      form_source: body.form_source || 'website',
+    }));
     return res.status(500).json({ error: 'Failed to send email' });
   }
 
