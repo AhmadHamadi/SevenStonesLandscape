@@ -108,6 +108,10 @@ second variable is required for the forms to work.
 
 ## Going live
 
+> **LIVE as of 2026-08-25.** `RESEND_API_KEY` is set in Vercel and the live form was
+> verified end to end across service, homepage, contact, city and Google Ads pages --
+> all delivered to both recipients with correct subject tags.
+
 Set one environment variable in Vercel → project → Settings → Environment Variables
 (Production):
 
