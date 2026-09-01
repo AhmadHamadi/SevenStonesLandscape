@@ -482,8 +482,8 @@
           <span class="sigsaved" id="sigRepSaved" hidden>Saved</span>
         </div>
         <div class="sigmeta">
-          <div class="f"><label for="repName">Signed by</label><input type="text" id="repName" value="Riaad" placeholder="Name"></div>
-          <div class="f"><label for="repTitle">Title</label><input type="text" id="repTitle" value="Owner &amp; Project Manager"></div>
+          <div class="f"><label for="repName">Signed by</label><input type="text" id="repName" value="John Scime" placeholder="Name"></div>
+          <div class="f"><label for="repTitle">Title</label><input type="text" id="repTitle" placeholder="e.g. Owner"></div>
           <div class="f"><label for="repSigDate">Date</label><input type="date" id="repSigDate"></div>
         </div>
         <small>For Seven Stones Landscape</small>
@@ -753,8 +753,8 @@
     Array.prototype.forEach.call(document.querySelectorAll('.spec input[type=checkbox]'), function(c){ c.checked = false; });
     if (sigs.Cust) sigs.Cust.clear();
     if (sigs.Rep)  sigs.Rep.clear();
-    $('repName').value = 'Riaad';
-    $('repTitle').value = 'Owner & Project Manager';
+    $('repName').value = 'John Scime';
+    $('repTitle').value = '';
     loadRepSignature();          // the saved company signature is kept on purpose
     manual = {};
     CALC.forEach(function(id){ $(id).classList.remove('manual'); });
