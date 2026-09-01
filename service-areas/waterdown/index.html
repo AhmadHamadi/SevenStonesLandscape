@@ -449,7 +449,7 @@
  </div>
  </div>
  </section>
-<section class="section" aria-labelledby="waterdown-intent-heading"><div class="container"><h2 id="waterdown-intent-heading" class="section-title">Waterdown High-Intent Service Pages</h2><ul class="city-projects-list"><li><a href="/service-areas/waterdown/interlock-driveways/">Interlock Driveways Waterdown</a></li><li><a href="/service-areas/waterdown/patio-installation/">Patio Installation Waterdown</a></li></ul></div></section>
+<section class="section" aria-labelledby="waterdown-service-pages-heading"><div class="container"><h2 id="waterdown-service-pages-heading" class="section-title">Waterdown High-Intent Service Pages</h2><ul class="city-projects-list"><li><a href="/service-areas/waterdown/interlock-driveways/">Interlock Driveways Waterdown</a></li><li><a href="/service-areas/waterdown/patio-installation/">Patio Installation Waterdown</a></li></ul></div></section>
 <section class="section faq-section" aria-labelledby="faq-heading">
  <div class="container">
  <div class="faq-inner">
@@ -542,7 +542,7 @@
  <p class="form-honeypot" aria-hidden="true">
  <label>Leave this empty: <input name="bot-field" type="text" tabindex="-1" autocomplete="off" /><input name="website" type="text" tabindex="-1" autocomplete="off" /></label>
  </p>
- <div class="form-group half">
+ <div class="form-group">
  <label for="cq-name-w">Full Name *</label>
  <input id="cq-name-w" name="full_name" type="text" placeholder="e.g. Jane Smith" required autocomplete="name" />
  </div>
@@ -554,31 +554,10 @@
  <label for="cq-phone-w">Phone Number *</label>
  <input id="cq-phone-w" name="phone" type="tel" placeholder="+1 (289) 700-0312" required autocomplete="tel" />
  </div>
- <div class="form-group half">
- <label for="cq-city-w">City / Town <span class="label-optional">(optional)</span></label>
- <select id="cq-city-w" name="city">
- <option value="" disabled>Select your city&hellip;</option>
- <option>Hamilton</option>
- <option>Burlington</option>
- <option>Oakville</option>
- <option>Ancaster</option>
- <option>Dundas</option>
- <option>Stoney Creek</option>
- <option selected>Waterdown</option>
- <option>Milton</option>
- <option>Mississauga</option>
- <option>Other</option>
- </select>
- </div>
- <div class="form-group half">
- <label for="cq-timeline-w">Project Timeline <span class="label-optional">(optional)</span></label>
- <select id="cq-timeline-w" name="timeline">
- <option value="" disabled selected>When are you planning?</option>
- <option>ASAP (within 1 month)</option>
- <option>1-3 months</option>
- <option>3-6 months</option>
- <option>6+ months / Planning ahead</option>
- </select>
+  <input type="hidden" name="city" value="Waterdown" />
+ <div class="form-group">
+ <label for="cq-address-w">Property Address *</label>
+ <input id="cq-address-w" name="address" type="text" placeholder="123 Main St, Hamilton" required autocomplete="street-address" />
  </div>
  <div class="form-group">
  <label for="cq-services-w">Services Interested In <span class="label-optional">(optional)</span></label>
@@ -591,7 +570,7 @@
  <option>Grading, Drainage &amp; Sod</option>
  <option>Decks &amp; Pergolas</option>
  <option>Benches &amp; Fire Pits</option>
- <option>Multiple Services / Full Package</option>
+ <option>Artificial Turf</option><option>Multiple Services / Full Package</option>
  <option>Other / Not Sure</option>
  </select>
  </div>

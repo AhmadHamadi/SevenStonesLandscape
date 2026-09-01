@@ -857,3 +857,15 @@ body.lp-lightbox-locked { overflow: hidden; }
 }
 .lp-mobile-bar .lp-mb-call { background: var(--color-primary, #2c5530); color: #fff; }
 .lp-mobile-bar .lp-mb-quote { background: var(--cta); color: #fff; }
+
+/* iOS Safari zooms the whole page in whenever a focused form control is under 16px. At
+   0.95rem (15.2px) that fired the moment someone tapped the first field on these two
+   Google Ads pages -- on the traffic you pay for. Keeping the desktop size and forcing
+   16px on phones stops the zoom without touching the design. */
+@media (max-width: 767px) {
+  .lp-form input[type="text"],
+  .lp-form input[type="email"],
+  .lp-form input[type="tel"],
+  .lp-form select,
+  .lp-form textarea { font-size: 16px; }
+}

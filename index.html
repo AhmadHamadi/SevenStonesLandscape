@@ -307,7 +307,6 @@
  <p class="sub">Respond within <strong>24 hours</strong> &mdash; no obligation.</p>
  <form class="hero-form" name="quote" method="POST" action="/api/quote" novalidate>
  <input type="hidden" name="form_source" value="hero" />
- <input type="hidden" name="timeline" value="" />
  <p class="form-honeypot" aria-hidden="true">
  <label>Leave this empty: <input name="bot-field" type="text" tabindex="-1" autocomplete="off" /><input name="website" type="text" tabindex="-1" autocomplete="off" /></label>
  </p>
@@ -329,21 +328,11 @@
  </div>
  <div class="form-row">
  <div class="form-group">
- <label for="h-city">City <span class="label-optional">(opt.)</span></label>
- <select id="h-city" name="city">
- <option value="" disabled selected>Select&hellip;</option>
- <option>Hamilton</option>
- <option>Burlington</option>
- <option>Oakville</option>
- <option>Ancaster</option>
- <option>Dundas</option>
- <option>Stoney Creek</option>
- <option>Waterdown</option>
- <option>Milton</option>
- <option>Mississauga</option>
- <option>Other</option>
- </select>
+ <label for="h-address">Property Address *</label>
+ <input id="h-address" name="address" type="text" placeholder="123 Main St, Hamilton" required autocomplete="street-address" />
  </div>
+ </div>
+ <div class="form-row">
  <div class="form-group">
  <label for="h-services">Service <span class="label-optional">(opt.)</span></label>
  <select id="h-services" name="services">
@@ -355,7 +344,7 @@
  <option>Grading, Drainage &amp; Sod</option>
  <option>Decks &amp; Pergolas</option>
  <option>Benches &amp; Fire Pits</option>
- <option>Multiple Services / Full Package</option>
+ <option>Artificial Turf</option><option>Multiple Services / Full Package</option>
  <option>Other / Not Sure</option>
  </select>
  </div>
@@ -1016,31 +1005,9 @@
  <label for="q-phone">Phone Number *</label>
  <input id="q-phone" name="phone" type="tel" placeholder="+1 (289) 700-0312" required autocomplete="tel" />
  </div>
- <div class="form-group half">
- <label for="q-city">City / Town <span class="label-optional">(optional)</span></label>
- <select id="q-city" name="city">
- <option value="" disabled selected>Select your city&hellip;</option>
- <option>Hamilton</option>
- <option>Burlington</option>
- <option>Oakville</option>
- <option>Ancaster</option>
- <option>Dundas</option>
- <option>Stoney Creek</option>
- <option>Grimsby</option>
- <option>Brantford</option>
- <option>Waterdown</option>
- <option>Other</option>
- </select>
- </div>
- <div class="form-group half">
- <label for="q-timeline">Project Timeline <span class="label-optional">(optional)</span></label>
- <select id="q-timeline" name="timeline">
- <option value="" disabled selected>When are you planning?</option>
- <option>ASAP (within 1 month)</option>
- <option>1-3 months</option>
- <option>3-6 months</option>
- <option>6+ months / Planning ahead</option>
- </select>
+  <div class="form-group">
+ <label for="q-address">Property Address *</label>
+ <input id="q-address" name="address" type="text" placeholder="123 Main St, Hamilton" required autocomplete="street-address" />
  </div>
  <div class="form-group">
  <label for="q-services">Services Interested In <span class="label-optional">(optional)</span></label>
@@ -1053,7 +1020,7 @@
  <option>Grading, Drainage &amp; Sod</option>
  <option>Decks &amp; Pergolas</option>
  <option>Benches &amp; Fire Pits</option>
- <option>Multiple Services / Full Package</option>
+ <option>Artificial Turf</option><option>Multiple Services / Full Package</option>
  <option>Other / Not Sure</option>
  </select>
  </div>

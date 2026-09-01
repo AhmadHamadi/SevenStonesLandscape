@@ -300,7 +300,6 @@
  <p class="sub">Respond within <strong>24 hours</strong> no obligation.</p>
  <form class="hero-form" name="quote" method="POST" action="/api/quote" novalidate>
  <input type="hidden" name="form_source" value="service-hero-services-front-yard-landscaping" />
- <input type="hidden" name="timeline" value="" />
  <p class="form-honeypot" aria-hidden="true">
  <label>Leave this empty: <input name="bot-field" type="text" tabindex="-1" autocomplete="off" /><input name="website" type="text" tabindex="-1" autocomplete="off" /></label>
  </p>
@@ -322,21 +321,11 @@
  </div>
  <div class="form-row">
  <div class="form-group">
- <label for="sf-landsc-city">City <span class="label-optional">(opt.)</span></label>
- <select id="sf-landsc-city" name="city">
- <option value="" disabled selected>Select&hellip;</option>
- <option>Hamilton</option>
- <option>Burlington</option>
- <option>Oakville</option>
- <option>Ancaster</option>
- <option>Dundas</option>
- <option>Stoney Creek</option>
- <option>Waterdown</option>
- <option>Milton</option>
- <option>Mississauga</option>
- <option>Other</option>
- </select>
+ <label for="sf-landsc-address">Property Address *</label>
+ <input id="sf-landsc-address" name="address" type="text" placeholder="123 Main St, Hamilton" required autocomplete="street-address" />
  </div>
+ </div>
+ <div class="form-row">
  <div class="form-group">
  <label for="sf-landsc-services">Service</label>
  <select id="sf-landsc-services" name="services">
@@ -357,7 +346,7 @@
  <option>Benches &amp; Fire Pits</option>
  <option>Fences &amp; Staining</option>
  <option>Decks &amp; Pergolas</option>
- <option>Multiple Services / Full Package</option>
+ <option>Artificial Turf</option><option>Multiple Services / Full Package</option>
  <option>Other / Not Sure</option>
  </select>
  </div>

@@ -557,7 +557,7 @@
  <p class="form-honeypot" aria-hidden="true">
  <label>Leave this empty: <input name="bot-field" type="text" tabindex="-1" autocomplete="off" /><input name="website" type="text" tabindex="-1" autocomplete="off" /></label>
  </p>
- <div class="form-group half">
+ <div class="form-group">
  <label for="cq-name-a">Full Name *</label>
  <input id="cq-name-a" name="full_name" type="text" placeholder="e.g. Jane Smith" required autocomplete="name" />
  </div>
@@ -569,31 +569,10 @@
  <label for="cq-phone-a">Phone Number *</label>
  <input id="cq-phone-a" name="phone" type="tel" placeholder="+1 (289) 700-0312" required autocomplete="tel" />
  </div>
- <div class="form-group half">
- <label for="cq-city-a">City / Town <span class="label-optional">(optional)</span></label>
- <select id="cq-city-a" name="city">
- <option value="" disabled>Select your city&hellip;</option>
- <option>Hamilton</option>
- <option>Burlington</option>
- <option>Oakville</option>
- <option selected>Ancaster</option>
- <option>Dundas</option>
- <option>Stoney Creek</option>
- <option>Waterdown</option>
- <option>Milton</option>
- <option>Mississauga</option>
- <option>Other</option>
- </select>
- </div>
- <div class="form-group half">
- <label for="cq-timeline-a">Project Timeline <span class="label-optional">(optional)</span></label>
- <select id="cq-timeline-a" name="timeline">
- <option value="" disabled selected>When are you planning?</option>
- <option>ASAP (within 1 month)</option>
- <option>1-3 months</option>
- <option>3-6 months</option>
- <option>6+ months / Planning ahead</option>
- </select>
+  <input type="hidden" name="city" value="Ancaster" />
+ <div class="form-group">
+ <label for="cq-address-a">Property Address *</label>
+ <input id="cq-address-a" name="address" type="text" placeholder="123 Main St, Hamilton" required autocomplete="street-address" />
  </div>
  <div class="form-group">
  <label for="cq-services-a">Services Interested In <span class="label-optional">(optional)</span></label>
@@ -606,7 +585,7 @@
  <option>Grading, Drainage &amp; Sod</option>
  <option>Decks &amp; Pergolas</option>
  <option>Benches &amp; Fire Pits</option>
- <option>Multiple Services / Full Package</option>
+ <option>Artificial Turf</option><option>Multiple Services / Full Package</option>
  <option>Other / Not Sure</option>
  </select>
  </div>

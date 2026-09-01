@@ -204,23 +204,54 @@ function isRateLimited(ip) {
   return current.count > RATE_MAX_REQUESTS;
 }
 
+// The property address is the field the crew actually needs: it is what lets us measure the
+// job on satellite, confirm the lot is inside the service area, and route the site visit.
+// City pages still post a hidden `city`, so fold it in only when the customer did not
+// already type it as part of the address.
+function formatLocation(body) {
+  const address = asTrimmedString(body.address);
+  const city = asTrimmedString(body.city);
+  if (!address) return city;
+  if (city && !address.toLowerCase().includes(city.toLowerCase())) {
+    return `${address}, ${city}`;
+  }
+  return address;
+}
+
+// Rows that always print even when blank, so the shape of a lead email stays predictable.
+// Everything else is dropped when empty -- only the /lp/ forms send project_type and only
+// the site forms send services, so a fixed row list left a permanently blank line on
+// every single lead.
+const ALWAYS_SHOWN = new Set(['Name', 'Email', 'Phone', 'Property address', 'Message']);
+
+function leadRows(body) {
+  const message = asTrimmedString(body.message);
+  const messageCapped = message.length > 2000 ? `${message.slice(0, 1997)}...` : message;
+  return [
+    ['Name', asTrimmedString(body.full_name)],
+    ['Email', asTrimmedString(body.email)],
+    ['Phone', asTrimmedString(body.phone)],
+    ['Property address', formatLocation(body)],
+    ['Project type', asTrimmedString(body.project_type)],
+    ['Service', asTrimmedString(body.services)],
+    ['Message', messageCapped],
+  ].filter(([label, value]) => ALWAYS_SHOWN.has(label) || value);
+}
+
 export function buildEmailBody(body) {
   const fromPage = body.form_source || 'website';
-  const fullName = asTrimmedString(body.full_name) || EMPTY_FALLBACK;
-  const message = asTrimmedString(body.message) || EMPTY_FALLBACK;
-  const messageCapped = message.length > 2000 ? `${message.slice(0, 1997)}...` : message;
+  const labelStyle = 'padding: 6px 12px 6px 0; vertical-align: top; font-weight: 600;';
+  const rows = leadRows(body)
+    .map(([label, value]) => (
+      `<tr><td style="${labelStyle}">${escapeHtml(label)}</td>`
+      + `<td style="padding: 6px 0;">${escapeHtml(value)}</td></tr>`
+    ))
+    .join('\n      ');
 
   return `
     <p><strong>New quote request</strong> (from ${escapeHtml(fromPage)})</p>
     <table style="border-collapse: collapse; max-width: 480px;">
-      <tr><td style="padding: 6px 12px 6px 0; vertical-align: top; font-weight: 600;">Name</td><td style="padding: 6px 0;">${escapeHtml(fullName)}</td></tr>
-      <tr><td style="padding: 6px 12px 6px 0; vertical-align: top; font-weight: 600;">Email</td><td style="padding: 6px 0;">${escapeHtml(body.email)}</td></tr>
-      <tr><td style="padding: 6px 12px 6px 0; vertical-align: top; font-weight: 600;">Phone</td><td style="padding: 6px 0;">${escapeHtml(body.phone)}</td></tr>
-      <tr><td style="padding: 6px 12px 6px 0; vertical-align: top; font-weight: 600;">City</td><td style="padding: 6px 0;">${escapeHtml(body.city)}</td></tr>
-      <tr><td style="padding: 6px 12px 6px 0; vertical-align: top; font-weight: 600;">Project type</td><td style="padding: 6px 0;">${escapeHtml(body.project_type)}</td></tr>
-      <tr><td style="padding: 6px 12px 6px 0; vertical-align: top; font-weight: 600;">Service category</td><td style="padding: 6px 0;">${escapeHtml(body.services)}</td></tr>
-      <tr><td style="padding: 6px 12px 6px 0; vertical-align: top; font-weight: 600;">Timeline</td><td style="padding: 6px 0;">${escapeHtml(body.timeline)}</td></tr>
-      <tr><td style="padding: 6px 12px 6px 0; vertical-align: top; font-weight: 600;">Message</td><td style="padding: 6px 0;">${escapeHtml(messageCapped)}</td></tr>
+      ${rows}
       <tr><td style="padding: 6px 12px 6px 0; vertical-align: top; font-weight: 600; color:#888; font-size:12px;">Source</td><td style="padding: 6px 0; color:#888; font-size:12px;">${escapeHtml(fromPage)}</td></tr>
     </table>
   `.trim();
@@ -230,22 +261,11 @@ export function buildEmailBody(body) {
 // HTML-only mail (MIME_HTML_ONLY), and this is a plain data dump that reads fine as text.
 export function buildTextBody(body) {
   const fromPage = body.form_source || 'website';
-  const message = asTrimmedString(body.message);
-  const messageCapped = message.length > 2000 ? `${message.slice(0, 1997)}...` : message;
-  const dash = '-';
-  const row = (label, value) => `${label}: ${asTrimmedString(value) || dash}`;
-
+  const rows = leadRows(body).map(([label, value]) => `${label}: ${value || '-'}`);
   return [
     `New quote request (from ${fromPage})`,
     '',
-    row('Name', body.full_name),
-    row('Email', body.email),
-    row('Phone', body.phone),
-    row('City', body.city),
-    row('Project type', body.project_type),
-    row('Service category', body.services),
-    row('Timeline', body.timeline),
-    row('Message', messageCapped),
+    ...rows,
     '',
     `Source: ${fromPage}`,
   ].join('\n');
@@ -393,6 +413,9 @@ export default async function handler(req, res) {
   const email = asTrimmedString(body.email);
   const phone = normalizePhone(asTrimmedString(body.phone));
   const message = asTrimmedString(body.message);
+  // Deliberately NOT server-side required: every form marks it `required`, but a lead that
+  // somehow arrives without one must still be delivered rather than 400'd away.
+  const address = asTrimmedString(body.address);
 
   if (!fullName || (!email && !phone)) {
     return res.status(400).json({ error: 'Please provide your name and either email or phone.' });
@@ -429,6 +452,7 @@ export default async function handler(req, res) {
     full_name: fullName,
     email,
     phone,
+    address,
     message,
   };
   const subject = buildSubject(body, fullName);
@@ -482,10 +506,10 @@ export default async function handler(req, res) {
       full_name: fullName,
       email,
       phone,
+      address: asTrimmedString(body.address),
       city: asTrimmedString(body.city),
       project_type: asTrimmedString(body.project_type),
       services: asTrimmedString(body.services),
-      timeline: asTrimmedString(body.timeline),
       message,
       form_source: body.form_source || 'website',
     }));

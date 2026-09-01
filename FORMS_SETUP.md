@@ -97,7 +97,13 @@ If the email doesn’t arrive, check **Vercel** → **Project** → **Logs** (or
 
 ## 6. Form fields and “form_source”
 
-All forms send: **full_name**, **email**, **phone**, **city**, **timeline**, **services**, **message**, and hidden **form_source** (hero, full, contact, hamilton, burlington, etc.). The email body includes “from [form_source]” so you can see which page was used.
+All forms send: **full_name**, **email**, **phone**, **address**, **services** (or **project_type** on the two `/lp/` pages), **message**, and hidden **form_source** (hero, full, contact, hamilton, burlington, etc.). The email body includes “from [form_source]” so you can see which page was used.
+
+**full_name, email, phone and address are required on every form.** The property address replaced the old City dropdown: it is what lets us measure the job on satellite and confirm the lot is in the service area before calling, and it carries the city anyway, so the form got no longer. The 11 city pages still post their own city as a hidden field, and the email folds it into one `Property address` line (`42 King St W, Hamilton`) without repeating it if the customer already typed it.
+
+The **timeline** dropdown was removed from all forms. Optional rows with no value (project_type, services) are omitted from the email rather than printed blank.
+
+Address is deliberately **not** enforced server-side. Every form marks it `required` and both client validators check it, but a submission that somehow arrives without one is still delivered rather than rejected — losing a real lead is worse than an incomplete one.
 
 ---
 

@@ -196,36 +196,9 @@
     // would submit twice.
     document.querySelectorAll('form[action*="/api/quote"]:not(.lp-form)').forEach(function(form) {
       form.addEventListener('submit', function(e) {
-        var valid = true;
-        form.querySelectorAll('[required]').forEach(function(field) {
-          if (!field.value.trim()) {
-            field.classList.add('error');
-            valid = false;
-          } else {
-            field.classList.remove('error');
-          }
-        });
-        if (!valid) {
-          e.preventDefault();
-          var first = form.querySelector('.error, [required]:invalid');
-          if (first) first.focus();
-          return;
-        }
-
-        // fetch() is required for the success signal. Without it, fall through to the native
-        // post so the lead is never lost — it just will not be tracked.
-        if (typeof window.fetch !== 'function' || typeof URLSearchParams === 'undefined') return;
-
-        e.preventDefault();
-
         var btn = form.querySelector('button[type="submit"]');
         var originalText = btn ? btn.textContent : '';
-        if (btn) {
-          btn.disabled = true;
-          btn.setAttribute('aria-busy', 'true');
-          btn.textContent = 'Sending…';
-          btn.dataset.originalSubmitText = originalText;
-        }
+        var GENERIC_ERROR = 'Sorry, something went wrong sending your request. Please try again, or call us at +1 (289) 700-0312.';
 
         function releaseButton() {
           if (!btn) return;
@@ -234,9 +207,9 @@
           btn.textContent = btn.dataset.originalSubmitText || originalText;
         }
 
-        // None of the 31 site forms ship an error box (only the /lp/ pages do), so build one
+        // None of the site forms ship an error box (only the /lp/ pages do), so build one
         // on demand rather than falling back to a browser alert().
-        function showSubmitError() {
+        function showError(msg) {
           releaseButton();
           var box = form.querySelector('.form-error');
           if (!box) {
@@ -248,9 +221,62 @@
             if (btn && btn.parentNode) btn.parentNode.insertBefore(box, btn);
             else form.appendChild(box);
           }
-          box.textContent = 'Sorry, something went wrong sending your request. Please try again, or call us at +1 (289) 700-0312.';
+          box.textContent = msg;
           box.hidden = false;
           box.classList.add('is-shown');
+        }
+
+        // These forms carry `novalidate`, so the browser checks nothing. This used to only
+        // test that required fields were non-empty, which meant a typo'd address or email
+        // passed the client, came back as a 400 from /api/quote, and was reported to the
+        // customer as the generic network error with no clue which field to fix.
+        // Same rules the server and the /lp/ forms already use.
+        var CHECKS = [
+          ['full_name', function (v) { return v.trim().length >= 2; }, 'your full name'],
+          ['email', function (v) { return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i.test(v.trim()); }, 'a valid email address'],
+          ['phone', function (v) { var d = v.replace(/\D/g, ''); return d.length >= 10 && d.length <= 15; }, 'a valid phone number'],
+          ['address', function (v) { return v.trim().length >= 3; }, 'the property address'],
+        ];
+
+        var box = form.querySelector('.form-error');
+        if (box) { box.hidden = true; box.classList.remove('is-shown'); box.textContent = ''; }
+        form.querySelectorAll('.error').forEach(function (el) { el.classList.remove('error'); });
+
+        var problems = [];
+        var firstBad = null;
+        CHECKS.forEach(function (check) {
+          var el = form.querySelector('[name="' + check[0] + '"]');
+          if (!el || !el.hasAttribute('required') || check[1](el.value)) return;
+          el.classList.add('error');
+          if (!firstBad) firstBad = el;
+          problems.push(check[2]);
+        });
+        // Backstop for any other required field, so this stays honest if one is added later.
+        form.querySelectorAll('[required]').forEach(function (el) {
+          if (el.classList.contains('error') || el.value.trim()) return;
+          el.classList.add('error');
+          if (!firstBad) firstBad = el;
+          problems.push('all the required fields');
+        });
+
+        if (problems.length) {
+          e.preventDefault();
+          showError('Please enter ' + problems.join(', ') + '.');
+          if (firstBad) firstBad.focus();
+          return;
+        }
+
+        // fetch() is required for the success signal. Without it, fall through to the native
+        // post so the lead is never lost -- it just will not be tracked.
+        if (typeof window.fetch !== 'function' || typeof URLSearchParams === 'undefined') return;
+
+        e.preventDefault();
+
+        if (btn) {
+          btn.disabled = true;
+          btn.setAttribute('aria-busy', 'true');
+          btn.textContent = 'Sending\u2026';
+          btn.dataset.originalSubmitText = originalText;
         }
 
         var params = new URLSearchParams();
@@ -275,7 +301,13 @@
           signal: controller ? controller.signal : undefined
         }).then(function(resp) {
           if (timer) window.clearTimeout(timer);
-          if (!resp.ok) { showSubmitError(); return; }
+          if (!resp.ok) {
+            // The server returns e.g. "Please provide a valid email address" on a 400.
+            // Show that rather than the generic text so the customer can actually fix it.
+            return resp.json().catch(function() { return {}; }).then(function(data) {
+              showError((data && data.error) || GENERIC_ERROR);
+            });
+          }
           return resp.json().catch(function() { return {}; }).then(function(data) {
             // A silently-dropped bot submission comes back with an explicit redirect to
             // /contact/, so spam can never reach /thank-you/ and fire a conversion.
@@ -283,7 +315,7 @@
           });
         }).catch(function() {
           if (timer) window.clearTimeout(timer);
-          showSubmitError();
+          showError(GENERIC_ERROR);
         });
       });
     });

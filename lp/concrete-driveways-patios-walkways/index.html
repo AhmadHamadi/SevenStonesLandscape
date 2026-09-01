@@ -318,9 +318,8 @@
  <div class="lp-form-card">
  <h2>Get a Free Concrete Quote</h2>
  <p class="lp-form-sub">Respond within <strong>24 hours</strong> no obligation.</p>
- <form class="lp-form" name="quote" method="POST" action="/api/quote/" novalidate data-redirect="/thank-you/">
+ <form class="lp-form" name="quote" method="POST" action="/api/quote" novalidate data-redirect="/thank-you/">
  <input type="hidden" name="form_source" value="ads-concrete-landing" />
- <input type="hidden" name="timeline" value="" />
  <input type="hidden" name="services" value="Concrete Driveways &amp; Patios" />
  <p class="form-honeypot" aria-hidden="true">
  <label>Leave this empty: <input name="bot-field" type="text" tabindex="-1" autocomplete="off" /><input name="website" type="text" tabindex="-1" autocomplete="off" /></label>
@@ -344,11 +343,13 @@
  </div>
  </div>
 
- <div class="form-row two">
+ <div class="form-row">
  <div>
- <label for="lpc-city">City</label>
- <input id="lpc-city" name="city" type="text" placeholder="e.g. Hamilton" autocomplete="address-level2" />
+ <label for="lpc-address">Property Address *</label>
+ <input id="lpc-address" name="address" type="text" placeholder="123 Main St, Hamilton" required autocomplete="street-address" />
  </div>
+ </div>
+ <div class="form-row">
  <div>
  <label for="lpc-project">Project Type</label>
  <select id="lpc-project" name="project_type">
@@ -851,6 +852,7 @@
     var nameEl  = form.querySelector('input[name="full_name"]');
     var emailEl = form.querySelector('input[name="email"]');
     var phoneEl = form.querySelector('input[name="phone"]');
+    var addrEl  = form.querySelector('input[name="address"]');
 
     var problems = [];
     if (nameEl && !nameEl.value.trim()) {
@@ -864,6 +866,11 @@
     if (phoneEl && !isPhone(phoneEl.value)) {
       showFieldError(phoneEl, 'Please enter a valid phone number (10+ digits).');
       problems.push('phone');
+    }
+    // The property address is what lets us measure the job before we call.
+    if (addrEl && addrEl.value.trim().length < 3) {
+      showFieldError(addrEl, 'Please enter the property address.');
+      problems.push('address');
     }
 
     if (problems.length) {

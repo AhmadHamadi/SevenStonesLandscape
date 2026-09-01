@@ -942,6 +942,11 @@ ul { list-style: none; }
   gap: var(--space-sm);
 }
 .hero-form .form-row .form-group { margin-bottom: var(--space-xs); }
+/* A row holding a single field spans both columns. Without this the Name, Property
+   Address and Service rows each render at half width with dead space beside them,
+   because .form-row is a hard 2-column grid. */
+.hero-form .form-row > .form-group:only-child { grid-column: 1 / -1; }
+
 .hero-form .form-group { margin-bottom: var(--space-xs); }
 .hero-form .form-group:last-of-type { margin-bottom: 0; }
 .hero-form-card {
@@ -2104,3 +2109,21 @@ ul { list-style: none; }
 .si-walkways { background-image: image-set(url('../assets/images/techo-bloc-walkway-granite-caps.webp') type('image/webp'), url('../assets/images/techo-bloc-walkway-granite-caps.jpg') type('image/jpeg')); }
 .si-walls { background-image: image-set(url('../assets/images/cedar-privacy-fence-segmental-wall.webp') type('image/webp'), url('../assets/images/cedar-privacy-fence-segmental-wall.jpg') type('image/jpeg')); }
 .why-visual { background-image: image-set(url('../assets/images/outdoor-kitchen-cantilever-roof-travertine.webp') type('image/webp'), url('../assets/images/outdoor-kitchen-cantilever-roof-travertine.jpg') type('image/jpeg')); }
+
+/* ===== MOBILE READING COMFORT =====
+   The city pages carry roughly twice the body copy of the local competitors' equivalent
+   pages (Hamilton: ~3,900 words of open prose plus ~1,960 more inside collapsed FAQs,
+   against ~2,500-3,000 total on Greer's Hamilton page), and run 15-21 paragraphs over
+   60 words where competitors top out around 80. Looser leading and real space between
+   paragraphs make the same copy scannable on a phone without deleting a word, so nothing
+   is lost from the search index. Structural trimming is a separate, content-level job. */
+@media (max-width: 600px) {
+  .service-content p,
+  .city-intro p,
+  .city-why p,
+  .faq-answer-inner { line-height: 1.75; }
+
+  .service-content p,
+  .city-intro p,
+  .city-why p { margin-bottom: 1.15em; }
+}

@@ -552,6 +552,14 @@
     <image:image><image:loc>https://www.sevenstoneslandscape.ca/assets/images/front-yard-sod-mulch-beds-spruce.jpg</image:loc></image:image>
   </url>
 <url>
+    <loc>https://www.sevenstoneslandscape.ca/blog/artificial-turf-vs-sod-ontario/</loc>
+    <lastmod>2026-09-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  
+    <image:image><image:loc>https://www.sevenstoneslandscape.ca/assets/images/front-yard-sod-mulch-beds-spruce.jpg</image:loc></image:image>
+  </url>
+<url>
     <loc>https://www.sevenstoneslandscape.ca/blog/backyard-landscaping-ideas/</loc>
     <lastmod>2026-04-05</lastmod>
     <changefreq>weekly</changefreq>
@@ -1398,5 +1406,6 @@
 <url><loc>https://www.sevenstoneslandscape.ca/service-areas/dundas/sod-installation/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
 <url><loc>https://www.sevenstoneslandscape.ca/service-areas/stoney-creek/sod-installation/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
 <url><loc>https://www.sevenstoneslandscape.ca/service-areas/waterdown/sod-installation/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+<url><loc>https://www.sevenstoneslandscape.ca/service-areas/mississauga/sod-installation/</loc><lastmod>2026-09-01</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
 <url><loc>https://www.sevenstoneslandscape.ca/service-areas/milton/sod-installation/</loc><lastmod>2026-07-29</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
 </urlset>
