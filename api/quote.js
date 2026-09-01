@@ -88,7 +88,9 @@ function looksLikeSpamMessage(message) {
   const spamPatterns = [
     /\b(posture|casino|crypto|forex|loan)\b/i,
     /\b(buy now|limited time|special offer|discount|free shipping)\b/i,
-    /\b(telegram|whatsapp|signal)\b/i,
+    // 'whatsapp' deliberately removed: the site now invites customers to message on
+    // WhatsApp, so treating the word as a spam signal would drop real leads.
+    /\b(telegram|signal)\b/i,
   ];
 
   const spamMatchCount = spamPatterns.reduce((count, pattern) => (

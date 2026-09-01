@@ -8,7 +8,7 @@
 <title>Seven Stones Estimate &amp; Contract</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=Caveat:wght@500;600&display=swap">
 
 <style>
   :root{
@@ -150,11 +150,6 @@
   .balance.ok{background:var(--ok-bg);color:var(--ok);}
   .balance.bad{background:var(--bad-bg);color:var(--bad);}
 
-  /* signatures */
-  .sigs{display:grid;grid-template-columns:2fr 1fr;gap:26px;margin-top:26px;padding-top:18px;border-top:2px solid var(--brand);}
-  .sig{display:flex;flex-direction:column;gap:4px;}
-  .sigline{border-bottom:1px solid #15202E;height:34px;}
-  .sig small{font-size:10.5px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:#6B7688;}
   .coolnote{
     margin-top:16px;padding:11px 13px;border:1px solid var(--band);border-left:3px solid var(--brand);
     border-radius:0 6px 6px 0;background:var(--band-soft);font-size:11.5px;line-height:1.6;color:#3C4A5C;
@@ -280,6 +275,44 @@
     .doc input,.doc textarea{border-bottom:0 !important;background:transparent !important;}
     .trow input.calc,.biz input,input.itemname{border-bottom:0 !important;background:transparent !important;}
     .addrow,.hint{display:none !important;}
+  }
+
+  /* ---------- signatures ---------- */
+  .sigs{display:grid;grid-template-columns:1fr 1fr;gap:26px;margin-top:26px;padding-top:18px;border-top:2px solid var(--brand);}
+  .sigblock{display:flex;flex-direction:column;gap:8px;}
+  .sigblock h4{
+    margin:0;font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--brand-deep);
+  }
+  .sigwrap{position:relative;border:1px solid var(--rule);border-bottom:1px solid #15202E;border-radius:6px 6px 0 0;background:#FCFDFE;}
+  .sigpad{display:block;width:100%;height:96px;touch-action:none;cursor:crosshair;border-radius:6px 6px 0 0;}
+  .sigph{
+    position:absolute;left:12px;top:50%;transform:translateY(-50%);
+    font-size:12.5px;color:#A9B3C0;pointer-events:none;font-style:italic;
+  }
+  .sigwrap.inked .sigph{display:none;}
+  .sigtools{display:flex;flex-wrap:wrap;gap:7px;align-items:center;}
+  .sigtools input.sigtype{
+    flex:1 1 150px;min-width:0;font-family:'Caveat',cursive;font-size:19px;
+    border:0;border-bottom:1px dotted #B6C2D0;background:transparent;color:#15202E;padding:2px 4px;
+  }
+  .sigtools button{font-size:11.5px;padding:5px 9px;}
+  .sigmeta{display:flex;flex-direction:column;gap:2px;}
+  .sigmeta .f{padding:5px 0;}
+  .sigmeta .f label{min-width:74px;}
+  .sigblock small{font-size:10.5px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:#6B7688;}
+  .sigsaved{font-size:11px;color:var(--ok);font-weight:600;}
+
+  @media screen and (max-width:720px){
+    .sigs{grid-template-columns:1fr;}
+    .sigpad{height:110px;}
+    .sigtools button{min-height:38px;padding:7px 12px;}
+    .sigtools input.sigtype{font-size:20px;}
+  }
+  @media print{
+    .sigtools{display:none !important;}
+    .sigwrap{border:0;border-bottom:1px solid #000;border-radius:0;background:transparent;}
+    .sigpad{height:74px;}
+    .sigph{display:none !important;}
   }
   @media (prefers-reduced-motion:reduce){*{transition:none !important;}}
 </style>
@@ -416,10 +449,46 @@
     </div>
 
     <div class="sigs">
-      <div class="sig"><div class="sigline"></div><small>Customer signature</small></div>
-      <div class="sig"><div class="sigline"></div><small>Date</small></div>
-      <div class="sig"><div class="sigline"></div><small>Seven Stones Landscape</small></div>
-      <div class="sig"><div class="sigline"></div><small>Date</small></div>
+
+      <div class="sigblock">
+        <h4>Customer</h4>
+        <div class="sigwrap" id="wrapCust">
+          <canvas class="sigpad" id="sigCust" aria-label="Customer signature pad"></canvas>
+          <span class="sigph">Sign here</span>
+        </div>
+        <input type="hidden" id="sigCustData">
+        <div class="sigtools noprint">
+          <input type="text" class="sigtype" id="sigCustType" placeholder="or type a name to sign" aria-label="Type customer signature">
+          <button type="button" data-clearsig="Cust">Clear</button>
+        </div>
+        <div class="sigmeta">
+          <div class="f"><label for="custPrint">Name</label><input type="text" id="custPrint" placeholder="Print name"></div>
+          <div class="f"><label for="custSigDate">Date</label><input type="date" id="custSigDate"></div>
+        </div>
+        <small>Customer signature</small>
+      </div>
+
+      <div class="sigblock">
+        <h4>Seven Stones Landscape</h4>
+        <div class="sigwrap" id="wrapRep">
+          <canvas class="sigpad" id="sigRep" aria-label="Seven Stones signature pad"></canvas>
+          <span class="sigph">Sign here</span>
+        </div>
+        <input type="hidden" id="sigRepData">
+        <div class="sigtools noprint">
+          <input type="text" class="sigtype" id="sigRepType" placeholder="or type a name to sign" aria-label="Type Seven Stones signature">
+          <button type="button" data-clearsig="Rep">Clear</button>
+          <button type="button" id="sigRepSave">Save my signature</button>
+          <span class="sigsaved" id="sigRepSaved" hidden>Saved</span>
+        </div>
+        <div class="sigmeta">
+          <div class="f"><label for="repName">Signed by</label><input type="text" id="repName" value="Riaad" placeholder="Name"></div>
+          <div class="f"><label for="repTitle">Title</label><input type="text" id="repTitle" value="Owner &amp; Project Manager"></div>
+          <div class="f"><label for="repSigDate">Date</label><input type="date" id="repSigDate"></div>
+        </div>
+        <small>For Seven Stones Landscape</small>
+      </div>
+
     </div>
 
   </div>
@@ -682,14 +751,169 @@
       else el.value = '';
     });
     Array.prototype.forEach.call(document.querySelectorAll('.spec input[type=checkbox]'), function(c){ c.checked = false; });
+    if (sigs.Cust) sigs.Cust.clear();
+    if (sigs.Rep)  sigs.Rep.clear();
+    $('repName').value = 'Riaad';
+    $('repTitle').value = 'Owner & Project Manager';
+    loadRepSignature();          // the saved company signature is kept on purpose
     manual = {};
     CALC.forEach(function(id){ $(id).classList.remove('manual'); });
     try{ localStorage.removeItem(KEY); }catch(e){}
     recalc();
   });
 
+
+  // ---------------- signatures ----------------
+  // Draw with a mouse or a finger, or type a name to have it rendered in a handwriting
+  // face. Either way the result is one PNG data URL parked in a hidden input, which is what
+  // lets a signature survive both printing and the "save editable copy" export -- a bare
+  // <canvas> carries nothing in the markup and would come back blank.
+  var REP_SIG_KEY = 'ss-rep-signature';
+
+  function initSig(key){
+    var cv   = $('sig' + key);
+    var hid  = $('sig' + key + 'Data');
+    var wrap = $('wrap' + key);
+    var typed= $('sig' + key + 'Type');
+    if (!cv || !hid) return null;
+    var ctx = null;
+    try { ctx = cv.getContext('2d'); } catch (e) {}
+    // No 2D context (ancient browser, or canvas switched off): fall back to a plain typed
+    // signature so the contract is still signable rather than the whole script dying here.
+    if (!ctx) {
+      if (wrap) wrap.style.display = 'none';
+      return {
+        redraw: function(){}, clear: function(){ hid.value=''; if (typed) typed.value=''; },
+        set: function(u){ hid.value = u || ''; }, data: function(){ return hid.value; }
+      };
+    }
+    var drawing = false, moved = false;
+
+    function cssSize(){ var r = cv.getBoundingClientRect(); return { w: r.width || 300, h: r.height || 96 }; }
+
+    function prepare(){
+      var d = cssSize(), dpr = window.devicePixelRatio || 1;
+      cv.width  = Math.max(1, Math.round(d.w * dpr));
+      cv.height = Math.max(1, Math.round(d.h * dpr));
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.lineWidth = 2; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.strokeStyle = '#15202E';
+    }
+    function paint(url, cb){
+      prepare();
+      if (!url){ mark(false); if (cb) cb(); return; }
+      var img = new Image();
+      img.onload = function(){ var d = cssSize(); ctx.drawImage(img, 0, 0, d.w, d.h); mark(true); if (cb) cb(); };
+      img.onerror = function(){ mark(false); if (cb) cb(); };
+      img.src = url;
+    }
+    function mark(has){ if (wrap) wrap.classList[has ? 'add' : 'remove']('inked'); }
+    function store(){ hid.value = cv.toDataURL('image/png'); mark(true); save(); }
+
+    function pos(e){
+      var r = cv.getBoundingClientRect();
+      return { x: e.clientX - r.left, y: e.clientY - r.top };
+    }
+    cv.addEventListener('pointerdown', function(e){
+      drawing = true; moved = false;
+      try { cv.setPointerCapture(e.pointerId); } catch(err){}
+      var p = pos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y);
+      e.preventDefault();
+    });
+    cv.addEventListener('pointermove', function(e){
+      if (!drawing) return;
+      var p = pos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); moved = true;
+      e.preventDefault();
+    });
+    function end(){
+      if (!drawing) return;
+      drawing = false;
+      if (moved) store();
+    }
+    cv.addEventListener('pointerup', end);
+    cv.addEventListener('pointercancel', end);
+    cv.addEventListener('pointerleave', end);
+
+    // typing a name renders it as the signature
+    if (typed) typed.addEventListener('input', function(){
+      var txt = typed.value.trim();
+      prepare();
+      if (!txt){ hid.value = ''; mark(false); save(); return; }
+      var d = cssSize();
+      ctx.fillStyle = '#15202E';
+      ctx.textBaseline = 'middle';
+      var size = Math.min(42, Math.max(22, d.h * 0.46));
+      ctx.font = '600 ' + size + "px 'Caveat', cursive";
+      // shrink to fit rather than overflow the pad
+      while (ctx.measureText(txt).width > d.w - 28 && size > 12){
+        size -= 1; ctx.font = '600 ' + size + "px 'Caveat', cursive";
+      }
+      ctx.fillText(txt, 16, d.h * 0.55);
+      store();
+    });
+
+    var api = {
+      redraw: function(){ paint(hid.value); },
+      clear: function(){ hid.value = ''; if (typed) typed.value = ''; prepare(); mark(false); save(); },
+      set: function(url){ hid.value = url || ''; paint(hid.value); save(); },
+      data: function(){ return hid.value; }
+    };
+    paint(hid.value);
+    return api;
+  }
+
+  var sigs = { Cust: initSig('Cust'), Rep: initSig('Rep') };
+
+  Array.prototype.forEach.call(document.querySelectorAll('[data-clearsig]'), function(b){
+    b.addEventListener('click', function(){
+      var k = b.getAttribute('data-clearsig');
+      if (sigs[k]) sigs[k].clear();
+    });
+  });
+
+  // The company signature is the same every time, so it can be saved once and reused.
+  var repSave = $('sigRepSave');
+  if (repSave) repSave.addEventListener('click', function(){
+    if (!sigs.Rep) return;
+    var d = sigs.Rep.data();
+    if (!d){ alert('Sign or type a name in the Seven Stones box first, then save it.'); return; }
+    try{
+      localStorage.setItem(REP_SIG_KEY, JSON.stringify({
+        sig: d, name: $('repName').value, title: $('repTitle').value
+      }));
+      var t = $('sigRepSaved'); t.hidden = false;
+      setTimeout(function(){ t.hidden = true; }, 1800);
+    }catch(e){ alert('This browser will not let the page store the signature.'); }
+  });
+
+  function loadRepSignature(){
+    if (!sigs.Rep || sigs.Rep.data()) return;   // never overwrite one already on the form
+    try{
+      var raw = localStorage.getItem(REP_SIG_KEY); if (!raw) return;
+      var d = JSON.parse(raw);
+      if (d.name)  $('repName').value  = d.name;
+      if (d.title) $('repTitle').value = d.title;
+      if (d.sig)   sigs.Rep.set(d.sig);
+    }catch(e){}
+  }
+
+  // Canvases lose their bitmap on resize, so repaint from the stored data URL.
+  var rzTimer;
+  window.addEventListener('resize', function(){
+    clearTimeout(rzTimer);
+    rzTimer = setTimeout(function(){
+      if (sigs.Cust) sigs.Cust.redraw();
+      if (sigs.Rep)  sigs.Rep.redraw();
+    }, 180);
+  });
+
   if (!BAKED) load();
   if (!$('cDate').value){ try{ $('cDate').valueAsDate = new Date(); }catch(e){} }
+  if (sigs.Cust) sigs.Cust.redraw();
+  if (sigs.Rep)  sigs.Rep.redraw();
+  loadRepSignature();
+  ['custSigDate','repSigDate'].forEach(function(id){
+    if (!$(id).value){ try{ $(id).valueAsDate = new Date(); }catch(e){} }
+  });
   recalc();
 })();
 </script>

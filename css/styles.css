@@ -2127,3 +2127,27 @@ ul { list-style: none; }
   .city-intro p,
   .city-why p { margin-bottom: 1.15em; }
 }
+
+/* ===== WHATSAPP =====
+   The owner works out of the country, so an international tel: call is useless to him and
+   expensive for the customer. WhatsApp sits beside the phone in the sticky bar and top bar.
+   Three buttons no longer fit a 360px phone at the original padding, so the bar tightens up
+   below 480px rather than letting the labels clip. */
+.mobile-sticky-btn { min-width: 0; }
+.mobile-sticky-label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mobile-sticky-whatsapp {
+  background: #25D366;
+  color: #08331A;
+}
+.mobile-sticky-whatsapp:hover,
+.mobile-sticky-whatsapp:focus { background: #1FBE5A; color: #08331A; }
+.top-bar-whatsapp { color: inherit; }
+
+@media (max-width: 480px) {
+  .mobile-sticky-bar { gap: 8px; padding-left: 10px; padding-right: 10px; }
+  .mobile-sticky-btn { padding: 13px 8px; font-size: 0.9rem; gap: 6px; }
+  .mobile-sticky-btn svg { width: 19px; height: 19px; flex: none; }
+}
+@media (max-width: 700px) {
+  .top-bar-whatsapp { display: none; }   /* the sticky bar already carries it on phones */
+}
