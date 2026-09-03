@@ -12,46 +12,38 @@
 
 <style>
   :root{
-    --brand:#1B62B5;          /* taken from the logo */
+    --brand:#1B62B5;
     --brand-deep:#134A8A;
-    --band:#BDD4EA;           /* the pale blue panel on the paper form */
+    --band:#BDD4EA;
     --band-soft:#E4EEF7;
     --ink:#15202E;
-    --ink-soft:#3C4A5C;
     --muted:#6B7688;
     --rule:#C9D3DE;
     --rule-soft:#E3E9EF;
     --paper:#FFFFFF;
     --ground:#EDEFF2;
     --ok:#12674A; --ok-bg:#E4F1EB;
-    --warn:#8A5A0B; --warn-bg:#FBF0DC;
     --bad:#A32A20; --bad-bg:#FAE8E6;
     --font:'DM Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
   }
   @media (prefers-color-scheme:dark){
-    :root:not([data-theme="light"]){
-      --ground:#181B21; --ink:#E8EBF0; --ink-soft:#C2C9D4; --muted:#939CAA;
-    }
+    :root:not([data-theme="light"]){ --ground:#181B21; --ink:#E8EBF0; --muted:#939CAA; }
   }
-  :root[data-theme="dark"]{
-    --ground:#181B21; --ink:#E8EBF0; --ink-soft:#C2C9D4; --muted:#939CAA;
-  }
-  /* The document itself stays white in both themes -- it is a printed contract. */
+  :root[data-theme="dark"]{ --ground:#181B21; --ink:#E8EBF0; --muted:#939CAA; }
+  /* The document itself stays white in both themes — it is a printed contract. */
 
   *,*::before,*::after{box-sizing:border-box;}
   body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--font);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased;}
-  .shell{max-width:1040px;margin:0 auto;padding:24px 18px 80px;}
+  .shell{max-width:900px;margin:0 auto;padding:24px 18px 80px;}
 
   /* ---------- toolbar ---------- */
   .bar{
-    position:sticky;top:0;z-index:20;
-    display:flex;flex-wrap:wrap;gap:10px;align-items:center;
+    position:sticky;top:0;z-index:20;display:flex;flex-wrap:wrap;gap:10px;align-items:center;
     background:var(--paper);border:1px solid var(--rule);border-radius:12px;
-    padding:12px 14px;margin-bottom:20px;
-    box-shadow:0 2px 12px rgba(0,0,0,.06);color:var(--ink);
+    padding:12px 14px;margin-bottom:20px;box-shadow:0 2px 12px rgba(0,0,0,.06);color:#15202E;
   }
   .bar .grow{flex:1 1 auto;}
-  .bar h1{font-size:15px;margin:0;font-weight:700;letter-spacing:-.01em;color:#15202E;}
+  .bar h1{font-size:15px;margin:0;font-weight:700;color:#15202E;}
   .bar p{margin:2px 0 0;font-size:12.5px;color:#6B7688;}
   button{font:inherit;cursor:pointer;border-radius:8px;border:1px solid var(--rule);background:#fff;color:#15202E;padding:9px 14px;font-weight:500;transition:.15s;}
   button:hover{border-color:var(--brand);color:var(--brand);}
@@ -61,255 +53,110 @@
   .saved{font-size:12px;color:var(--ok);font-weight:600;opacity:0;transition:opacity .3s;}
   .saved.on{opacity:1;}
 
-  /* ---------- the document ---------- */
-  .doc{
-    background:#fff;color:#15202E;
-    border:1px solid var(--rule);border-radius:4px;
-    padding:34px 38px 30px;
-    box-shadow:0 4px 24px rgba(0,0,0,.10);
-  }
+  /* ---------- document ---------- */
+  .doc{background:#fff;color:#15202E;border:1px solid var(--rule);border-radius:4px;padding:34px 38px 30px;box-shadow:0 4px 24px rgba(0,0,0,.10);}
   .doc-head{display:flex;justify-content:space-between;align-items:flex-start;gap:24px;border-bottom:2px solid var(--brand);padding-bottom:14px;}
   .doc-head img{width:186px;height:auto;display:block;}
-  .biz{text-align:right;font-size:11.5px;line-height:1.55;color:#3C4A5C;}
-  .biz strong{display:block;font-size:13px;color:#15202E;}
-  .doc-title{
-    font-size:22px;font-weight:700;letter-spacing:.10em;text-transform:uppercase;
-    margin:16px 0 18px;color:var(--brand-deep);
-  }
+  .biz{text-align:right;font-size:11.5px;line-height:1.6;color:#3C4A5C;}
+  .biz input{font:inherit;font-size:11.5px;color:#3C4A5C;background:transparent;border:0;border-bottom:1px dotted #C4CDD8;text-align:right;width:200px;padding:1px 0;}
+  .biz input.bizname{font-size:13px;font-weight:700;color:#15202E;}
+  .doc-title{font-size:22px;font-weight:700;letter-spacing:.10em;text-transform:uppercase;margin:16px 0 18px;color:var(--brand-deep);}
 
   fieldset{border:0;margin:0 0 20px;padding:0;}
-  legend{
-    font-size:10.5px;font-weight:700;letter-spacing:.11em;text-transform:uppercase;
-    color:var(--brand-deep);padding:0 0 7px;margin:0;width:100%;
-    border-bottom:1px solid var(--band);
-  }
+  legend{font-size:10.5px;font-weight:700;letter-spacing:.11em;text-transform:uppercase;color:var(--brand-deep);padding:0 0 7px;margin:0;width:100%;border-bottom:1px solid var(--band);}
 
   .grid{display:grid;gap:0 26px;margin-top:12px;}
   .g2{grid-template-columns:1fr 1fr;}
-  .g3{grid-template-columns:2fr 1fr 1fr;}
-
   .f{display:flex;align-items:baseline;gap:8px;padding:7px 0;border-bottom:1px solid var(--rule-soft);}
   .f label{flex:0 0 auto;font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:#6B7688;min-width:86px;}
-  .f input{flex:1 1 auto;min-width:0;border:0;background:transparent;font:inherit;font-size:14.5px;color:#15202E;padding:1px 2px;}
+  .f input{flex:1 1 auto;min-width:0;border:0;background:transparent;font:inherit;font-size:14.5px;color:#15202E;padding:1px 2px;border-bottom:1px dotted #B6C2D0;}
   .f input::placeholder{color:#B6BFCB;}
+  .f input:focus{border-bottom-color:var(--brand);background:#F5F9FE;}
 
-  /* spec checkboxes -- the pale blue block on the paper form */
-  .spec{background:var(--band-soft);border:1px solid var(--band);border-radius:6px;padding:14px 16px;margin-top:12px;}
-  .spec-row{display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;padding:6px 0;border-bottom:1px dotted var(--band);}
-  .spec-row:last-of-type{border-bottom:0;}
-  .spec-row > b{flex:0 0 116px;font-size:12px;font-weight:700;color:var(--brand-deep);}
-  .cb{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:#3C4A5C;cursor:pointer;}
-  .cb input{width:14px;height:14px;accent-color:var(--brand);margin:0;cursor:pointer;flex:none;}
-  .spec-note{margin:10px 0 0;font-size:11.5px;font-style:italic;color:#6B7688;}
-
-  /* line items */
-  table{width:100%;border-collapse:collapse;margin-top:10px;font-size:13.5px;}
-  th{
-    font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#6B7688;
-    text-align:left;padding:0 8px 7px;border-bottom:1px solid var(--band);
-  }
-  th.r,td.r{text-align:right;}
-  td{padding:0;border-bottom:1px solid var(--rule-soft);}
-  td .cell{display:flex;align-items:center;gap:7px;padding:5px 8px;}
-  td input[type=text]{width:100%;border:0;background:transparent;font:inherit;color:#15202E;padding:2px;}
-  td input.money{
-    width:100%;border:0;background:transparent;font:inherit;color:#15202E;
-    text-align:right;padding:2px 2px;font-variant-numeric:tabular-nums;
-  }
-  td .itemname{font-weight:500;color:#15202E;white-space:nowrap;}
-  .tick{width:14px;height:14px;accent-color:var(--brand);margin:0;flex:none;cursor:pointer;}
-  tr.off td .itemname,tr.off td input{color:#AEB7C2;}
-
-  .notes{margin-top:8px;}
-  .notes textarea{
-    width:100%;min-height:120px;resize:vertical;
+  /* ---------- the description: the whole point of the form ---------- */
+  .desc textarea{
+    width:100%;min-height:420px;resize:vertical;overflow:hidden;
     border:1px solid var(--rule);border-radius:6px;background:#fff;
-    font:inherit;font-size:13.5px;color:#15202E;padding:10px 12px;line-height:1.7;
+    font:inherit;font-size:15px;color:#15202E;padding:16px 18px;line-height:2.0;
+    /* faint ruled lines, like the pad */
+    background-image:repeating-linear-gradient(to bottom,transparent 0,transparent 29px,#EDF1F5 29px,#EDF1F5 30px);
+    background-attachment:local;
   }
+  .desc textarea:focus{border-color:var(--brand);}
 
-  /* totals */
-  .totals{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:20px;}
+  /* ---------- totals ---------- */
+  .totals{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:22px;}
   .tbox{border:1px solid var(--band);border-radius:6px;overflow:hidden;}
-  .tbox h3{
-    margin:0;font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
-    background:var(--band-soft);color:var(--brand-deep);padding:8px 12px;border-bottom:1px solid var(--band);
-  }
-  .trow{display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid var(--rule-soft);}
+  .tbox h3{margin:0;font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;background:var(--band-soft);color:var(--brand-deep);padding:8px 12px;border-bottom:1px solid var(--band);}
+  .trow{display:flex;align-items:center;gap:10px;padding:9px 12px;border-bottom:1px solid var(--rule-soft);}
   .trow:last-child{border-bottom:0;}
   .trow span{flex:1 1 auto;font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:#6B7688;}
-  .trow output,.trow input{
-    flex:0 0 auto;width:118px;text-align:right;font-variant-numeric:tabular-nums;
-    font-size:15px;font-weight:600;color:#15202E;border:0;background:transparent;font-family:inherit;
+  .trow input.calc{
+    flex:0 0 auto;width:126px;text-align:right;font-variant-numeric:tabular-nums;
+    font-size:15px;font-weight:600;color:#15202E;border:0;border-bottom:1px dotted #B6C2D0;
+    background:transparent;font-family:inherit;padding:1px 2px;
   }
   .trow.grand{background:var(--band-soft);}
   .trow.grand span{color:var(--brand-deep);font-weight:700;}
-  .trow.grand output{font-size:18px;font-weight:700;color:var(--brand-deep);}
+  .trow.grand input.calc{font-size:18px;font-weight:700;color:var(--brand-deep);}
+  .trow input.calc.manual{background:#FFF6E5;border-bottom-color:#D9A441;}
+  #rate{width:44px;text-align:right;border:0;border-bottom:1px dotted #B6C2D0;background:transparent;font:inherit;}
   .terms{font-size:11px;color:#6B7688;line-height:1.6;padding:10px 12px;background:#FAFBFC;}
   .terms b{color:#3C4A5C;}
   .balance{font-size:11.5px;padding:8px 12px;font-weight:600;}
   .balance.ok{background:var(--ok-bg);color:var(--ok);}
   .balance.bad{background:var(--bad-bg);color:var(--bad);}
 
-  .coolnote{
-    margin-top:16px;padding:11px 13px;border:1px solid var(--band);border-left:3px solid var(--brand);
-    border-radius:0 6px 6px 0;background:var(--band-soft);font-size:11.5px;line-height:1.6;color:#3C4A5C;
-  }
+  .coolnote{margin-top:16px;padding:11px 13px;border:1px solid var(--band);border-left:3px solid var(--brand);border-radius:0 6px 6px 0;background:var(--band-soft);font-size:11.5px;line-height:1.6;color:#3C4A5C;}
   .coolnote b{color:var(--brand-deep);}
-
-  /* ---------- review panel (screen only) ---------- */
-  .review{margin-top:34px;background:var(--paper);border:1px solid var(--rule);border-radius:12px;padding:24px 26px;color:var(--ink);}
-  .review h2{font-size:19px;margin:0 0 6px;letter-spacing:-.01em;color:#15202E;}
-  .review > p{margin:0 0 18px;color:#3C4A5C;font-size:14.5px;max-width:68ch;}
-  .find{display:flex;gap:12px;padding:13px 0;border-top:1px solid var(--rule-soft);}
-  .find:first-of-type{border-top:0;}
-  .pill{
-    flex:none;font-size:9.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;
-    padding:3px 8px;border-radius:999px;height:fit-content;margin-top:2px;white-space:nowrap;
-  }
-  .pill.add{background:var(--ok-bg);color:var(--ok);}
-  .pill.gap{background:var(--bad-bg);color:var(--bad);}
-  .pill.note{background:var(--warn-bg);color:var(--warn);}
-  .find div strong{display:block;font-size:14.5px;color:#15202E;margin-bottom:2px;}
-  .find div p{margin:0;font-size:13.5px;color:#3C4A5C;max-width:74ch;}
-  .disclaimer{margin-top:20px;padding:13px 15px;background:var(--warn-bg);border-radius:8px;font-size:13px;color:#6B4A08;line-height:1.6;}
-  .disclaimer b{color:#5A3E06;}
-
-  @media (max-width:720px){
-    .g2,.g3,.totals,.sigs{grid-template-columns:1fr;}
-    .doc{padding:22px 18px;}
-    .doc-head{flex-direction:column;align-items:flex-start;gap:12px;}
-    .biz{text-align:left;}
-    .biz input{text-align:left;width:100%;max-width:280px;}
-    .spec-row > b{flex:0 0 100%;}
-  }
-
-  /* ---------- phones ----------
-     Two things break a dense form on a phone. First, iOS Safari zooms the whole page in
-     whenever a focused control is under 16px -- on a form with this many fields that fires
-     on nearly every tap, so every control goes to 16px here. Second, the scope table is
-     three columns of text inputs, which is unusable at 390px, so each line item becomes
-     its own stacked card with its own labels. Scoped to `screen` so printing is untouched. */
-  @media screen and (max-width:720px){
-    .doc input,.doc textarea,.doc select,
-    .biz input,.biz input.bizname,.notes textarea,
-    input.itemname,.f input,.trow input,.trow input.calc,
-    td input[type=text],td input.money{font-size:16px;}
-
-    .f label{min-width:76px;font-size:10.5px;}
-
-    .doc table,.doc tbody,.doc tr,.doc td{display:block;width:100%;}
-    .doc thead{display:none;}
-    .doc tbody tr{
-      border:1px solid var(--rule);border-radius:9px;
-      padding:9px 11px;margin-bottom:10px;background:#fff;
-    }
-    .doc tbody tr.off{background:#FAFBFC;}
-    .doc td{border-bottom:0;padding:0;}
-    .doc td .cell{padding:5px 0;}
-    .doc td:nth-child(2) .cell::before,
-    .doc td:nth-child(3) .cell::before{
-      content:"Description";flex:0 0 74px;
-      font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#8A93A2;
-    }
-    .doc td:nth-child(3) .cell::before{content:"Price";}
-    td input.money{text-align:left;}
-    .tick{width:18px;height:18px;}
-    input.itemname{font-weight:700;}
-
-    .bar{padding:10px 12px;gap:8px;}
-    .bar .grow{flex:1 1 100%;}
-    .bar button{flex:1 1 auto;min-height:42px;}
-    .addrow{width:100%;min-height:42px;}
-
-    .trow{flex-wrap:wrap;}
-    .trow input,.trow output{width:130px;}
-    .sigline{height:40px;}
-  }
-
-  /* ---------- print ---------- */
-  @media print{
-    @page{size:letter portrait;margin:12mm 12mm 10mm;}
-    body{background:#fff;font-size:10.5px;}
-    .shell{max-width:none;padding:0;}
-    .bar,.review,.noprint{display:none !important;}
-    .doc{border:0;border-radius:0;box-shadow:none;padding:0;}
-    .doc-title{font-size:17px;margin:10px 0 12px;}
-    .doc-head img{width:150px;}
-    fieldset{margin-bottom:11px;break-inside:avoid;}
-    .spec,.tbox,.sigs,.totals,.coolnote{break-inside:avoid;}
-    .notes textarea{min-height:74px;border-color:#C9D3DE;}
-    table{font-size:10px;}
-    td .cell{padding:2.5px 6px;}
-    .f{padding:4px 0;}
-    .trow{padding:5px 10px;}
-    input,textarea{color:#000 !important;}
-    tr.off{display:none;}          /* unticked line items don't print */
-    .tick{display:none;}
-  }
-
-  /* Anything you can type into gets a faint dotted rule on screen so it reads as fillable.
-     It disappears on print, where the value alone is what matters. */
-  .doc input[type=text],.doc input[type=tel],.doc input[type=email],.doc input[type=date],
-  .doc input[type=number],.doc textarea{
-    border-bottom:1px dotted #B6C2D0;border-radius:0;
-  }
-  .doc input:focus{border-bottom-color:var(--brand);background:#F5F9FE;}
-  .trow input.calc{
-    border:0;border-bottom:1px dotted #B6C2D0;width:118px;text-align:right;
-    font-variant-numeric:tabular-nums;font-size:15px;font-weight:600;color:#15202E;
-    background:transparent;font-family:inherit;padding:1px 2px;
-  }
-  .trow.grand input.calc{font-size:18px;font-weight:700;color:var(--brand-deep);}
-  .trow input.calc.manual{background:#FFF6E5;border-bottom-color:#D9A441;}
-  .biz input{font:inherit;font-size:11.5px;color:#3C4A5C;background:transparent;
-    border:0;border-bottom:1px dotted #C4CDD8;text-align:right;width:190px;padding:1px 0;}
-  .biz input.bizname{font-size:13px;font-weight:700;color:#15202E;}
-  input.itemname{
-    width:100%;border:0;border-bottom:1px dotted #B6C2D0;font:inherit;font-size:13.5px;
-    font-weight:500;color:#15202E;background:transparent;padding:2px;
-  }
-  tr.off input.itemname{color:#AEB7C2;}
-  .addrow{margin-top:9px;}
-  .hint{font-size:11.5px;color:#6B7688;margin:8px 0 0;}
-  @media print{
-    .doc input,.doc textarea{border-bottom:0 !important;background:transparent !important;}
-    .trow input.calc,.biz input,input.itemname{border-bottom:0 !important;background:transparent !important;}
-    .addrow,.hint{display:none !important;}
-  }
 
   /* ---------- signatures ---------- */
   .sigs{display:grid;grid-template-columns:1fr 1fr;gap:26px;margin-top:26px;padding-top:18px;border-top:2px solid var(--brand);}
   .sigblock{display:flex;flex-direction:column;gap:8px;}
-  .sigblock h4{
-    margin:0;font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--brand-deep);
-  }
+  .sigblock h4{margin:0;font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--brand-deep);}
   .sigwrap{position:relative;border:1px solid var(--rule);border-bottom:1px solid #15202E;border-radius:6px 6px 0 0;background:#FCFDFE;}
   .sigpad{display:block;width:100%;height:96px;touch-action:none;cursor:crosshair;border-radius:6px 6px 0 0;}
-  .sigph{
-    position:absolute;left:12px;top:50%;transform:translateY(-50%);
-    font-size:12.5px;color:#A9B3C0;pointer-events:none;font-style:italic;
-  }
+  .sigph{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:12.5px;color:#A9B3C0;pointer-events:none;font-style:italic;}
   .sigwrap.inked .sigph{display:none;}
   .sigtools{display:flex;flex-wrap:wrap;gap:7px;align-items:center;}
-  .sigtools input.sigtype{
-    flex:1 1 150px;min-width:0;font-family:'Caveat',cursive;font-size:19px;
-    border:0;border-bottom:1px dotted #B6C2D0;background:transparent;color:#15202E;padding:2px 4px;
-  }
+  .sigtools input.sigtype{flex:1 1 150px;min-width:0;font-family:'Caveat',cursive;font-size:19px;border:0;border-bottom:1px dotted #B6C2D0;background:transparent;color:#15202E;padding:2px 4px;}
   .sigtools button{font-size:11.5px;padding:5px 9px;}
-  .sigmeta{display:flex;flex-direction:column;gap:2px;}
   .sigmeta .f{padding:5px 0;}
   .sigmeta .f label{min-width:74px;}
   .sigblock small{font-size:10.5px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:#6B7688;}
   .sigsaved{font-size:11px;color:var(--ok);font-weight:600;}
 
+  /* ---------- phones ---------- */
   @media screen and (max-width:720px){
-    .sigs{grid-template-columns:1fr;}
+    .doc{padding:22px 18px;}
+    .doc-head{flex-direction:column;align-items:flex-start;gap:12px;}
+    .biz{text-align:left;}
+    .biz input{text-align:left;width:100%;max-width:280px;}
+    .g2,.totals,.sigs{grid-template-columns:1fr;}
+    /* iOS zooms the page whenever a focused control is under 16px */
+    .doc input,.doc textarea,.biz input,.f input,.trow input.calc,.sigtools input.sigtype{font-size:16px;}
+    .sigtools input.sigtype{font-size:20px;}
+    .desc textarea{min-height:320px;}
     .sigpad{height:110px;}
     .sigtools button{min-height:38px;padding:7px 12px;}
-    .sigtools input.sigtype{font-size:20px;}
+    .bar .grow{flex:1 1 100%;}
+    .bar button{flex:1 1 auto;min-height:42px;}
   }
+
+  /* ---------- print ---------- */
   @media print{
-    .sigtools{display:none !important;}
+    @page{size:letter portrait;margin:12mm;}
+    body{background:#fff;font-size:11px;}
+    .shell{max-width:none;padding:0;}
+    .bar,.noprint,.sigtools{display:none !important;}
+    .doc{border:0;border-radius:0;box-shadow:none;padding:0;}
+    .doc-title{font-size:18px;margin:10px 0 12px;}
+    .doc-head img{width:150px;}
+    .doc input,.doc textarea{border-bottom:0 !important;background:transparent !important;color:#000 !important;}
+    .desc textarea{border:1px solid #C9D3DE;background-image:none;min-height:0;line-height:1.7;}
+    .f{padding:4px 0;}
+    .trow{padding:5px 10px;}
+    .tbox,.sigs,.totals,.coolnote,.desc{break-inside:avoid;}
     .sigwrap{border:0;border-bottom:1px solid #000;border-radius:0;background:transparent;}
     .sigpad{height:74px;}
     .sigph{display:none !important;}
@@ -324,13 +171,13 @@
   <div class="bar noprint">
     <div class="grow">
       <h1>Estimate &amp; Contract</h1>
-      <p><b>Save as PDF</b> to send a customer. <b>Save editable copy</b> keeps a version you can reopen and change. Ctrl+S does <i>not</i> keep what you typed.</p>
+      <p>Type the description, enter the price, sign. <b>Save as PDF</b> to send it.</p>
     </div>
     <span class="saved" id="saved">Saved</span>
     <button type="button" id="recalc">Recalculate</button>
-      <button type="button" id="clear">Clear form</button>
+    <button type="button" id="clear">Clear form</button>
     <button type="button" id="savecopy">Save editable copy</button>
-      <button type="button" class="primary" id="print">Save as PDF / Print</button>
+    <button type="button" class="primary" id="print">Save as PDF / Print</button>
   </div>
 
   <div class="doc" id="doc" data-filled="0">
@@ -343,7 +190,7 @@
         <input type="tel" id="bizTel" value="+1 (289) 700-0312" aria-label="Business phone"><br>
         <input type="email" id="bizEmail" value="info@sevenstoneslandscape.ca" aria-label="Business email"><br>
         <input type="text" id="bizWeb" value="sevenstoneslandscape.ca" aria-label="Website"><br>
-        <span id="hstline">HST&nbsp;#&nbsp;<input type="text" id="hst" placeholder="_______________" style="width:120px;" aria-label="HST number"></span>
+        HST&nbsp;#&nbsp;<input type="text" id="hst" placeholder="_______________" style="width:120px;" aria-label="HST number">
       </div>
     </div>
 
@@ -354,86 +201,37 @@
       <div class="grid g2">
         <div class="f"><label for="cName">Name</label><input type="text" id="cName" autocomplete="name"></div>
         <div class="f"><label for="cDate">Date</label><input type="date" id="cDate"></div>
-        <div class="f"><label for="cTel">Telephone</label><input type="tel" id="cTel"></div>
-        <div class="f"><label for="cMob">Mobile</label><input type="tel" id="cMob"></div>
-        <div class="f"><label for="cEmail">Email</label><input type="email" id="cEmail" autocomplete="email"></div>
-        <div class="f"><label for="cQuote">Quote #</label><input type="text" id="cQuote" placeholder="e.g. SS-2026-114"></div>
       </div>
       <div class="grid">
-        <div class="f"><label for="cBill">Billing address</label><input type="text" id="cBill" autocomplete="street-address"></div>
-        <div class="f"><label for="cSite">Work site</label><input type="text" id="cSite" placeholder="Address where the work will be done, if different"></div>
+        <div class="f"><label for="cAddr">Address</label><input type="text" id="cAddr" autocomplete="street-address" placeholder="Address of the property"></div>
       </div>
       <div class="grid g2">
-        <div class="f"><label for="dStart">Start on/about</label><input type="date" id="dStart"></div>
-        <div class="f"><label for="dEnd">Complete by</label><input type="date" id="dEnd"></div>
+        <div class="f"><label for="cTel">Telephone</label><input type="tel" id="cTel"></div>
+        <div class="f"><label for="cMob">Mobile</label><input type="tel" id="cMob"></div>
+      </div>
+      <div class="grid">
+        <div class="f"><label for="cEmail">Email</label><input type="email" id="cEmail" autocomplete="email"></div>
       </div>
     </fieldset>
 
-    <fieldset>
-      <legend>Build specification</legend>
-      <div class="spec">
-        <div class="spec-row"><b>Interlock</b>
-          <label class="cb"><input type="checkbox"> 8&ndash;10&Prime; base</label>
-          <label class="cb"><input type="checkbox"> 10&ndash;16&Prime; base</label>
-          <label class="cb"><input type="checkbox"> &frac34;&Prime; clear gravel</label>
-          <label class="cb"><input type="checkbox"> HPB (high performance bedding)</label>
-        </div>
-        <div class="spec-row"><b>Flagstone</b>
-          <label class="cb"><input type="checkbox"> 8&ndash;10&Prime; base</label>
-          <label class="cb"><input type="checkbox"> Clear gravel</label>
-          <label class="cb"><input type="checkbox"> HPB (high performance bedding)</label>
-        </div>
-        <div class="spec-row"><b>Concrete</b>
-          <label class="cb"><input type="checkbox"> 5&Prime; thick, 32 MPa</label>
-          <label class="cb"><input type="checkbox"> 10 mm rebar set 2&prime; on centre, cross &amp; tie</label>
-        </div>
-        <div class="spec-row"><b>Sonotubes</b>
-          <label class="cb"><input type="checkbox"> 5&Prime; thick, 32 MPa</label>
-          <label class="cb"><input type="checkbox"> 10 mm rebar set 2&prime; on centre, cross &amp; tie</label>
-        </div>
-        <div class="spec-row"><b>Fence post</b>
-          <label class="cb"><input type="checkbox"> Set 3&prime;&ndash;4&prime; below grade</label>
-        </div>
-        <p class="spec-note">Prices include polymeric sand.</p>
-      </div>
-    </fieldset>
-
-    <fieldset>
-      <legend>Scope of work &amp; price</legend>
-      <table>
-        <thead>
-          <tr>
-            <th style="width:31%">Item</th>
-            <th>Description</th>
-            <th class="r" style="width:120px">Price</th>
-          </tr>
-        </thead>
-        <tbody id="items"></tbody>
-      </table>
-      <button type="button" class="addrow noprint" id="addrow">+ Add another line</button>
-      <p class="hint noprint">Type in any row and it ticks itself. Every name, price and total here can be overwritten &mdash; changed totals turn amber, and <b>Recalculate</b> puts them back.</p>
-    </fieldset>
-
-    <fieldset>
-      <legend>Notes</legend>
-      <div class="notes">
-        <textarea id="notes" placeholder="Scope detail, materials and colours, access notes, exclusions, anything agreed on site&hellip;"></textarea>
-      </div>
+    <fieldset class="desc">
+      <legend>Description of work</legend>
+      <textarea id="notes" aria-label="Description of work" placeholder="Describe the work: areas, materials, base depth, colours, access, what is included and what is not&hellip;"></textarea>
     </fieldset>
 
     <div class="totals">
       <div class="tbox">
         <h3>Amount</h3>
         <div class="trow"><span>Subtotal</span><input class="calc" id="sub" inputmode="decimal" aria-label="Subtotal"></div>
-        <div class="trow"><span>HST <input type="number" id="rate" value="13" min="0" max="30" step="0.5" style="width:44px;text-align:right;">%</span><input class="calc" id="tax" inputmode="decimal" aria-label="Tax"></div>
+        <div class="trow"><span>HST <input type="number" id="rate" value="13" min="0" max="30" step="0.5" aria-label="Tax rate">%</span><input class="calc" id="tax" inputmode="decimal" aria-label="Tax"></div>
         <div class="trow grand"><span>Total</span><input class="calc" id="tot" inputmode="decimal" aria-label="Total"></div>
       </div>
       <div class="tbox">
         <h3>Payment schedule</h3>
         <div class="trow"><span>10% deposit</span><input class="calc" id="dep" inputmode="decimal" aria-label="Deposit"></div>
-        <div class="trow"><span>1st payment</span><input class="calc" type="text" id="pay1" inputmode="decimal" aria-label="First payment"></div>
-        <div class="trow"><span>2nd payment</span><input class="calc" type="text" id="pay2" inputmode="decimal" aria-label="Second payment"></div>
-        <div class="balance ok" id="bal">Schedule matches the total.</div>
+        <div class="trow"><span>1st payment</span><input class="calc" id="pay1" inputmode="decimal" aria-label="First payment"></div>
+        <div class="trow"><span>2nd payment</span><input class="calc" id="pay2" inputmode="decimal" aria-label="Second payment"></div>
+        <div class="balance ok" id="bal">Enter a subtotal to build the schedule.</div>
         <p class="terms"><b>Terms.</b> 10% deposit due at time of signature. 1st payment due upon start of project. 2nd payment due upon completion of job.</p>
       </div>
     </div>
@@ -442,14 +240,10 @@
       <b>Your right to cancel.</b> Because this agreement is signed somewhere other than our place of business,
       it is a direct agreement under Ontario&rsquo;s <i>Consumer Protection Act, 2002</i>. You may cancel it for
       any reason within <b>10 days</b> of receiving your written copy. The final price will not exceed this
-      estimate by more than 10% unless you agree in writing to added work. Any change to the scope above will
-      be priced and signed as a written change order before it is carried out. Workmanship is warranted for
-      5&nbsp;years. Permits and conservation-authority approvals, where required, are
-      <input type="text" id="permitBy" placeholder="by Seven Stones / by owner" style="border:0;border-bottom:1px dotted #7E93AA;width:170px;font:inherit;font-size:11.5px;background:transparent;color:#15202E;">.
+      estimate by more than 10% unless you agree in writing to added work. Workmanship is warranted for 5&nbsp;years.
     </div>
 
     <div class="sigs">
-
       <div class="sigblock">
         <h4>Customer</h4>
         <div class="sigwrap" id="wrapCust">
@@ -488,109 +282,27 @@
         </div>
         <small>For Seven Stones Landscape</small>
       </div>
-
     </div>
 
   </div>
-
-  <!-- ===================== review panel, screen only ===================== -->
-  <section class="review noprint">
-    <h2>How this compares to your paper form</h2>
-    <p>
-      Everything on the printed pad is here. These are the differences, and why. Ticked items only
-      print, so a three-line job prints as three lines instead of twenty-three empty rows.
-    </p>
-
-    <div class="find"><span class="pill add">added</span><div><strong>The maths does itself</strong>
-      <p>Subtotal, HST, total and the 10% deposit all calculate live, and the page warns you if the
-      payment schedule doesn&rsquo;t add up to the total. Hand arithmetic on a signed contract is where
-      disputes start.</p></div></div>
-
-    <div class="find"><span class="pill gap">gap in the paper form</span><div><strong>No cancellation notice</strong>
-      <p>Your contract is signed at the customer&rsquo;s home, which makes it a <i>direct agreement</i>
-      under Ontario&rsquo;s Consumer Protection Act, 2002. The customer gets a 10-day cooling-off period,
-      and the agreement is supposed to say so. The paper pad has no cancellation clause at all.</p></div></div>
-
-    <div class="find"><span class="pill gap">gap in the paper form</span><div><strong>No start or completion dates</strong>
-      <p>Both are standard elements of a construction contract and the pad has neither. Added as two
-      date fields.</p></div></div>
-
-    <div class="find"><span class="pill gap">gap in the paper form</span><div><strong>Work site not separated from billing address</strong>
-      <p>The pad has one &ldquo;Address&rdquo; line. On a contract the property being worked on should be
-      named explicitly &mdash; it is the one address that defines the job.</p></div></div>
-
-    <div class="find"><span class="pill gap">gap in the paper form</span><div><strong>No change-order or permit clause</strong>
-      <p>Who pulls the permit matters a lot in your work &mdash; retaining walls over a metre, and anything
-      inside a conservation authority regulated area. Both are now stated on the form.</p></div></div>
-
-    <div class="find"><span class="pill gap">gap in the paper form</span><div><strong>No HST number</strong>
-      <p>The pad charges tax but doesn&rsquo;t show a registration number. Customers claiming input tax
-      credits need it, and it is expected on a tax invoice.</p></div></div>
-
-    <div class="find"><span class="pill note">worth knowing</span><div><strong>Your 10% deposit is the right call</strong>
-      <p>Ontario guidance treats 10% as the sensible maximum down payment on a renovation. Plenty of
-      contractors ask 30&ndash;50%. Keeping it at 10% is a genuine selling point &mdash; consider saying so
-      out loud when you present the quote.</p></div></div>
-
-    <div class="find"><span class="pill note">worth knowing</span><div><strong>&ldquo;Estimate&rdquo; and &ldquo;contract&rdquo; are different things in law</strong>
-      <p>Where an estimate forms part of the contract, the final price can&rsquo;t exceed it by more than
-      10% unless the customer agrees to new work or a new price. The form now states that, which protects
-      you as much as them, because it makes the change-order step explicit.</p></div></div>
-
-    <div class="disclaimer">
-      <b>Not legal advice.</b> These points come from published Ontario government guidance on home
-      renovation contracts and consumer rights, not from a lawyer. The wording here is a starting draft.
-      Have your own lawyer or Landscape Ontario review the terms before you use this on live jobs &mdash;
-      especially the cancellation and change-order clauses, which carry real consequences if they are wrong.
-    </div>
-  </section>
-
 </div>
 
 <script>
 (function(){
-  var ITEMS = ['Site Prep','Driveway','Front Walk','Sidewalk','Cap Porch','Patio','Shed Pad','Deck',
-               'Steps','Wall','Garden Prep','Trees','Plants','Mulch','Sod','Artificial Turf','Lighting',
-               'Water Feature','Art Installation','Fence','Pool Coping','Gate','Screen','Extras'];
-  var tbody = document.getElementById('items');
   var $ = function(id){ return document.getElementById(id); };
-  var rowCount = 0;
-
-  function addRow(name){
-    var i = rowCount++;
-    var tr = document.createElement('tr');
-    tr.className = 'off';
-    tr.innerHTML =
-      '<td><div class="cell">'
-      + '<input class="tick" type="checkbox" id="k'+i+'" aria-label="Include this line">'
-      + '<input class="itemname" type="text" id="n'+i+'" value="'+(name||'')+'" aria-label="Item name"></div></td>'
-      + '<td><div class="cell"><input type="text" id="d'+i+'" aria-label="Description"></div></td>'
-      + '<td><div class="cell"><input class="money" type="text" inputmode="decimal" id="p'+i+'" aria-label="Price"></div></td>';
-    tbody.appendChild(tr);
-    return i;
-  }
-  // A reopened "editable copy" already carries its rows in the markup. Regenerating would
-  // double them, so only build the standard set on a blank form.
-  var BAKED = document.getElementById('doc').getAttribute('data-filled') === '1';
-  if (tbody.children.length === 0) {
-    ITEMS.forEach(function(n){ addRow(n); });
-  } else {
-    rowCount = tbody.children.length;
-  }
+  var BAKED = $('doc').getAttribute('data-filled') === '1';
 
   var round2 = function(n){ return Math.round((n + Number.EPSILON) * 100) / 100; };
   var money  = function(n){ return '$' + round2(n).toLocaleString('en-CA',{minimumFractionDigits:2,maximumFractionDigits:2}); };
   var num    = function(v){ var n = parseFloat(String(v==null?'':v).replace(/[^0-9.\-]/g,'')); return isNaN(n)?0:n; };
 
-  // Any calculated box the user has typed into is theirs from then on, and stays amber
-  // until they press Recalculate.
   var CALC = ['sub','tax','tot','dep','pay1','pay2'];
   var manual = {};
   try {
-    var bm = document.getElementById('doc').getAttribute('data-manual');
+    var bm = $('doc').getAttribute('data-manual');
     if (BAKED && bm) manual = JSON.parse(bm) || {};
-  } catch (e) {}
-  CALC.forEach(function(id){ if (manual[id]) document.getElementById(id).classList.add('manual'); });
+  } catch(e){}
+  CALC.forEach(function(id){ if (manual[id]) $(id).classList.add('manual'); });
 
   function setCalc(id, value){
     var el = $(id);
@@ -599,32 +311,29 @@
     el.value = value;
   }
 
+  // The description grows to fit, so a long scope is never clipped out of the printed PDF.
+  function grow(){
+    var t = $('notes');
+    t.style.height = 'auto';
+    t.style.height = Math.max(t.scrollHeight, 420) + 'px';
+  }
+
   function recalc(){
-    // A row with anything typed in it counts itself in. No more silent $0.
-    for (var i = 0; i < rowCount; i++){
-      var typed = $('d'+i).value.trim() !== '' || $('p'+i).value.trim() !== '';
-      if (typed && !$('k'+i).checked) $('k'+i).checked = true;
-      $('p'+i).closest('tr').className = $('k'+i).checked ? '' : 'off';
-    }
-
-    var autoSub = 0;
-    for (var j = 0; j < rowCount; j++) if ($('k'+j).checked) autoSub += num($('p'+j).value);
-
-    var sub  = manual.sub ? num($('sub').value) : autoSub;
-    setCalc('sub', money(sub));
+    var sub = num($('sub').value);
+    if (!manual.sub) setCalc('sub', $('sub').value);   // subtotal is typed, never computed
 
     var autoTax = sub * num($('rate').value) / 100;
     var tax = manual.tax ? num($('tax').value) : autoTax;
-    setCalc('tax', money(tax));
+    setCalc('tax', sub ? money(tax) : '');
 
     var autoTot = sub + tax;
     var tot = manual.tot ? num($('tot').value) : autoTot;
-    setCalc('tot', money(tot));
+    setCalc('tot', sub ? money(tot) : '');
     var totR = round2(tot);
 
     var autoDep = totR * 0.10;
     var dep = manual.dep ? num($('dep').value) : autoDep;
-    setCalc('dep', money(dep));
+    setCalc('dep', totR ? money(dep) : '');
 
     var rest = round2(totR - round2(dep));
     var half = round2(rest / 2);
@@ -634,7 +343,7 @@
     var sum = round2(round2(num($('dep').value)) + round2(num($('pay1').value)) + round2(num($('pay2').value)));
     var bal = $('bal');
     if (!totR){
-      bal.className = 'balance ok'; bal.textContent = 'Add priced items, or type a total, to build the schedule.';
+      bal.className = 'balance ok'; bal.textContent = 'Enter a subtotal to build the schedule.';
     } else if (Math.abs(sum - totR) < 0.005){
       bal.className = 'balance ok'; bal.textContent = 'Schedule matches the total.';
     } else {
@@ -644,206 +353,61 @@
     save();
   }
 
-  // ---- persistence ----
-  var KEY = 'ss-estimate-v2';
-  function fields(){ return Array.prototype.slice.call(document.querySelectorAll('#doc input, #doc textarea')); }
-  function save(){
-    try{
-      var d = { __manual: manual, __rows: rowCount };
-      fields().forEach(function(el){ if (el.id) d[el.id] = el.type === 'checkbox' ? el.checked : el.value; });
-      d.__spec = Array.prototype.map.call(document.querySelectorAll('.spec input[type=checkbox]'), function(c){ return c.checked; });
-      localStorage.setItem(KEY, JSON.stringify(d));
-      var s2 = $('saved'); s2.classList.add('on');
-      clearTimeout(save._t); save._t = setTimeout(function(){ s2.classList.remove('on'); }, 1200);
-    }catch(e){}
-  }
-  function load(){
-    try{
-      var raw = localStorage.getItem(KEY); if (!raw) return;
-      var d = JSON.parse(raw);
-      while (rowCount < (d.__rows || 0)) addRow('');
-      manual = d.__manual || {};
-      fields().forEach(function(el){
-        if (!el.id || !(el.id in d)) return;
-        if (el.type === 'checkbox') el.checked = !!d[el.id]; else el.value = d[el.id];
-      });
-      if (d.__spec) Array.prototype.forEach.call(document.querySelectorAll('.spec input[type=checkbox]'), function(c,i){ c.checked = !!d.__spec[i]; });
-    }catch(e){}
-  }
-
-  document.addEventListener('input', function(e){
-    if (CALC.indexOf(e.target.id) > -1){ manual[e.target.id] = true; e.target.classList.add('manual'); }
-    recalc();
-  });
-  document.addEventListener('change', recalc);
-
-  $('print').addEventListener('click', function(){ window.print(); });
-
-  // Write what is currently typed back into the markup, then download that. Ctrl+S would
-  // save the blank original; this saves the filled one, and it reopens still editable.
-  $('savecopy').addEventListener('click', function(){
-    var doc = $('doc');
-    var all = document.querySelectorAll('#doc input, #doc textarea');
-    var i, el;
-    for (i = 0; i < all.length; i++){
-      el = all[i];
-      if (el.type === 'checkbox'){
-        if (el.checked) el.setAttribute('checked',''); else el.removeAttribute('checked');
-      } else if (el.tagName === 'TEXTAREA'){
-        el.textContent = el.value;
-      } else {
-        el.setAttribute('value', el.value);
-      }
-    }
-    doc.setAttribute('data-filled','1');
-    doc.setAttribute('data-manual', JSON.stringify(manual));
-
-    var html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
-    doc.setAttribute('data-filled','0');          // leave the live page as it was
-
-    var who = ($('cName').value || 'estimate').replace(/[^A-Za-z0-9 \-]/g,'').trim() || 'estimate';
-    var when = $('cDate').value || '';
-    var name = 'Seven Stones Estimate - ' + who + (when ? ' - ' + when : '') + '.html';
-
-    function viaBlob(){
-      try {
-        var blob = new Blob([html], {type:'text/html;charset=utf-8'});
-        var url  = URL.createObjectURL(blob);
-        var a = document.createElement('a');
-        a.href = url; a.download = name;
-        document.body.appendChild(a); a.click(); document.body.removeChild(a);
-        setTimeout(function(){ URL.revokeObjectURL(url); }, 4000);
-      } catch (e) {
-        alert('Could not save the file here. Open the page from your own computer and try again.');
-      }
-    }
-
-    // Inside the claude.ai artifact viewer a plain download link is inert, so ask the host
-    // to hand the viewer the file. Anywhere else -- the deployed page, or the file opened
-    // straight off disk -- window.claude does not exist and the blob download is the path.
-    if (window.claude && typeof window.claude.use === 'function') {
-      window.claude.use('downloads').then(function(dl){
-        if (!dl) { viaBlob(); return; }
-        return dl.save({ filename: name, data: html }).catch(function(err){
-          var code = err && err.code;
-          if (code === 'declined' || code === 'rate_limited') return;
-          alert('Could not save that copy (' + (code || 'error') + '). '
-              + 'Use Save as PDF, or open the page from your own computer.');
-        });
-      }).catch(viaBlob);
-    } else {
-      viaBlob();
-    }
-  });
-  $('addrow').addEventListener('click', function(){ var i = addRow(''); $('n'+i).focus(); recalc(); });
-  $('recalc').addEventListener('click', function(){
-    manual = {};
-    CALC.forEach(function(id){ $(id).classList.remove('manual'); });
-    recalc();
-  });
-  $('clear').addEventListener('click', function(){
-    if (!confirm('Clear every field on this estimate?')) return;
-    fields().forEach(function(el){
-      if (el.type === 'checkbox') el.checked = false;
-      else if (el.id === 'rate') el.value = 13;
-      else if (el.id && el.id.indexOf('biz') === 0) { /* keep the letterhead */ }
-      else if (/^n\d+$/.test(el.id)) { /* keep the standard item names */ }
-      else el.value = '';
-    });
-    Array.prototype.forEach.call(document.querySelectorAll('.spec input[type=checkbox]'), function(c){ c.checked = false; });
-    if (sigs.Cust) sigs.Cust.clear();
-    if (sigs.Rep)  sigs.Rep.clear();
-    $('repName').value = 'John Scime';
-    $('repTitle').value = '';
-    loadRepSignature();          // the saved company signature is kept on purpose
-    manual = {};
-    CALC.forEach(function(id){ $(id).classList.remove('manual'); });
-    try{ localStorage.removeItem(KEY); }catch(e){}
-    recalc();
-  });
-
-
   // ---------------- signatures ----------------
-  // Draw with a mouse or a finger, or type a name to have it rendered in a handwriting
-  // face. Either way the result is one PNG data URL parked in a hidden input, which is what
-  // lets a signature survive both printing and the "save editable copy" export -- a bare
-  // <canvas> carries nothing in the markup and would come back blank.
   var REP_SIG_KEY = 'ss-rep-signature';
-
   function initSig(key){
-    var cv   = $('sig' + key);
-    var hid  = $('sig' + key + 'Data');
-    var wrap = $('wrap' + key);
-    var typed= $('sig' + key + 'Type');
+    var cv = $('sig'+key), hid = $('sig'+key+'Data'), wrap = $('wrap'+key), typed = $('sig'+key+'Type');
     if (!cv || !hid) return null;
     var ctx = null;
-    try { ctx = cv.getContext('2d'); } catch (e) {}
-    // No 2D context (ancient browser, or canvas switched off): fall back to a plain typed
-    // signature so the contract is still signable rather than the whole script dying here.
-    if (!ctx) {
+    try { ctx = cv.getContext('2d'); } catch(e){}
+    if (!ctx){
       if (wrap) wrap.style.display = 'none';
-      return {
-        redraw: function(){}, clear: function(){ hid.value=''; if (typed) typed.value=''; },
-        set: function(u){ hid.value = u || ''; }, data: function(){ return hid.value; }
-      };
+      return { redraw:function(){}, clear:function(){ hid.value=''; if(typed) typed.value=''; },
+               set:function(u){ hid.value = u || ''; }, data:function(){ return hid.value; } };
     }
     var drawing = false, moved = false;
-
     function cssSize(){ var r = cv.getBoundingClientRect(); return { w: r.width || 300, h: r.height || 96 }; }
-
     function prepare(){
       var d = cssSize(), dpr = window.devicePixelRatio || 1;
       cv.width  = Math.max(1, Math.round(d.w * dpr));
       cv.height = Math.max(1, Math.round(d.h * dpr));
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      ctx.lineWidth = 2; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.strokeStyle = '#15202E';
+      ctx.setTransform(dpr,0,0,dpr,0,0);
+      ctx.lineWidth = 2; ctx.lineCap='round'; ctx.lineJoin='round'; ctx.strokeStyle='#15202E';
     }
+    function mark(has){ if (wrap) wrap.classList[has?'add':'remove']('inked'); }
     function paint(url, cb){
       prepare();
-      if (!url){ mark(false); if (cb) cb(); return; }
+      if (!url){ mark(false); if(cb) cb(); return; }
       var img = new Image();
-      img.onload = function(){ var d = cssSize(); ctx.drawImage(img, 0, 0, d.w, d.h); mark(true); if (cb) cb(); };
-      img.onerror = function(){ mark(false); if (cb) cb(); };
+      img.onload = function(){ var d=cssSize(); ctx.drawImage(img,0,0,d.w,d.h); mark(true); if(cb) cb(); };
+      img.onerror = function(){ mark(false); if(cb) cb(); };
       img.src = url;
     }
-    function mark(has){ if (wrap) wrap.classList[has ? 'add' : 'remove']('inked'); }
     function store(){ hid.value = cv.toDataURL('image/png'); mark(true); save(); }
+    function pos(e){ var r = cv.getBoundingClientRect(); return { x:e.clientX-r.left, y:e.clientY-r.top }; }
 
-    function pos(e){
-      var r = cv.getBoundingClientRect();
-      return { x: e.clientX - r.left, y: e.clientY - r.top };
-    }
     cv.addEventListener('pointerdown', function(e){
       drawing = true; moved = false;
       try { cv.setPointerCapture(e.pointerId); } catch(err){}
-      var p = pos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y);
-      e.preventDefault();
+      var p = pos(e); ctx.beginPath(); ctx.moveTo(p.x,p.y); e.preventDefault();
     });
     cv.addEventListener('pointermove', function(e){
       if (!drawing) return;
-      var p = pos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); moved = true;
-      e.preventDefault();
+      var p = pos(e); ctx.lineTo(p.x,p.y); ctx.stroke(); moved = true; e.preventDefault();
     });
-    function end(){
-      if (!drawing) return;
-      drawing = false;
-      if (moved) store();
-    }
+    function end(){ if (!drawing) return; drawing = false; if (moved) store(); }
     cv.addEventListener('pointerup', end);
     cv.addEventListener('pointercancel', end);
     cv.addEventListener('pointerleave', end);
 
-    // typing a name renders it as the signature
     if (typed) typed.addEventListener('input', function(){
       var txt = typed.value.trim();
       prepare();
-      if (!txt){ hid.value = ''; mark(false); save(); return; }
+      if (!txt){ hid.value=''; mark(false); save(); return; }
       var d = cssSize();
-      ctx.fillStyle = '#15202E';
-      ctx.textBaseline = 'middle';
+      ctx.fillStyle = '#15202E'; ctx.textBaseline = 'middle';
       var size = Math.min(42, Math.max(22, d.h * 0.46));
       ctx.font = '600 ' + size + "px 'Caveat', cursive";
-      // shrink to fit rather than overflow the pad
       while (ctx.measureText(txt).width > d.w - 28 && size > 12){
         size -= 1; ctx.font = '600 ' + size + "px 'Caveat', cursive";
       }
@@ -852,10 +416,10 @@
     });
 
     var api = {
-      redraw: function(){ paint(hid.value); },
-      clear: function(){ hid.value = ''; if (typed) typed.value = ''; prepare(); mark(false); save(); },
-      set: function(url){ hid.value = url || ''; paint(hid.value); save(); },
-      data: function(){ return hid.value; }
+      redraw:function(){ paint(hid.value); },
+      clear:function(){ hid.value=''; if(typed) typed.value=''; prepare(); mark(false); save(); },
+      set:function(u){ hid.value = u || ''; paint(hid.value); save(); },
+      data:function(){ return hid.value; }
     };
     paint(hid.value);
     return api;
@@ -864,29 +428,23 @@
   var sigs = { Cust: initSig('Cust'), Rep: initSig('Rep') };
 
   Array.prototype.forEach.call(document.querySelectorAll('[data-clearsig]'), function(b){
-    b.addEventListener('click', function(){
-      var k = b.getAttribute('data-clearsig');
-      if (sigs[k]) sigs[k].clear();
-    });
+    b.addEventListener('click', function(){ var k=b.getAttribute('data-clearsig'); if (sigs[k]) sigs[k].clear(); });
   });
 
-  // The company signature is the same every time, so it can be saved once and reused.
   var repSave = $('sigRepSave');
   if (repSave) repSave.addEventListener('click', function(){
     if (!sigs.Rep) return;
     var d = sigs.Rep.data();
     if (!d){ alert('Sign or type a name in the Seven Stones box first, then save it.'); return; }
     try{
-      localStorage.setItem(REP_SIG_KEY, JSON.stringify({
-        sig: d, name: $('repName').value, title: $('repTitle').value
-      }));
+      localStorage.setItem(REP_SIG_KEY, JSON.stringify({ sig:d, name:$('repName').value, title:$('repTitle').value }));
       var t = $('sigRepSaved'); t.hidden = false;
       setTimeout(function(){ t.hidden = true; }, 1800);
     }catch(e){ alert('This browser will not let the page store the signature.'); }
   });
 
   function loadRepSignature(){
-    if (!sigs.Rep || sigs.Rep.data()) return;   // never overwrite one already on the form
+    if (!sigs.Rep || sigs.Rep.data()) return;
     try{
       var raw = localStorage.getItem(REP_SIG_KEY); if (!raw) return;
       var d = JSON.parse(raw);
@@ -896,24 +454,118 @@
     }catch(e){}
   }
 
-  // Canvases lose their bitmap on resize, so repaint from the stored data URL.
   var rzTimer;
   window.addEventListener('resize', function(){
     clearTimeout(rzTimer);
     rzTimer = setTimeout(function(){
       if (sigs.Cust) sigs.Cust.redraw();
       if (sigs.Rep)  sigs.Rep.redraw();
+      grow();
     }, 180);
   });
 
+  // ---------------- persistence ----------------
+  var KEY = 'ss-estimate-v3';
+  function fields(){ return Array.prototype.slice.call(document.querySelectorAll('#doc input, #doc textarea')); }
+  function save(){
+    try{
+      var d = { __manual: manual };
+      fields().forEach(function(el){ if (el.id) d[el.id] = el.value; });
+      localStorage.setItem(KEY, JSON.stringify(d));
+      var s2 = $('saved'); s2.classList.add('on');
+      clearTimeout(save._t); save._t = setTimeout(function(){ s2.classList.remove('on'); }, 1200);
+    }catch(e){}
+  }
+  function load(){
+    try{
+      var raw = localStorage.getItem(KEY); if (!raw) return;
+      var d = JSON.parse(raw);
+      manual = d.__manual || {};
+      fields().forEach(function(el){ if (el.id && (el.id in d)) el.value = d[el.id]; });
+    }catch(e){}
+  }
+
+  document.addEventListener('input', function(e){
+    if (CALC.indexOf(e.target.id) > -1){ manual[e.target.id] = true; e.target.classList.add('manual'); }
+    if (e.target.id === 'notes') grow();
+    recalc();
+  });
+  document.addEventListener('change', recalc);
+
+  $('print').addEventListener('click', function(){ grow(); window.print(); });
+
+  $('recalc').addEventListener('click', function(){
+    manual = {};
+    CALC.forEach(function(id){ $(id).classList.remove('manual'); });
+    recalc();
+  });
+
+  $('clear').addEventListener('click', function(){
+    if (!confirm('Clear every field on this estimate?')) return;
+    fields().forEach(function(el){
+      if (el.id === 'rate') el.value = 13;
+      else if (el.id && el.id.indexOf('biz') === 0) { /* keep the letterhead */ }
+      else el.value = '';
+    });
+    if (sigs.Cust) sigs.Cust.clear();
+    if (sigs.Rep)  sigs.Rep.clear();
+    $('repName').value = 'John Scime';
+    $('repTitle').value = '';
+    loadRepSignature();
+    manual = {};
+    CALC.forEach(function(id){ $(id).classList.remove('manual'); });
+    try{ localStorage.removeItem(KEY); }catch(e){}
+    ['cDate','custSigDate','repSigDate'].forEach(function(id){ try{ $(id).valueAsDate = new Date(); }catch(e){} });
+    grow(); recalc();
+  });
+
+  // Ctrl+S saves the blank original; this bakes what is typed back into the markup so the
+  // saved file reopens filled in and still editable.
+  $('savecopy').addEventListener('click', function(){
+    var doc = $('doc');
+    fields().forEach(function(el){
+      if (el.tagName === 'TEXTAREA') el.textContent = el.value;
+      else el.setAttribute('value', el.value);
+    });
+    doc.setAttribute('data-filled','1');
+    doc.setAttribute('data-manual', JSON.stringify(manual));
+    var html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+    doc.setAttribute('data-filled','0');
+
+    var who  = ($('cName').value || 'estimate').replace(/[^A-Za-z0-9 \-]/g,'').trim() || 'estimate';
+    var when = $('cDate').value || '';
+    var name = 'Seven Stones Estimate - ' + who + (when ? ' - ' + when : '') + '.html';
+
+    function viaBlob(){
+      try{
+        var blob = new Blob([html], {type:'text/html;charset=utf-8'});
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url; a.download = name;
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        setTimeout(function(){ URL.revokeObjectURL(url); }, 4000);
+      }catch(e){ alert('Could not save the file here. Open the page from your own computer and try again.'); }
+    }
+    if (window.claude && typeof window.claude.use === 'function'){
+      window.claude.use('downloads').then(function(dl){
+        if (!dl){ viaBlob(); return; }
+        return dl.save({ filename:name, data:html }).catch(function(err){
+          var code = err && err.code;
+          if (code === 'declined' || code === 'rate_limited') return;
+          alert('Could not save that copy (' + (code || 'error') + '). Use Save as PDF instead.');
+        });
+      }).catch(viaBlob);
+    } else { viaBlob(); }
+  });
+
   if (!BAKED) load();
-  if (!$('cDate').value){ try{ $('cDate').valueAsDate = new Date(); }catch(e){} }
   if (sigs.Cust) sigs.Cust.redraw();
   if (sigs.Rep)  sigs.Rep.redraw();
   loadRepSignature();
-  ['custSigDate','repSigDate'].forEach(function(id){
+  ['cDate','custSigDate','repSigDate'].forEach(function(id){
     if (!$(id).value){ try{ $(id).valueAsDate = new Date(); }catch(e){} }
   });
+  grow();
   recalc();
 })();
 </script>
