@@ -8,7 +8,7 @@
 <title>Seven Stones Estimate &amp; Contract</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=Caveat:wght@500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap">
 
 <style>
   :root{
@@ -83,6 +83,9 @@
     background-attachment:local;
   }
   .desc textarea:focus{border-color:var(--brand);}
+  /* Printed copy of the description. A <textarea> is a replaced element and cannot be
+     split across pages, so print renders this plain <div> instead and it flows normally. */
+  .desc-print{display:none;}
 
   /* ---------- totals ---------- */
   .totals{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:22px;}
@@ -119,7 +122,6 @@
   .sigph{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:12.5px;color:#A9B3C0;pointer-events:none;font-style:italic;}
   .sigwrap.inked .sigph{display:none;}
   .sigtools{display:flex;flex-wrap:wrap;gap:7px;align-items:center;}
-  .sigtools input.sigtype{flex:1 1 150px;min-width:0;font-family:'Caveat',cursive;font-size:19px;border:0;border-bottom:1px dotted #B6C2D0;background:transparent;color:#15202E;padding:2px 4px;}
   .sigtools button{font-size:11.5px;padding:5px 9px;}
   .sigmeta .f{padding:5px 0;}
   .sigmeta .f label{min-width:74px;}
@@ -134,8 +136,7 @@
     .biz input{text-align:left;width:100%;max-width:280px;}
     .g2,.totals,.sigs{grid-template-columns:1fr;}
     /* iOS zooms the page whenever a focused control is under 16px */
-    .doc input,.doc textarea,.biz input,.f input,.trow input.calc,.sigtools input.sigtype{font-size:16px;}
-    .sigtools input.sigtype{font-size:20px;}
+    .doc input,.doc textarea,.biz input,.f input,.trow input.calc,
     .desc textarea{min-height:320px;}
     .sigpad{height:110px;}
     .sigtools button{min-height:38px;padding:7px 12px;}
@@ -153,10 +154,27 @@
     .doc-title{font-size:18px;margin:10px 0 12px;}
     .doc-head img{width:150px;}
     .doc input,.doc textarea{border-bottom:0 !important;background:transparent !important;color:#000 !important;}
-    .desc textarea{border:1px solid #C9D3DE;background-image:none;min-height:0;line-height:1.7;}
     .f{padding:4px 0;}
+    .f input{border-bottom:1px solid #9AA7B6 !important;}
     .trow{padding:5px 10px;}
-    .tbox,.sigs,.totals,.coolnote,.desc{break-inside:avoid;}
+    /* .desc is deliberately NOT in this list: a description longer than one page has to be
+       allowed to break, or the browser cannot place it and the document runs to dozens of
+       blank pages. */
+    .tbox,.sigs,.totals,.coolnote{break-inside:avoid;}
+
+    /* Browsers print placeholder text. On an unfilled contract that put "Address of the
+       property", "Print name" and "_______________" straight into the saved PDF. */
+    ::placeholder{color:transparent !important;opacity:0 !important;}
+    ::-webkit-input-placeholder{color:transparent !important;opacity:0 !important;}
+    ::-moz-placeholder{color:transparent !important;opacity:0 !important;}
+    .balance{display:none !important;}
+
+    .desc textarea{display:none !important;}
+    .desc-print{
+      display:block;white-space:pre-wrap;word-wrap:break-word;
+      border:1px solid #C9D3DE;border-radius:4px;padding:10px 12px;
+      font-size:11px;line-height:1.65;min-height:150px;
+    }
     .sigwrap{border:0;border-bottom:1px solid #000;border-radius:0;background:transparent;}
     .sigpad{height:74px;}
     .sigph{display:none !important;}
@@ -217,6 +235,7 @@
     <fieldset class="desc">
       <legend>Description of work</legend>
       <textarea id="notes" aria-label="Description of work" placeholder="Describe the work: areas, materials, base depth, colours, access, what is included and what is not&hellip;"></textarea>
+      <div class="desc-print" id="notesPrint" aria-hidden="true"></div>
     </fieldset>
 
     <div class="totals">
@@ -252,7 +271,6 @@
         </div>
         <input type="hidden" id="sigCustData">
         <div class="sigtools noprint">
-          <input type="text" class="sigtype" id="sigCustType" placeholder="or type a name to sign" aria-label="Type customer signature">
           <button type="button" data-clearsig="Cust">Clear</button>
         </div>
         <div class="sigmeta">
@@ -270,14 +288,12 @@
         </div>
         <input type="hidden" id="sigRepData">
         <div class="sigtools noprint">
-          <input type="text" class="sigtype" id="sigRepType" placeholder="or type a name to sign" aria-label="Type Seven Stones signature">
           <button type="button" data-clearsig="Rep">Clear</button>
           <button type="button" id="sigRepSave">Save my signature</button>
           <span class="sigsaved" id="sigRepSaved" hidden>Saved</span>
         </div>
         <div class="sigmeta">
           <div class="f"><label for="repName">Signed by</label><input type="text" id="repName" value="John Scime" placeholder="Name"></div>
-          <div class="f"><label for="repTitle">Title</label><input type="text" id="repTitle" placeholder="e.g. Owner"></div>
           <div class="f"><label for="repSigDate">Date</label><input type="date" id="repSigDate"></div>
         </div>
         <small>For Seven Stones Landscape</small>
@@ -316,6 +332,7 @@
     var t = $('notes');
     t.style.height = 'auto';
     t.style.height = Math.max(t.scrollHeight, 420) + 'px';
+    $('notesPrint').textContent = t.value;   // what actually gets printed
   }
 
   function recalc(){
@@ -356,13 +373,13 @@
   // ---------------- signatures ----------------
   var REP_SIG_KEY = 'ss-rep-signature';
   function initSig(key){
-    var cv = $('sig'+key), hid = $('sig'+key+'Data'), wrap = $('wrap'+key), typed = $('sig'+key+'Type');
+    var cv = $('sig'+key), hid = $('sig'+key+'Data'), wrap = $('wrap'+key);
     if (!cv || !hid) return null;
     var ctx = null;
     try { ctx = cv.getContext('2d'); } catch(e){}
     if (!ctx){
       if (wrap) wrap.style.display = 'none';
-      return { redraw:function(){}, clear:function(){ hid.value=''; if(typed) typed.value=''; },
+      return { redraw:function(){}, clear:function(){ hid.value=''; },
                set:function(u){ hid.value = u || ''; }, data:function(){ return hid.value; } };
     }
     var drawing = false, moved = false;
@@ -400,24 +417,10 @@
     cv.addEventListener('pointercancel', end);
     cv.addEventListener('pointerleave', end);
 
-    if (typed) typed.addEventListener('input', function(){
-      var txt = typed.value.trim();
-      prepare();
-      if (!txt){ hid.value=''; mark(false); save(); return; }
-      var d = cssSize();
-      ctx.fillStyle = '#15202E'; ctx.textBaseline = 'middle';
-      var size = Math.min(42, Math.max(22, d.h * 0.46));
-      ctx.font = '600 ' + size + "px 'Caveat', cursive";
-      while (ctx.measureText(txt).width > d.w - 28 && size > 12){
-        size -= 1; ctx.font = '600 ' + size + "px 'Caveat', cursive";
-      }
-      ctx.fillText(txt, 16, d.h * 0.55);
-      store();
-    });
 
     var api = {
       redraw:function(){ paint(hid.value); },
-      clear:function(){ hid.value=''; if(typed) typed.value=''; prepare(); mark(false); save(); },
+      clear:function(){ hid.value=''; prepare(); mark(false); save(); },
       set:function(u){ hid.value = u || ''; paint(hid.value); save(); },
       data:function(){ return hid.value; }
     };
@@ -435,9 +438,9 @@
   if (repSave) repSave.addEventListener('click', function(){
     if (!sigs.Rep) return;
     var d = sigs.Rep.data();
-    if (!d){ alert('Sign or type a name in the Seven Stones box first, then save it.'); return; }
+    if (!d){ alert('Sign in the Seven Stones box first, then save it.'); return; }
     try{
-      localStorage.setItem(REP_SIG_KEY, JSON.stringify({ sig:d, name:$('repName').value, title:$('repTitle').value }));
+      localStorage.setItem(REP_SIG_KEY, JSON.stringify({ sig:d, name:$('repName').value }));
       var t = $('sigRepSaved'); t.hidden = false;
       setTimeout(function(){ t.hidden = true; }, 1800);
     }catch(e){ alert('This browser will not let the page store the signature.'); }
@@ -448,8 +451,7 @@
     try{
       var raw = localStorage.getItem(REP_SIG_KEY); if (!raw) return;
       var d = JSON.parse(raw);
-      if (d.name)  $('repName').value  = d.name;
-      if (d.title) $('repTitle').value = d.title;
+      if (d.name) $('repName').value = d.name;
       if (d.sig)   sigs.Rep.set(d.sig);
     }catch(e){}
   }
@@ -510,7 +512,6 @@
     if (sigs.Cust) sigs.Cust.clear();
     if (sigs.Rep)  sigs.Rep.clear();
     $('repName').value = 'John Scime';
-    $('repTitle').value = '';
     loadRepSignature();
     manual = {};
     CALC.forEach(function(id){ $(id).classList.remove('manual'); });
