@@ -89,7 +89,7 @@ async function load() {
 
   let res;
   try {
-    res = await fetch(`/api/signed?k=${encodeURIComponent(token())}`, {
+    res = await fetch(`/api/signed/?k=${encodeURIComponent(token())}`, {
       headers: { 'X-Archive-Token': token() }
     });
   } catch (err) {

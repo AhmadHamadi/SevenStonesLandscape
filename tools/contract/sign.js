@@ -296,7 +296,10 @@ submit.addEventListener('click', async () => {
   }
 
   try {
-    const res = await fetch('/api/sign', {
+    /* Trailing slash on purpose: vercel.json sets trailingSlash, so /api/sign
+       308s to /api/sign/ and the browser re-uploads the whole body -- signature
+       and PDF included -- a second time. Posting to the settled URL skips that. */
+    const res = await fetch('/api/sign/', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
