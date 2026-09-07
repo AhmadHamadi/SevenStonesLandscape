@@ -10,7 +10,8 @@
   "scripts": {
     "test": "node scripts/test-contract.js && node scripts/test-routing.js",
     "test:contract": "node scripts/test-contract.js",
-    "test:routing": "node scripts/test-routing.js"
+    "test:routing": "node scripts/test-routing.js",
+    "test:browser": "node scripts/test-signing-browser.js"
   },
   "optionalDependencies": {
     "@vercel/blob": "^2.8.0"
