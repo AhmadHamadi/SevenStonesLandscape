@@ -90,7 +90,6 @@ export function renderDocument(d, opts = {}) {
   brand.appendChild(logo);
   const brandText = el('div');
   brandText.appendChild(el('div', 'sheet-name', AGENCY.legalName));
-  brandText.appendChild(el('div', 'sheet-tag', 'ICPI-Certified Hardscape'));
   brand.appendChild(brandText);
   head.appendChild(brand);
 
@@ -164,8 +163,7 @@ export function renderDocument(d, opts = {}) {
   notice.appendChild(el('strong', null, 'Your right to cancel. '));
   notice.appendChild(document.createTextNode(
     `This is a direct agreement under Ontario's Consumer Protection Act, 2002. You may cancel it for any ` +
-    `reason within ${COOLING_OFF_DAYS} days of receiving your written copy. See clause ` +
-    `${clauses.findIndex((c) => c.title === 'Your Right to Cancel') + 1}.`
+    `reason within ${COOLING_OFF_DAYS} days of receiving your written copy.`
   ));
   sheet.appendChild(notice);
 

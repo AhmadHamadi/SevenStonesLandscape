@@ -68,11 +68,12 @@ const mockReq = (body, headers = {}) => ({
 /* ------------------------------------------------------------------ */
 const model = await import(pathToFileURL('./tools/contract/contract-model.js').href);
 const {
-  DEFAULTS, SERVICE_LIBRARY, PAYMENT_PLANS, AGENCY,
+  DEFAULTS, PAYMENT_PLANS, AGENCY,
   money, amount, longDate, todayISO, slugify,
   priceBreakdown, encodeContract, decodeContract, packContract, unpackContract,
-  signingUrl, referenceFor, buildClauses, contractGaps, coveringEmail, selectedServices,
-  COOLING_OFF_DAYS, ESTIMATE_OVERRUN_CAP
+  signingUrl, referenceFor, buildClauses, contractGaps, coveringEmail,
+  COOLING_OFF_DAYS, ESTIMATE_OVERRUN_CAP,
+  linkExpiry, LINK_EXPIRY_HOURS, PAYMENT_METHODS, DEPOSIT_PRESETS
 } = model;
 
 const sample = {
@@ -86,7 +87,6 @@ const sample = {
   startDate: '2026-09-22',
   completeDate: '2026-10-10',
   projectPrice: '28500',
-  services: ['interlock', 'steps'],
   scope: '450 sq ft rear patio\n8 inch granular A base',
   exclusions: 'Deck removal\nPermit fees'
 };
@@ -258,6 +258,66 @@ await test('reference is stable and filename-safe', () => {
   assert.match(referenceFor(sample), /^SSL-[A-Z0-9]*-\d{6}$/);
 });
 
+
+/* ==================================================================
+   LINK LIFETIME AND UNIQUENESS
+   ================================================================== */
+await test('every issued link is different, even for the same customer', () => {
+  const a = signingUrl(sample);
+  const b = signingUrl(sample);
+  assert.notEqual(a, b, 'two links for one customer came out identical');
+  assert.notEqual(signingUrl(sample), signingUrl({ ...sample, clientName: 'Someone Else' }));
+});
+
+await test('a fresh link is stamped and good for the full window', () => {
+  const d = decodeContract(new URL(signingUrl(sample)).searchParams.get('a'));
+  const e = linkExpiry(d);
+  assert.equal(e.stamped, true, 'link carries no timestamp');
+  assert.equal(e.expired, false);
+  assert.ok(e.hoursLeft <= LINK_EXPIRY_HOURS && e.hoursLeft > LINK_EXPIRY_HOURS - 2,
+    'hours left is ' + e.hoursLeft);
+});
+
+await test('a link older than the window is expired', () => {
+  const past = Math.floor(Date.now() / 1000) - (LINK_EXPIRY_HOURS + 1) * 3600;
+  assert.equal(linkExpiry({ issuedAt: past }).expired, true);
+});
+
+await test('a link one hour short of the window is still good', () => {
+  const past = Math.floor(Date.now() / 1000) - (LINK_EXPIRY_HOURS - 1) * 3600;
+  assert.equal(linkExpiry({ issuedAt: past }).expired, false);
+});
+
+await test('an unstamped link is honoured rather than refused', () => {
+  assert.equal(linkExpiry({ issuedAt: 0 }).expired, false);
+  assert.equal(linkExpiry({}).expired, false);
+  assert.equal(linkExpiry({ issuedAt: 'nonsense' }).expired, false);
+});
+
+/* ==================================================================
+   PAYMENT OPTIONS
+   ================================================================== */
+await test('cash is an available way to pay', () => {
+  assert.ok(PAYMENT_METHODS.some((m) => /cash/i.test(m)), PAYMENT_METHODS.join(', '));
+  assert.ok(PAYMENT_METHODS.includes('Cash'));
+});
+
+await test('the chosen payment method reaches the contract', () => {
+  const d = { ...sample, paymentMethod: 'Cash' };
+  const pay = buildClauses(d).find((c) => c.title === 'Price and Payment').paras.join(' ');
+  assert.ok(pay.includes('Cash'), pay);
+});
+
+await test('an unknown payment method falls back instead of printing junk', () => {
+  const d = unpackContract({ ...packContract(sample), pm: 'Bitcoin' });
+  assert.equal(d.paymentMethod, DEFAULTS.paymentMethod);
+});
+
+await test('the deposit presets are sane percentages', () => {
+  assert.ok(DEPOSIT_PRESETS.includes(0) && DEPOSIT_PRESETS.includes(10));
+  for (const v of DEPOSIT_PRESETS) assert.ok(v >= 0 && v <= 100, 'bad preset ' + v);
+});
+
 /* ==================================================================
    CLAUSES
    ================================================================== */
@@ -266,66 +326,63 @@ await test('clauses are numbered from one with no gaps', () => {
   c.forEach((clause, i) => assert.equal(clause.n, i + 1));
 });
 
-await test('dropping the warranty renumbers the rest and breaks nothing', () => {
-  const withW = buildClauses(sample);
-  const without = buildClauses({ ...sample, warrantyYears: 0 });
-  assert.equal(without.length, withW.length - 1);
-  without.forEach((clause, i) => assert.equal(clause.n, i + 1));
-  assert.ok(!without.some((c) => /Workmanship Warranty/.test(c.title)));
-  assert.ok(without.some((c) => c.title === 'Your Right to Cancel'));
+await test('the contract is three short clauses, not eleven', () => {
+  const c = buildClauses(sample);
+  assert.equal(c.length, 3, c.map((x) => x.title).join(' | '));
+  assert.deepEqual(c.map((x) => x.title), ['The Work', 'Price and Payment', 'Terms']);
+  c.forEach((x, i) => assert.equal(x.n, i + 1));
 });
 
-await test('the cancellation clause is always present and states 10 days', () => {
-  for (const variant of [sample, { ...sample, warrantyYears: 0 }, DEFAULTS]) {
-    const c = buildClauses(variant);
-    const cancel = c.find((x) => x.title === 'Your Right to Cancel');
-    assert.ok(cancel, 'cancellation clause missing');
-    assert.ok(cancel.paras.join(' ').includes(`${COOLING_OFF_DAYS} days`));
-  }
+await test('the whole contract stays short enough for one page', () => {
+  const words = buildClauses(sample)
+    .flatMap((c) => c.paras).join(' ').split(/s+/).length;
+  assert.ok(words < 420, 'contract is ' + words + ' words, too long for one page');
 });
 
-await test('the price clause states the 10 percent statutory cap', () => {
-  const price = buildClauses(sample).find((c) => c.title === 'Price and Payment');
-  assert.ok(price.paras.join(' ').includes('Consumer Protection Act'));
-  assert.ok(price.paras.join(' ').includes('$35,425.50'));  // 32205 * 1.1
-});
-
-await test('an empty contract still builds every clause without throwing', () => {
-  const c = buildClauses(DEFAULTS);
-  assert.ok(c.length >= 9);
-  for (const clause of c) {
-    assert.ok(clause.title);
-    assert.ok(Array.isArray(clause.paras) && clause.paras.length);
-    for (const p of clause.paras) assert.equal(typeof p, 'string');
-  }
-});
-
-await test('scope and exclusions become bullet lines under The Work', () => {
+await test('the description prints as a block, not a bullet list', () => {
   const work = buildClauses(sample).find((c) => c.title === 'The Work');
-  const joined = work.paras.join('\n');
-  assert.ok(joined.includes('- 450 sq ft rear patio'));
-  assert.ok(joined.includes('- Deck removal'));
-  assert.ok(joined.includes('Not included'));
+  assert.ok(work.paras.includes('450 sq ft rear patio'), work.paras.join(' | '));
+  assert.ok(work.paras.includes('8 inch granular A base'));
+  assert.ok(!work.paras.some((x) => x.startsWith('- ')), 'still rendering bullets');
+  assert.ok(work.paras.join(' ').includes('Not included'));
 });
 
-await test('custom services appear alongside library ones', () => {
-  const d = { ...sample, customServices: ['Fountain reinstall', '  ', ''] };
-  const picked = selectedServices(d).map((s) => s.label);
-  assert.ok(picked.includes('Fountain reinstall'));
-  assert.equal(picked.filter((l) => !l.trim()).length, 0, 'blank custom lines must be dropped');
+await test('an empty description still renders a blank line, never undefined', () => {
+  const work = buildClauses({ ...DEFAULTS }).find((c) => c.title === 'The Work');
+  assert.ok(work.paras.length > 0);
+  assert.ok(!work.paras.join(' ').includes('undefined'));
 });
 
-await test('service order follows the library, not click order', () => {
-  const a = selectedServices({ ...sample, services: ['steps', 'interlock'] }).map((s) => s.id);
-  const b = selectedServices({ ...sample, services: ['interlock', 'steps'] }).map((s) => s.id);
-  assert.deepEqual(a, b);
+await test('Terms always carries the cancellation right and the 10 percent cap', () => {
+  for (const variant of [sample, { ...sample, warrantyYears: 0 }, DEFAULTS]) {
+    const terms = buildClauses(variant).find((c) => c.title === 'Terms').paras.join(' ');
+    assert.ok(terms.includes(COOLING_OFF_DAYS + ' days'), 'no cancellation right');
+    assert.ok(terms.includes('Consumer Protection Act'), 'Act not cited');
+    assert.ok(terms.includes(ESTIMATE_OVERRUN_CAP + '%'), 'no price cap');
+  }
 });
 
-await test('every library service id is unique', () => {
-  const ids = SERVICE_LIBRARY.map((s) => s.id);
-  assert.equal(new Set(ids).size, ids.length);
+await test('the warranty line drops out at zero years and back in above it', () => {
+  const on = buildClauses(sample).find((c) => c.title === 'Terms').paras.join(' ');
+  const off = buildClauses({ ...sample, warrantyYears: 0 }).find((c) => c.title === 'Terms').paras.join(' ');
+  assert.ok(on.includes('Workmanship is warranted for 5 years'));
+  assert.ok(!off.includes('Workmanship is warranted'));
+  assert.equal(buildClauses({ ...sample, warrantyYears: 0 }).length, 3, 'clause count changed');
 });
 
+await test('gaps catch every required field including the description', () => {
+  const g = contractGaps(DEFAULTS);
+  for (const want of ['Customer name', 'Customer email', 'Property address',
+                      'Price for the work', 'Description of the work',
+                      'Start date', 'Completion date']) {
+    assert.ok(g.some((x) => x.includes(want)), 'no gap for ' + want);
+  }
+});
+
+await test('the contract no longer claims an ICPI certification', () => {
+  const all = buildClauses(sample).flatMap((c) => [c.title, ...c.paras]).join(' ');
+  assert.ok(!/ICPI/i.test(all), 'ICPI still in the wording');
+});
 /* ==================================================================
    GAPS + EMAIL
    ================================================================== */
@@ -337,13 +394,6 @@ await test('gaps name the CPA-required dates', () => {
   const g = contractGaps({ ...sample, startDate: '', completeDate: '' });
   assert.ok(g.some((x) => /Start date/i.test(x)));
   assert.ok(g.some((x) => /Completion date/i.test(x)));
-});
-
-await test('gaps catch a missing price, email, name and address', () => {
-  const g = contractGaps(DEFAULTS);
-  for (const want of ['Customer name', 'Customer email', 'Property address', 'Price for the work']) {
-    assert.ok(g.some((x) => x.includes(want)), `expected a gap for ${want}, got ${g.join(' | ')}`);
-  }
 });
 
 await test('covering email carries the link, the money, and the cancellation note', () => {
@@ -484,6 +534,23 @@ await test('a non-base64 pdf payload is refused rather than attached', async () 
   assert.equal(sent[0].body.attachments.length, 1);
 });
 
+await test('the server refuses an expired link even if the page did not', async () => {
+  const past = Math.floor(Date.now() / 1000) - (LINK_EXPIRY_HOURS + 1) * 3600;
+  const token = encodeContract({ ...sample, issuedAt: past });
+  const res = mockRes();
+  await handler(mockReq({ ...goodBody(), token }), res);
+  assert.equal(res.statusCode, 410, JSON.stringify(res.payload));
+  assert.match(res.payload.error, /expired/i);
+});
+
+await test('the server accepts a link still inside the window', async () => {
+  const recent = Math.floor(Date.now() / 1000) - 3600;
+  const token = encodeContract({ ...sample, issuedAt: recent });
+  const res = mockRes();
+  await handler(mockReq({ ...goodBody(), token }), res);
+  assert.equal(res.statusCode, 200, JSON.stringify(res.payload));
+});
+
 await test('a missing token is refused', async () => {
   const res = mockRes();
   await handler(mockReq({ ...goodBody(), token: '' }), res);
@@ -606,8 +673,8 @@ await test('the signed email states the cancellation right in both parts', () =>
     reference: 'SSL-TEST-260907', signatureCid: 'cid1', hasPdf: true
   });
   assert.ok(subject.includes('Jane & Mark Whitfield'));
-  assert.ok(html.includes('Consumer Protection Act'));
-  assert.ok(text.includes('YOUR RIGHT TO CANCEL'));
+  assert.ok(/10 days/.test(html) && /cancel/i.test(html), 'html hides the cancellation right');
+  assert.ok(/CANCEL/.test(text) && /10 days/.test(text), 'text hides the cancellation right');
   assert.ok(html.includes('cid:cid1'), 'signature must be embedded inline');
   assert.ok(html.includes('attached to this email as a PDF'), 'does not say the PDF is attached');
 });
@@ -641,9 +708,9 @@ await test('the short email still carries the money, dates and cancellation righ
   });
   assert.ok(html.includes('$32,205'), 'total missing');
   assert.ok(html.includes('September 22, 2026'), 'start date missing');
-  assert.ok(html.includes('Consumer Protection Act'), 'cancellation right missing');
-  assert.ok(html.includes(`cid:c`), 'signature not embedded');
-  assert.ok(text.includes('YOUR RIGHT TO CANCEL'), 'text lacks the cancellation right');
+  assert.ok(/10 days/.test(html) && /cancel/i.test(html), 'cancellation right missing');
+  assert.ok(html.includes('cid:c'), 'signature not embedded');
+  assert.ok(/CANCEL/.test(text) && /10 days/.test(text), 'text lacks the cancellation right');
   assert.ok(text.includes('Jane Whitfield'), 'text lacks the signer');
 });
 
@@ -656,16 +723,6 @@ await test('the signed email escapes html a customer typed', () => {
   assert.ok(!html.includes('<img src=x'), 'client name was not escaped');
   assert.ok(!html.includes('<script>alert(2)'), 'typed name was not escaped');
   assert.ok(html.includes('&lt;script&gt;'));
-});
-
-await test('the signed email carries every clause the page showed', () => {
-  const { html, text } = signApi.buildSignedEmail({
-    d: sample, typedName: 'J W', signedAtLong: 'x', reference: 'r', signatureCid: 'c', hasPdf: false
-  });
-  for (const clause of buildClauses(sample)) {
-    assert.ok(html.includes(clause.title), `html missing clause: ${clause.title}`);
-    assert.ok(text.includes(clause.title.toUpperCase()), `text missing clause: ${clause.title}`);
-  }
 });
 
 await test('bold markers are rendered, never leaked as asterisks', () => {

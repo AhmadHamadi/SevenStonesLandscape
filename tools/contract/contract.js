@@ -9,9 +9,9 @@
  */
 
 import {
-  DEFAULTS, SERVICE_LIBRARY, SIGNERS, PAYMENT_PLANS, AGENCY,
+  DEFAULTS, SIGNERS, PAYMENT_PLANS, PAYMENT_METHODS, DEPOSIT_PRESETS, AGENCY,
   priceBreakdown, money, signingUrl, coveringEmail, contractGaps,
-  todayISO, ESTIMATE_OVERRUN_CAP
+  todayISO, ESTIMATE_OVERRUN_CAP, LINK_EXPIRY_HOURS
 } from './contract-model.js';
 import { renderDocument, DOCUMENT_CSS } from './document.js';
 
@@ -35,60 +35,7 @@ const TEXT_FIELDS = [
   'projectPrice', 'scope', 'exclusions'
 ];
 const NUMBER_FIELDS = ['taxRate', 'depositPercent', 'warrantyYears', 'signerIndex'];
-const SELECT_FIELDS = ['paymentPlan'];
-
-function buildServices() {
-  const host = $('services');
-  host.textContent = '';
-  for (const s of SERVICE_LIBRARY) {
-    const row = document.createElement('label');
-    row.className = 'svc';
-
-    const box = document.createElement('input');
-    box.type = 'checkbox';
-    box.value = s.id;
-    box.checked = d.services.includes(s.id);
-    box.addEventListener('change', () => {
-      const set = new Set(d.services);
-      box.checked ? set.add(s.id) : set.delete(s.id);
-      // Preserve library order so the printed list never shuffles between edits.
-      d.services = SERVICE_LIBRARY.filter((x) => set.has(x.id)).map((x) => x.id);
-      update();
-    });
-
-    const text = document.createElement('span');
-    text.textContent = s.label;
-    const desc = document.createElement('small');
-    desc.textContent = s.desc;
-    text.appendChild(desc);
-
-    row.append(box, text);
-    host.appendChild(row);
-  }
-}
-
-function buildCustomList() {
-  const host = $('customList');
-  host.textContent = '';
-  d.customServices.forEach((value, i) => {
-    const row = document.createElement('div');
-    row.className = 'custom-row';
-
-    const input = document.createElement('input');
-    input.type = 'text';
-    input.value = value;
-    input.placeholder = 'Anything not in the list above';
-    input.addEventListener('input', () => { d.customServices[i] = input.value; update({ skipCustom: true }); });
-
-    const remove = document.createElement('button');
-    remove.type = 'button';
-    remove.textContent = 'Remove';
-    remove.addEventListener('click', () => { d.customServices.splice(i, 1); update(); });
-
-    row.append(input, remove);
-    host.appendChild(row);
-  });
-}
+const SELECT_FIELDS = ['paymentPlan', 'paymentMethod'];
 
 function buildSelects() {
   const plan = $('paymentPlan');
@@ -110,6 +57,23 @@ function buildSelects() {
   });
   // One signer today; the control is noise until there are two.
   signer.closest('.f').hidden = SIGNERS.length < 2;
+
+  const method = $('paymentMethod');
+  method.textContent = '';
+  for (const m of PAYMENT_METHODS) {
+    const o = document.createElement('option');
+    o.value = m;
+    o.textContent = m;
+    method.appendChild(o);
+  }
+
+  const presets = $('depositPresets');
+  presets.textContent = '';
+  for (const v of DEPOSIT_PRESETS) {
+    const o = document.createElement('option');
+    o.value = String(v);
+    presets.appendChild(o);
+  }
 }
 
 function readForm() {
@@ -197,8 +161,8 @@ function renderLinkAndEmail() {
   const len = url.length;
   const warn = len > 6000;
   $('linkLen').textContent = warn
-    ? `Link is ${len} characters — trim the scope or exclusions, some mail clients break past 8000.`
-    : `${len} characters.`;
+    ? `Link is ${len} characters — trim the description, some mail clients break past 8000.`
+    : `Good for ${LINK_EXPIRY_HOURS} hours from when you copy it. ${len} characters.`;
   $('linkLen').style.color = warn ? 'var(--bad)' : '';
 }
 
@@ -228,8 +192,6 @@ function load() {
     const saved = JSON.parse(raw);
     if (saved && typeof saved === 'object' && !Array.isArray(saved)) {
       d = { ...DEFAULTS, ...saved };
-      d.services = Array.isArray(d.services) ? d.services : [...DEFAULTS.services];
-      d.customServices = Array.isArray(d.customServices) ? d.customServices : [];
     }
   } catch (e) { /* corrupt draft: fall back to defaults rather than dying on load */ }
 }
@@ -244,7 +206,6 @@ function scheduleSave() {
 
 function update(opts = {}) {
   if (!opts.skipRead) readForm();
-  if (!opts.skipCustom) buildCustomList();
   renderTotals();
   renderGaps();
   renderLinkAndEmail();
@@ -257,16 +218,9 @@ function update(opts = {}) {
    ------------------------------------------------------------------ */
 for (const id of [...TEXT_FIELDS, ...NUMBER_FIELDS, ...SELECT_FIELDS]) {
   const node = $(id);
-  node.addEventListener('input', () => update({ skipCustom: true }));
-  node.addEventListener('change', () => update({ skipCustom: true }));
+  node.addEventListener('input', () => update());
+  node.addEventListener('change', () => update());
 }
-
-$('addCustom').addEventListener('click', () => {
-  d.customServices.push('');
-  update();
-  const rows = $('customList').querySelectorAll('input');
-  rows[rows.length - 1]?.focus();
-});
 
 for (const btn of document.querySelectorAll('[data-copy]')) {
   btn.addEventListener('click', async () => {
@@ -294,11 +248,10 @@ $('archive').addEventListener('click', () => { window.location.href = '/tools/si
 
 $('clear').addEventListener('click', () => {
   if (!confirm('Clear this contract and start a new one?')) return;
-  d = { ...DEFAULTS, services: [...DEFAULTS.services], customServices: [] };
+  d = { ...DEFAULTS };
   d.agreementDate = todayISO();
   try { localStorage.removeItem(KEY); } catch (e) { /* nothing to remove */ }
   writeForm();
-  buildServices();
   update();
 });
 
@@ -309,7 +262,6 @@ load();
 buildSelects();
 if (!d.agreementDate) d.agreementDate = todayISO();
 writeForm();
-buildServices();
 update();
 
 document.title = `Contract Creator | ${AGENCY.name}`;

@@ -33,25 +33,22 @@ export const SIGNERS = [
   { name: 'John Scime', title: 'Owner, Seven Stones Landscape' }
 ];
 
-export const SERVICE_LIBRARY = [
-  { id: 'interlock',  label: 'Interlock patio or walkway',      desc: 'Excavation, compacted granular base, bedding course, paver installation, edge restraint, and polymeric sand.' },
-  { id: 'driveway',   label: 'Interlock driveway',              desc: 'Full-depth excavation and base build rated for vehicle loading, paver installation, edge restraint, and polymeric sand.' },
-  { id: 'concrete',   label: 'Concrete flatwork',               desc: 'Forming, granular base, reinforcement, placement, finishing, and control joints cut to spacing.' },
-  { id: 'stamped',    label: 'Stamped or exposed aggregate concrete', desc: 'Concrete flatwork with a stamped pattern or exposed aggregate finish, including release agent and cure and seal.' },
-  { id: 'steps',      label: 'Steps and landings',              desc: 'Construction of steps and landings in pre-cast, natural stone, or poured concrete, set on a compacted base.' },
-  { id: 'retaining',  label: 'Retaining wall',                  desc: 'Engineered base, block or natural stone wall construction, drainage stone, filter fabric, and backfill.' },
-  { id: 'stone',      label: 'Natural stone or flagstone',      desc: 'Flagstone or natural stone installation on a compacted base or mortar bed, including cutting and fitting.' },
-  { id: 'firepit',    label: 'Fire pit, bench, or seating wall', desc: 'Construction of a fire feature, seat wall, or built-in bench in matching hardscape material.' },
-  { id: 'pool',       label: 'Pool surround or pool deck',       desc: 'Hardscape surround to a pool, including base, coping where specified, and surface installation.' },
-  { id: 'grading',    label: 'Yard grading',                    desc: 'Regrading of the lot to shed water away from the structure, including topsoil placement and finish grade.' },
-  { id: 'drainage',   label: 'Drainage work',                   desc: 'Drainage correction, which may include catch basins, weeping tile, downspout extensions, or a dry well as specified.' },
-  { id: 'sod',        label: 'Sod installation',                desc: 'Site preparation, topsoil placement, sod laying, and initial rolling, with watering instructions handed over.' },
-  { id: 'garden',     label: 'Garden beds and planting',        desc: 'Bed construction, soil, edging, plant material, and mulch as specified.' },
-  { id: 'fence',      label: 'Fencing or staining',             desc: 'Fence construction, repair, or staining as specified, including post setting.' },
-  { id: 'deck',       label: 'Deck or pergola',                 desc: 'Construction of a deck or pergola on footings sized for the structure and the soil.' },
-  { id: 'repair',     label: 'Repair or lifting of existing hardscape', desc: 'Lifting, re-levelling, re-sanding, or rebuilding of existing hardscape that has settled or failed.' },
-  { id: 'removal',    label: 'Demolition and removal',          desc: 'Removal and lawful disposal of existing surfaces, structures, or spoil from the site.' }
+/** How the customer pays. Cash is a real option on a job this size, so it is listed. */
+export const PAYMENT_METHODS = [
+  'E-transfer',
+  'Cheque',
+  'Cash',
+  'Cash or e-transfer',
+  'E-transfer, cheque or cash',
+  'Credit card'
 ];
+
+/** Common deposit sizes, so the usual case is one click rather than typing. */
+export const DEPOSIT_PRESETS = [0, 10, 15, 20, 25, 30, 50];
+
+/** A signing link is good for this long. Short enough that a stale link cannot be
+ *  signed months later against a price that has moved; long enough for a weekend. */
+export const LINK_EXPIRY_HOURS = 48;
 
 /** How the balance is split after the deposit. Mirrors tools/estimate-contract/. */
 export const PAYMENT_PLANS = [
@@ -97,9 +94,10 @@ export const DEFAULTS = {
   taxRate: 13,
   depositPercent: 10,
   paymentPlan: 'startComplete',
+  paymentMethod: 'E-transfer, cheque or cash',
+  issuedAt: 0,
+  nonce: '',
 
-  services: ['interlock'],
-  customServices: [],
   scope: '',
   exclusions: '',
 
@@ -229,7 +227,8 @@ const PACK_KEYS = [
   ['clientAddress', 'a'], ['siteAddress', 'sa'], ['clientEmail', 'e'], ['clientPhone', 'p'],
   ['agreementDate', 'ad'], ['startDate', 'sd'], ['completeDate', 'cd'], ['currency', 'cu'],
   ['projectPrice', 'pp'], ['taxRate', 'tr'], ['depositPercent', 'dp'], ['paymentPlan', 'pl'],
-  ['services', 'sv'], ['customServices', 'cs'], ['scope', 'sc'], ['exclusions', 'ex'],
+  ['paymentMethod', 'pm'], ['issuedAt', 'ia'], ['nonce', 'nc'],
+  ['scope', 'sc'], ['exclusions', 'ex'],
   ['warrantyYears', 'wy'], ['signerIndex', 'si']
 ];
 
@@ -260,7 +259,6 @@ export function packContract(d) {
   const out = {};
   for (const [full, short] of PACK_KEYS) {
     let v = d[full];
-    if (full === 'customServices' && Array.isArray(v)) v = v.filter((x) => String(x).trim());
     // Drop anything absent or empty; unpack rebuilds it from DEFAULTS.
     if (v === undefined || v === null || v === '' || (Array.isArray(v) && v.length === 0)) continue;
     out[short] = v;
@@ -273,8 +271,6 @@ export function unpackContract(packed) {
   for (const [full, short] of PACK_KEYS) {
     if (packed[short] !== undefined) d[full] = packed[short];
   }
-  d.customServices = Array.isArray(d.customServices) ? d.customServices : [];
-  d.services = Array.isArray(d.services) ? d.services : [];
   d.signerIndex = Number(d.signerIndex) || 0;
   // A tampered or truncated numeric must not silently become 0 and change the money.
   const tr = Number(d.taxRate);
@@ -284,6 +280,9 @@ export function unpackContract(packed) {
   const wy = Number(d.warrantyYears);
   d.warrantyYears = Number.isFinite(wy) && wy >= 0 ? wy : DEFAULTS.warrantyYears;
   if (!PAYMENT_PLANS.some((p) => p.id === d.paymentPlan)) d.paymentPlan = DEFAULTS.paymentPlan;
+  if (!PAYMENT_METHODS.includes(d.paymentMethod)) d.paymentMethod = DEFAULTS.paymentMethod;
+  const ia = Number(d.issuedAt);
+  d.issuedAt = Number.isFinite(ia) && ia > 0 ? ia : 0;
   return d;
 }
 
@@ -299,9 +298,44 @@ export function decodeContract(token) {
   return unpackContract(parsed);
 }
 
+/**
+ * Builds the signing link for one customer.
+ *
+ * Stamped with the moment it was made, so it can expire. That timestamp also
+ * makes every link unique even when two customers somehow have identical
+ * details - no two people ever share a link.
+ */
 export function signingUrl(d, origin = AGENCY.origin) {
+  const stamped = {
+    ...d,
+    issuedAt: Math.floor(Date.now() / 1000),
+    // Second-resolution stamps collide if two links are made in the same second;
+    // the nonce makes every issued link distinct regardless.
+    nonce: Math.random().toString(36).slice(2, 8)
+  };
   // trailingSlash is on in vercel.json, so emit the slash rather than let a 308 rewrite it.
-  return `${origin}/sign/${slugify(d.clientName)}/?a=${encodeContract(d)}`;
+  return `${origin}/sign/${slugify(d.clientName)}/?a=${encodeContract(stamped)}`;
+}
+
+/**
+ * How much life is left in a signing link.
+ *
+ * A link with no stamp is treated as still valid: those were issued before
+ * expiry existed, and refusing them would be a worse failure than honouring
+ * them. Everything issued from now on carries a stamp.
+ */
+export function linkExpiry(d, now = Date.now()) {
+  const issuedAt = Number(d && d.issuedAt) || 0;
+  if (!issuedAt) return { stamped: false, expired: false, expiresAt: null, hoursLeft: null };
+
+  const expiresAt = (issuedAt + LINK_EXPIRY_HOURS * 3600) * 1000;
+  const msLeft = expiresAt - now;
+  return {
+    stamped: true,
+    expired: msLeft <= 0,
+    expiresAt: new Date(expiresAt),
+    hoursLeft: Math.max(0, Math.ceil(msLeft / 3600000))
+  };
 }
 
 /** Stable reference shown on the document, the email, and the archive row. */
@@ -315,16 +349,6 @@ export function referenceFor(d) {
    THE AGREEMENT ITSELF
    ============================================================ */
 
-/** Services actually selected, library entries plus any custom lines. */
-export function selectedServices(d) {
-  return [
-    ...SERVICE_LIBRARY.filter((s) => d.services.includes(s.id)),
-    ...(d.customServices || [])
-      .filter((x) => String(x).trim())
-      .map((label) => ({ id: label, label, desc: '' }))
-  ];
-}
-
 const BLANK = '________________';
 
 /**
@@ -333,165 +357,92 @@ const BLANK = '________________';
  * else, which keeps screen, email, and plain text identical.
  */
 export function buildClauses(d) {
-  const services = selectedServices(d);
   const p = priceBreakdown(d);
 
-  const agreedOn = longDate(d.agreementDate) || BLANK;
   const startOn = longDate(d.startDate) || BLANK;
   const finishOn = longDate(d.completeDate) || BLANK;
-  const site = d.siteAddress || d.clientAddress || BLANK;
   const years = Number(d.warrantyYears) || 0;
 
   const clauses = [];
   const add = (title, paras) => clauses.push({ n: clauses.length + 1, title, paras });
 
-  add('Parties and Property', [
-    `This Work Agreement (the **"Agreement"**) is made on ${agreedOn} between ` +
-    `**${AGENCY.legalName}** ("Seven Stones", "we", "us") of ${AGENCY.address}, ` +
-    `${AGENCY.email}, ${AGENCY.phone}, and ` +
-    `**${d.clientName || BLANK}** ("you", "the Customer")` +
-    `${d.clientAddress ? ` of ${d.clientAddress}` : ''}` +
-    `${d.clientContact && d.clientContact !== d.clientName ? `, represented by ${d.clientContact}` : ''}.`,
-    `The work will be carried out at **${site}** (the **"Property"**).`
-  ]);
+  /* 1. THE WORK -------------------------------------------------------- */
+  /* One description, typed on the creator page. Each line becomes a bullet, so
+     John writes the job the way he would on the paper pad and it lays out. */
+  const described = String(d.scope || '').trim().split(/\n+/)
+    .map((l) => l.trim()).filter(Boolean);
 
   add('The Work', [
-    'Seven Stones will supply the labour, materials, and equipment to carry out the following (the **"Work"**):',
-    ...(services.length
-      ? services.map((s) => `- **${s.label}.**${s.desc ? ` ${s.desc}` : ''}`)
-      : [`- ${BLANK}`]),
-    ...(String(d.scope || '').trim()
-      ? ['Agreed details and measurements:', ...String(d.scope).trim().split(/\n+/).map((l) => `- ${l.trim()}`)]
-      : []),
+    ...(described.length ? described : [BLANK]),
     ...(String(d.exclusions || '').trim()
-      ? ['**Not included in this Agreement:**', ...String(d.exclusions).trim().split(/\n+/).map((l) => `- ${l.trim()}`)]
+      ? ['**Not included:** ' + String(d.exclusions).trim().split(/\n+/)
+          .map((l) => l.trim()).filter(Boolean).join('; ') + '.']
       : []),
-    'Anything not listed above is not included, and will be quoted separately in writing before it is started.'
+    `Work starts **${startOn}** and is to be substantially complete by **${finishOn}**, ` +
+    'weather and ground conditions permitting.'
   ]);
 
-  add('Dates', [
-    `Work is scheduled to begin on **${startOn}** and to be substantially complete by **${finishOn}**.`,
-    'These dates assume workable ground and weather. Hardscape and concrete cannot be installed properly in ' +
-    'frozen, saturated, or freezing conditions, and sod cannot be laid into ground that will not take it. ' +
-    'Where weather, a permit or locate delay, or a delay by the Customer prevents work from proceeding, the ' +
-    'dates move by the length of that delay and neither party is in breach. Seven Stones will tell the ' +
-    'Customer of any change to the schedule as soon as it is known.'
-  ]);
-
-  const priceLines = [];
+  /* 2. PRICE AND PAYMENT ----------------------------------------------- */
+  const lines = [];
   if (p) {
-    priceLines.push(`- **Price for the Work: ${money(p.base, d.currency)}**, plus HST at ${p.taxRate}%${p.tax ? ` (${money(p.tax, d.currency)})` : ''}.`);
-    priceLines.push(`- **Total payable: ${money(p.total, d.currency)}.**`);
+    lines.push(`- Price ${money(p.base, d.currency)} plus HST ${p.taxRate}% ` +
+      `(${money(p.tax, d.currency)}) = **${money(p.total, d.currency)}**`);
     if (p.deposit > 0) {
-      priceLines.push(`- **Deposit: ${money(p.deposit, d.currency)}** (${p.depositPercent}%), due on signing.`);
+      lines.push(`- **${money(p.deposit, d.currency)} deposit** (${p.depositPercent}%) on signing`);
     }
-    for (const inst of p.instalments) {
-      priceLines.push(`- **${inst.label}: ${money(inst.value, d.currency)}.**`);
+    for (const i of p.instalments) {
+      lines.push(`- **${money(i.value, d.currency)}** ${i.label.toLowerCase()}`);
     }
   } else {
-    priceLines.push(`- **Price for the Work: ${BLANK}.**`);
+    lines.push(`- Price ${BLANK}`);
   }
+  if (String(d.paymentMethod || '').trim()) {
+    lines.push(`Payable by **${d.paymentMethod}**.`);
+  }
+  add('Price and Payment', lines);
 
-  add('Price and Payment', [
-    ...priceLines,
-    `All amounts are in ${d.currency}. Invoices are payable on receipt. Seven Stones is responsible for ` +
-    'paying its own workers, suppliers, and subcontractors out of these amounts.',
+  /* 3. TERMS ------------------------------------------------------------
+     Everything a one-page contract still has to say. The cancellation right
+     and the 10% cap are required by the Consumer Protection Act, 2002; the
+     rest are the protections worth keeping in a single line each. */
+  const terms = [];
+
+  terms.push(
+    `**Your right to cancel.** This agreement is signed away from our place of business, which makes ` +
+    `it a direct agreement under Ontario's Consumer Protection Act, 2002. **You may cancel it for any ` +
+    `reason within ${COOLING_OFF_DAYS} days** of receiving your copy, in writing to ${AGENCY.email}. ` +
+    `Any deposit is refunded within 15 days.`
+  );
+
+  terms.push(
     p
-      ? `**The final price will not exceed ${money(p.cap, d.currency)}** - this Agreement plus ` +
-        `${ESTIMATE_OVERRUN_CAP}% - unless the Customer agrees in writing to additional work under the next clause. ` +
-        'This limit is required by section 10 of the Consumer Protection Act, 2002.'
-      : `**The final price will not exceed this Agreement by more than ${ESTIMATE_OVERRUN_CAP}%** unless the ` +
-        'Customer agrees in writing to additional work under the next clause. This limit is required by ' +
-        'section 10 of the Consumer Protection Act, 2002.'
-  ]);
-
-  add('Changes and Extras', [
-    'Either party may propose a change to the Work. **No extra work will be carried out, and no extra charge ' +
-    'will be made, until the change and its price are agreed in writing** - an email or a text message ' +
-    'confirming both is enough.',
-    'Some conditions cannot be seen until the ground is opened: buried concrete or fill, unsuitable subgrade, ' +
-    'a spring or a high water table, or existing structures that will not hold. If one is found, Seven Stones ' +
-    'will stop, show the Customer what has been uncovered, and price the additional work before continuing.'
-  ]);
-
-  add('Site Conditions, Access, and Locates', [
-    'The Customer agrees to:',
-    '- give access to the Property on working days, and to water and power where the Work needs them;',
-    '- move vehicles, furniture, planters, and personal property out of the work area before the start date;',
-    '- point out any private underground services the Customer knows of - irrigation lines, low-voltage ' +
-    'lighting, pool lines, invisible fencing, septic beds, or private gas or electrical runs to a garage or shed.',
-    'Seven Stones will arrange a public utility locate before excavating, as the law requires. **A public ' +
-    'locate does not cover private lines**, and Seven Stones is not responsible for damage to a private ' +
-    'service that was not pointed out beforehand.',
-    'Heavy equipment and material deliveries mark ground. Some rutting of lawn and driveway along the ' +
-    'access route is normal and is made good as described in the Work above, but only where it is listed there.'
-  ]);
-
-  add('Permits and Approvals', [
-    'Where the Work needs a municipal permit, a conservation authority approval, or a pool enclosure ' +
-    'inspection, the party named in the Work above is responsible for obtaining it. Where the Work is not ' +
-    'listed as including permits, the Customer is responsible for them and for any fee.',
-    'The Customer confirms they own the Property or have the owner\'s authority to have this Work done, and ' +
-    'that the Work does not breach a registered easement, right of way, or condominium or subdivision rule. ' +
-    'Where a survey is needed to establish a property line, it is the Customer\'s to provide.'
-  ]);
+      ? `**Price.** The final price will not exceed ${money(p.cap, d.currency)} — this agreement plus ` +
+        `${ESTIMATE_OVERRUN_CAP}% — unless you agree to extra work in writing.`
+      : `**Price.** The final price will not exceed this agreement by more than ${ESTIMATE_OVERRUN_CAP}% ` +
+        'unless you agree to extra work in writing.'
+  );
 
   if (years > 0) {
-    add(`Workmanship Warranty (${years} year${years === 1 ? '' : 's'})`, [
-      `Seven Stones warrants its workmanship for **${years} year${years === 1 ? '' : 's'}** from the date the ` +
-      'Work is substantially complete. On interlock and hardscape that covers base settlement, edge restraint ' +
-      'failure, joint loss, and base-related movement. On concrete it covers settlement, control joint failure, ' +
-      'and finish defects.',
-      'Manufactured products carry their own manufacturer warranty, which on Unilock and Techo-Bloc pavers is ' +
-      'often a lifetime limited warranty on structural integrity. Seven Stones will register that warranty for ' +
-      'the Customer at handover where the manufacturer requires it.',
-      '**This warranty does not cover:**',
-      '- efflorescence, the natural white bloom that clears from new concrete pavers on its own;',
-      '- natural colour and texture variation in natural stone, and normal fading;',
-      '- damage from third-party excavation, or from work by others on or under the Work;',
-      '- vehicle loading on a surface built and priced for foot traffic;',
-      '- de-icing salt used against the care guidance handed over at completion;',
-      '- ground movement caused by tree roots, a new drainage condition, or a change to the grade made after ' +
-      'completion by someone other than Seven Stones;',
-      '- ordinary wear, neglect, or damage from an event outside either party\'s control.',
-      'To make a claim, tell Seven Stones in writing within the warranty period and give reasonable access to ' +
-      'inspect. Where a claim is valid, Seven Stones will repair the affected area at its own cost. Nothing in ' +
-      'this clause takes away any right the Customer has under the Consumer Protection Act, 2002.'
-    ]);
+    terms.push(
+      `**Warranty.** Workmanship is warranted for ${years} year${years === 1 ? '' : 's'}. Pavers carry ` +
+      'their own manufacturer warranty. Not covered: efflorescence, natural stone colour variation, ' +
+      'de-icing salt, vehicle loading on a surface built for foot traffic, and damage by others.'
+    );
   }
 
-  add('Insurance and Responsibility', [
-    'Seven Stones carries commercial general liability insurance and WSIB coverage on its employees, and will ' +
-    'provide a Certificate of Insurance and a WSIB Clearance Certificate to the Customer on request.',
-    'Seven Stones is responsible for damage it causes to the Property through its own negligence. It is not ' +
-    'responsible for indirect or consequential loss. Neither party is liable for a failure caused by an event ' +
-    'outside its reasonable control.'
-  ]);
+  terms.push(
+    '**Site.** Please clear the work area and point out any private underground lines — irrigation, ' +
+    'lighting, pool or invisible fencing. We locate public utilities; private lines are not covered. ' +
+    'If we uncover something unexpected below grade we will stop and price it with you before continuing. ' +
+    'Permits, where needed, are yours unless listed above.'
+  );
 
-  add('Your Right to Cancel', [
-    `Because this Agreement is signed somewhere other than the Seven Stones place of business, it is a ` +
-    `**direct agreement** under Ontario's **Consumer Protection Act, 2002**.`,
-    `**You may cancel this Agreement for any reason within ${COOLING_OFF_DAYS} days of receiving your written ` +
-    `copy.** You do not have to give a reason. To cancel, tell Seven Stones in writing - email to ` +
-    `${AGENCY.email}, a letter, or any other written notice showing an intention to cancel is enough. It takes ` +
-    `effect when you send it, not when we receive it.`,
-    'If you cancel within that period, Seven Stones will refund any deposit or payment within **15 days**. ' +
-    'You may also have the right to cancel this Agreement for up to one year in the circumstances the Act sets out.',
-    'Beyond that period, either party may end this Agreement in writing. Where the Customer ends it after work ' +
-    'or material ordering has begun, the Customer pays for the work performed and the material ordered to that ' +
-    'point, and nothing more.'
-  ]);
+  terms.push(
+    `**General.** We carry liability insurance and WSIB coverage, available on request. Ontario law ` +
+    'applies. An electronic signature counts the same as ink.'
+  );
 
-  add('General', [
-    'This Agreement is governed by the laws of the Province of Ontario and the federal laws of Canada that ' +
-    'apply in it. It is the entire agreement between the parties on this subject and replaces any earlier ' +
-    'quote, discussion, or proposal. Changes must be agreed in writing by both parties. If any clause is found ' +
-    'unenforceable, the rest of the Agreement stays in force.',
-    'Nothing in this Agreement takes away or limits a right the Customer has under the Consumer Protection ' +
-    'Act, 2002; where a term of this Agreement conflicts with that Act, the Act prevails.',
-    'An electronic signature applied through the Seven Stones signing page has the same effect as a signature ' +
-    'in ink, and both parties consent to signing and receiving this Agreement electronically.'
-  ]);
+  add('Terms', terms);
 
   return clauses;
 }
@@ -505,7 +456,7 @@ export function contractGaps(d) {
     gaps.push('Property address');
   }
   if (priceBreakdown(d) === null)      gaps.push('Price for the work');
-  if (selectedServices(d).length === 0) gaps.push('At least one service');
+  if (!String(d.scope).trim())         gaps.push('Description of the work');
   if (!d.agreementDate) gaps.push('Agreement date');
   if (!d.startDate)     gaps.push('Start date (required by the Consumer Protection Act)');
   if (!d.completeDate)  gaps.push('Completion date (required by the Consumer Protection Act)');
@@ -519,7 +470,6 @@ export function contractGaps(d) {
 export function coveringEmail(d, url) {
   const signer = SIGNERS[d.signerIndex] || SIGNERS[0];
   const p = priceBreakdown(d);
-  const services = selectedServices(d).map((s) => s.label);
   const who = d.clientName || '[Customer]';
   const first = String(d.clientContact || d.clientName || '').trim().split(/\s+/)[0] || 'there';
 
@@ -543,7 +493,6 @@ export function coveringEmail(d, url) {
     ...moneyLines,
     d.startDate ? `- Start: ${longDate(d.startDate)}.` : '',
     d.completeDate ? `- Substantially complete by: ${longDate(d.completeDate)}.` : '',
-    services.length ? `- Included: ${services.join(', ')}.` : '',
     Number(d.warrantyYears) > 0 ? `- Workmanship warranty: ${d.warrantyYears} years.` : '',
     '',
     'To sign, open this link and scroll to the bottom:',

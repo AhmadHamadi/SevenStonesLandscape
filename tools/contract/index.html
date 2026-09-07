@@ -146,7 +146,7 @@
       <div class="panel">
         <h2>Customer</h2>
         <p class="lede">Seven things are needed: name, email, property address, the three
-          dates, and a price. Everything else is optional &mdash; the box at the bottom
+          dates, a description of the work, and a price. Everything else is optional &mdash; the box at the bottom
           tells you what is still missing.</p>
         <div class="f">
           <label for="clientName">Customer name</label>
@@ -202,16 +202,10 @@
 
       <div class="panel">
         <h2>The work</h2>
-        <div id="services"></div>
-        <div class="f" style="margin-top:14px;">
-          <label>Anything else <span class="opt">optional</span></label>
-          <div id="customList"></div>
-          <button type="button" id="addCustom" style="font-size:12.5px;padding:7px 11px;">Add a line</button>
-        </div>
         <div class="f">
-          <label for="scope">Agreed details and measurements <span class="opt">optional</span></label>
-          <textarea id="scope" placeholder="450 sq ft rear patio in Unilock Beacon Hill Flag, Sierra blend&#10;8 inch compacted granular A base&#10;Two-tier seat wall along the north edge, 14 ft"></textarea>
-          <div class="hint">One item per line. These print as bullets under &ldquo;The Work&rdquo;.</div>
+          <label for="scope">Description of the work</label>
+          <textarea id="scope" placeholder="450 sq ft rear interlock patio, Unilock Beacon Hill Flag, Sierra blend&#10;8 inch compacted granular A base, edge restraint, polymeric sand&#10;Two-tier seat wall along the north edge, 14 ft&#10;Steps from the back door, 3 risers"></textarea>
+          <div class="hint">One item per line. Each line becomes a bullet on the contract.</div>
         </div>
         <div class="f">
           <label for="exclusions">Explicitly not included <span class="opt">optional</span></label>
@@ -235,11 +229,19 @@
         <div class="row">
           <div class="f">
             <label for="depositPercent">Deposit %</label>
-            <input type="number" id="depositPercent" min="0" max="100" step="1" value="10">
+            <input type="number" id="depositPercent" list="depositPresets" min="0" max="100" step="1" value="10">
+            <datalist id="depositPresets"></datalist>
+            <div class="hint">0 removes the deposit line entirely.</div>
           </div>
           <div class="f">
             <label for="paymentPlan">Balance paid</label>
             <select id="paymentPlan"></select>
+          </div>
+        </div>
+        <div class="row">
+          <div class="f">
+            <label for="paymentMethod">Pay by</label>
+            <select id="paymentMethod"></select>
           </div>
         </div>
         <div class="totals" id="totals"></div>

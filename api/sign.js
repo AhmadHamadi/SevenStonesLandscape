@@ -17,8 +17,8 @@
 import nodemailer from 'nodemailer';
 import crypto from 'crypto';
 import {
-  decodeContract, buildClauses, selectedServices, money, longDate, priceBreakdown,
-  SIGNERS, AGENCY
+  decodeContract, buildClauses, money, longDate, priceBreakdown, linkExpiry,
+  SIGNERS, AGENCY, LINK_EXPIRY_HOURS
 } from '../tools/contract/contract-model.js';
 import { archiveSignedContract } from './_archive.js';
 
@@ -125,135 +125,83 @@ export function buildSignedEmail({ d, typedName, signedAtLong, reference, signat
   const signer = SIGNERS[d.signerIndex] || SIGNERS[0];
   const clauses = buildClauses(d);
   const p = priceBreakdown(d);
-  const services = selectedServices(d).map((s) => s.label);
-  const agreementDate = longDate(d.agreementDate) || '—';
+  const first = String(d.clientContact || d.clientName || '').trim().split(/\s+/)[0] || 'there';
 
-  const subject = `Signed agreement — ${d.clientName || 'Customer'} and ${AGENCY.name} (${reference})`;
+  const subject = `Signed - ${d.clientName || 'Work Agreement'} (${reference})`;
 
-  const payment = p
-    ? [
-        p.deposit > 0 ? `${money(p.deposit, d.currency)} deposit on signing` : '',
-        ...p.instalments.map((i) => `${money(i.value, d.currency)} ${i.label.toLowerCase()}`)
-      ].filter(Boolean).join(', ')
-    : '—';
-
-  const summaryRows = [
-    ['Customer', `${d.clientName || '—'}${d.clientContact && d.clientContact !== d.clientName ? ` — ${d.clientContact}` : ''}`],
-    ['Property', d.siteAddress || d.clientAddress || '—'],
-    ['Agreement date', agreementDate],
-    ['Work starts', longDate(d.startDate) || '—'],
-    ['Complete by', longDate(d.completeDate) || '—'],
-    ['Total payable', p ? money(p.total, d.currency) : '—'],
-    ['Payment', payment],
-    ['Work', services.length ? services.join(', ') : '—'],
-    ['Reference', reference]
+  /* Deliberately plain. A signed contract is not a newsletter: no banner, no
+     brand block, no coloured panels. A short note that reads like a person
+     wrote it, with the agreement attached. */
+  const facts = [
+    ['Work at', d.siteAddress || d.clientAddress || '—'],
+    ['Total', p ? `${money(p.total, d.currency)} (incl. HST)` : '—'],
+    ...(p && p.deposit > 0 ? [['Deposit now', money(p.deposit, d.currency)]] : []),
+    ...(p ? p.instalments.map((i) => [i.label, money(i.value, d.currency)]) : []),
+    ...(d.paymentMethod ? [['Pay by', d.paymentMethod]] : []),
+    ['Starts', longDate(d.startDate) || '—'],
+    ['Finished by', longDate(d.completeDate) || '—']
   ];
 
   const html = `
-<div style="font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;color:#15202E;max-width:640px;margin:0 auto;">
-  <div style="background:#134A8A;padding:20px 24px;">
-    <div style="font-size:11px;letter-spacing:0.22em;text-transform:uppercase;color:#BDD4EA;font-weight:700;">
-      ${escapeHtml(AGENCY.legalName)}
-    </div>
-    <div style="font-size:20px;font-weight:800;color:#FFFFFF;margin-top:6px;">
-      Signed Work Agreement
-    </div>
-  </div>
-  <div style="height:3px;background:#1B62B5;"></div>
+<div style="font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;font-size:15px;line-height:1.6;color:#15202E;max-width:560px;margin:0 auto;padding:8px 4px;">
+  <p>Hi ${escapeHtml(first)},</p>
 
-  <div style="border:1px solid #C9D3DE;border-top:none;background:#fff;padding:24px;">
-    <p style="font-size:13px;line-height:1.6;margin:0 0 16px;">
-      This agreement was signed electronically on <strong>${escapeHtml(signedAtLong)}</strong> by
-      <strong>${escapeHtml(typedName)}</strong> for
-      <strong>${escapeHtml(d.clientName || 'the Customer')}</strong>, and by
-      <strong>${escapeHtml(signer.name)}</strong> for ${escapeHtml(AGENCY.name)}.
-      ${hasPdf
-        ? 'The full signed agreement is attached to this email as a PDF. Keep it for your records.'
-        : 'The full agreement is set out below. Keep this email for your records.'}
-    </p>
+  <p>Thanks - your agreement with ${escapeHtml(AGENCY.name)} is signed.
+  ${hasPdf ? 'The full signed copy is attached to this email as a PDF.' : 'The full agreement is set out below.'}</p>
 
-    <div style="background:#E4EEF7;border-left:3px solid #1B62B5;padding:11px 13px;font-size:13px;line-height:1.6;margin:0 0 18px;">
-      <strong>Your right to cancel.</strong> This is a direct agreement under Ontario's
-      Consumer Protection Act, 2002. You may cancel it for any reason within 10 days of
-      receiving this copy, and any deposit is refunded within 15 days. Reply to this email
-      or call ${escapeHtml(AGENCY.phone)}.
-    </div>
+  <table style="border-collapse:collapse;font-size:15px;margin:18px 0;">
+    <tbody>
+      ${facts.map(([k, v]) => `
+        <tr>
+          <td style="padding:4px 18px 4px 0;color:#6B7688;">${escapeHtml(k)}</td>
+          <td style="padding:4px 0;"><strong>${escapeHtml(v)}</strong></td>
+        </tr>`).join('')}
+    </tbody>
+  </table>
 
-    <table style="width:100%;border-collapse:collapse;font-size:13px;border:1px solid #C9D3DE;">
-      <tbody>
-        ${summaryRows.map(([k, v], i) => `
-          <tr${i < summaryRows.length - 1 ? ' style="border-bottom:1px solid #E3E9EF;"' : ''}>
-            <td style="padding:8px 10px;background:#F4F7FA;width:150px;vertical-align:top;font-weight:700;">${escapeHtml(k)}</td>
-            <td style="padding:8px 10px;">${escapeHtml(v)}</td>
-          </tr>`).join('')}
-      </tbody>
-    </table>
+  <p style="margin:18px 0;padding:12px 14px;background:#F4F7FA;border-radius:8px;font-size:14px;">
+    <strong>You can still cancel.</strong> You have 10 days from today to cancel for any
+    reason, and any deposit comes back within 15 days. Just reply to this email or call
+    ${escapeHtml(AGENCY.phone)}.
+  </p>
 
-    ${hasPdf ? '' : `
-      <hr style="border:none;border-top:2px solid #15202E;margin:26px 0 8px;" />
-      <p style="font-size:12px;color:#6B7688;margin:0;">The full agreement follows.</p>
-      ${clauses.map(clauseHtml).join('')}`}
+  <p style="font-size:14px;color:#6B7688;">
+    Signed electronically on ${escapeHtml(signedAtLong)} by ${escapeHtml(typedName)},
+    and by ${escapeHtml(signer.name)} for ${escapeHtml(AGENCY.name)}.
+    <br><img src="cid:${signatureCid}" alt="Signature" style="max-height:38px;margin-top:6px;display:block;">
+  </p>
 
-    <hr style="border:none;border-top:2px solid #15202E;margin:26px 0 16px;" />
+  ${hasPdf ? '' : `
+    <hr style="border:none;border-top:1px solid #C9D3DE;margin:22px 0;">
+    ${clauses.map(clauseHtml).join('')}`}
 
-    <table style="width:100%;border-collapse:collapse;">
-      <tr>
-        <td style="width:50%;vertical-align:top;padding-right:16px;">
-          <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.14em;color:#6B7688;font-weight:700;">
-            For ${escapeHtml(AGENCY.name)}
-          </div>
-          <div style="height:44px;"></div>
-          <div style="border-bottom:1px solid #15202E;"></div>
-          <div style="font-size:13px;font-weight:700;margin-top:6px;">${escapeHtml(signer.name)}</div>
-          <div style="font-size:12px;color:#6B7688;">${escapeHtml(signer.title)}</div>
-          <div style="font-size:12px;margin-top:8px;">${escapeHtml(agreementDate)}</div>
-        </td>
-        <td style="width:50%;vertical-align:top;padding-left:16px;">
-          <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.14em;color:#6B7688;font-weight:700;">
-            For ${escapeHtml(d.clientName || 'the Customer')}
-          </div>
-          <div style="height:44px;">
-            <img src="cid:${signatureCid}" alt="Signature" style="max-height:44px;display:block;" />
-          </div>
-          <div style="border-bottom:1px solid #15202E;"></div>
-          <div style="font-size:13px;font-weight:700;margin-top:6px;">${escapeHtml(typedName)}</div>
-          <div style="font-size:12px;color:#6B7688;">
-            ${escapeHtml(d.clientTitle || '')}${d.clientName ? `, ${escapeHtml(d.clientName)}` : ''}
-          </div>
-          <div style="font-size:12px;margin-top:8px;">${escapeHtml(signedAtLong)}</div>
-        </td>
-      </tr>
-    </table>
-  </div>
-
-  <div style="font-size:11px;color:#6B7688;text-align:center;padding:14px;">
-    ${escapeHtml(AGENCY.legalName)} · ${escapeHtml(AGENCY.phone)} · ${escapeHtml(AGENCY.email)}
-  </div>
+  <p style="font-size:14px;color:#6B7688;margin-top:24px;">
+    ${escapeHtml(signer.name)}<br>
+    ${escapeHtml(AGENCY.name)}<br>
+    ${escapeHtml(AGENCY.phone)} &middot; ${escapeHtml(AGENCY.email)}
+  </p>
 </div>`;
 
   const text = [
-    'SIGNED WORK AGREEMENT',
-    AGENCY.legalName,
+    `Hi ${first},`,
     '',
-    `Signed electronically on ${signedAtLong} by ${typedName} for ${d.clientName || 'the Customer'},`,
-    `and by ${signer.name} for ${AGENCY.name}.`,
-    hasPdf ? 'The full signed agreement is attached to this email as a PDF.'
+    `Thanks - your agreement with ${AGENCY.name} is signed.`,
+    hasPdf ? 'The full signed copy is attached to this email as a PDF.'
            : 'The full agreement is set out below.',
     '',
-    'YOUR RIGHT TO CANCEL: this is a direct agreement under Ontario\'s Consumer Protection',
-    'Act, 2002. You may cancel for any reason within 10 days of receiving this copy, and any',
-    `deposit is refunded within 15 days. Reply to this email or call ${AGENCY.phone}.`,
+    ...facts.map(([k, v]) => `${`${k}:`.padEnd(16, ' ')}${v}`),
     '',
-    ...summaryRows.map(([k, v]) => `${`${k}:`.padEnd(18, ' ')}${v}`),
+    'YOU CAN STILL CANCEL. You have 10 days from today to cancel for any reason,',
+    `and any deposit comes back within 15 days. Reply to this email or call ${AGENCY.phone}.`,
     '',
-    ...(hasPdf ? [] : ['='.repeat(64), '', ...clauses.map(clauseText)]),
-    '='.repeat(64),
+    `Signed electronically on ${signedAtLong} by ${typedName},`,
+    `and by ${signer.name} for ${AGENCY.name}.`,
+    ...(hasPdf ? [] : ['', '='.repeat(60), '', ...clauses.map(clauseText)]),
     '',
-    `For ${AGENCY.name}:  ${signer.name}, ${signer.title}   ${agreementDate}`,
-    `For ${d.clientName || 'the Customer'}:  ${typedName}   ${signedAtLong}`,
-    '',
-    `${AGENCY.legalName} · ${AGENCY.phone} · ${AGENCY.email}`
-  ].filter((l) => l !== '').join('\n');
+    signer.name,
+    AGENCY.name,
+    `${AGENCY.phone} - ${AGENCY.email}`
+  ].join('\n');
 
   return { subject, html, text };
 }
@@ -390,6 +338,15 @@ export default async function handler(req, res) {
     d = decodeContract(token);
   } catch {
     return res.status(400).json({ error: 'This signing link could not be read. Please ask us to resend it.' });
+  }
+
+  /* The page blocks an expired link, but the page is the customer's browser and
+     can be edited. The refusal that counts is this one. */
+  if (linkExpiry(d).expired) {
+    return res.status(410).json({
+      error: `This signing link has expired. Links are good for ${LINK_EXPIRY_HOURS} hours - ` +
+             `please ask us for a fresh one.`
+    });
   }
 
   const signedAtLong = longDate(signedAt) || longDate(new Date().toISOString().slice(0, 10));

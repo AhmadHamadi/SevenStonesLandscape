@@ -39,7 +39,7 @@ function loadJsPDF() {
 }
 
 /* Letter portrait, 12mm margins, in points. */
-const PAGE = { w: 612, h: 792, margin: 34 };
+const PAGE = { w: 612, h: 792, margin: 32 };
 const INK = [17, 17, 17];
 const MUTED = [85, 85, 85];
 const BRAND = [27, 98, 181];
@@ -77,7 +77,7 @@ export async function buildPdf(d, opts = {}) {
   };
 
   const room = (need) => {
-    if (y + need <= PAGE.h - 46) return;
+    if (y + need <= PAGE.h - 34) return;
     footer();
     doc.addPage();
     y = PAGE.margin;
@@ -117,27 +117,25 @@ export async function buildPdf(d, opts = {}) {
   /* ---- letterhead -------------------------------------------------------- */
   doc.setFont('helvetica', 'bold').setFontSize(13).setTextColor(...INK);
   doc.text(AGENCY.legalName, PAGE.margin, y + 10);
-  doc.setFont('helvetica', 'bold').setFontSize(7).setTextColor(...BRAND);
-  doc.text('ICPI-CERTIFIED HARDSCAPE', PAGE.margin, y + 21);
 
   doc.setFont('helvetica', 'normal').setFontSize(8).setTextColor(...MUTED);
   doc.text([AGENCY.site, AGENCY.email, AGENCY.phone], PAGE.w - PAGE.margin, y + 6, {
     align: 'right', lineHeightFactor: 1.5
   });
 
-  y += 32;
-  doc.setDrawColor(...INK).setLineWidth(1.4).line(PAGE.margin, y, PAGE.w - PAGE.margin, y);
-  y += 24;
+  y += 28;
+  doc.setDrawColor(...INK).setLineWidth(1.2).line(PAGE.margin, y, PAGE.w - PAGE.margin, y);
+  y += 20;
 
-  doc.setFont('helvetica', 'bold').setFontSize(16).setTextColor(...INK);
+  doc.setFont('helvetica', 'bold').setFontSize(14).setTextColor(...INK);
   doc.text('Work Agreement', PAGE.w / 2, y, { align: 'center' });
-  y += 14;
+  y += 12;
   doc.setFont('helvetica', 'normal').setFontSize(9).setTextColor(...MUTED);
   doc.text(
     `${agreementDate ? `Dated ${agreementDate}` : 'Dated ________'} · Ref ${reference}`,
     PAGE.w / 2, y, { align: 'center' }
   );
-  y += 22;
+  y += 18;
 
   /* ---- terms at a glance ------------------------------------------------- */
   const summary = [
@@ -159,7 +157,7 @@ export async function buildPdf(d, opts = {}) {
   for (const [label, value] of summary) {
     const lines = doc.setFont('helvetica', 'normal').setFontSize(9)
       .splitTextToSize(String(value), contentW - labelW - 10);
-    const rowH = Math.max(15, lines.length * 11 + 5);
+    const rowH = Math.max(13, lines.length * 10 + 4);
     room(rowH);
 
     doc.setDrawColor(...RULE).setLineWidth(0.5);
@@ -170,39 +168,39 @@ export async function buildPdf(d, opts = {}) {
     doc.text(lines, PAGE.margin + labelW, y);
     y += rowH;
   }
-  doc.setDrawColor(...RULE).line(PAGE.margin, y - 9, PAGE.w - PAGE.margin, y - 9);
-  y += 12;
+  doc.setDrawColor(...RULE).line(PAGE.margin, y - 8, PAGE.w - PAGE.margin, y - 8);
+  y += 10;
 
   /* ---- clauses ----------------------------------------------------------- */
   for (const c of clauses) {
-    room(34);
-    doc.setFont('helvetica', 'bold').setFontSize(11).setTextColor(...INK);
+    room(30);
+    doc.setFont('helvetica', 'bold').setFontSize(10).setTextColor(...INK);
     doc.text(`${c.n}. ${c.title}`, PAGE.margin, y);
-    y += 15;
+    y += 13;
 
     for (const para of c.paras) {
       if (para.startsWith('- ')) {
         room(12);
-        doc.setFont('helvetica', 'normal').setFontSize(9.5).setTextColor(...INK);
+        doc.setFont('helvetica', 'normal').setFontSize(8.8).setTextColor(...INK);
         doc.text('•', PAGE.margin + 8, y);
-        richText(para.slice(2), PAGE.margin + 20, contentW - 20, 9.5, 12);
+        richText(para.slice(2), PAGE.margin + 20, contentW - 20, 8.8, 10.6);
       } else {
-        richText(para, PAGE.margin, contentW, 9.5, 12);
+        richText(para, PAGE.margin, contentW, 8.8, 10.6);
       }
-      y += 3;
+      y += 1.5;
     }
-    y += 8;
+    y += 6;
   }
 
   /* ---- signatures -------------------------------------------------------- */
-  room(150);
-  y += 10;
-  doc.setDrawColor(...INK).setLineWidth(1.4).line(PAGE.margin, y, PAGE.w - PAGE.margin, y);
-  y += 18;
+  room(118);
+  y += 8;
+  doc.setDrawColor(...INK).setLineWidth(1.2).line(PAGE.margin, y, PAGE.w - PAGE.margin, y);
+  y += 15;
 
-  doc.setFont('helvetica', 'normal').setFontSize(9.5).setTextColor(...INK);
+  doc.setFont('helvetica', 'normal').setFontSize(8.8).setTextColor(...INK);
   doc.text('The parties agree to the terms above and have signed on the dates shown.', PAGE.margin, y);
-  y += 24;
+  y += 20;
 
   const colW = (contentW - 34) / 2;
   const colX = [PAGE.margin, PAGE.margin + colW + 34];
@@ -212,12 +210,12 @@ export async function buildPdf(d, opts = {}) {
     let cy = top;
     doc.setFont('helvetica', 'bold').setFontSize(7.5).setTextColor(...MUTED);
     doc.text(heading.toUpperCase(), x, cy);
-    cy += 46;
+    cy += 38;
 
     if (image) {
       try {
         // Fit inside the slot without distorting; the pad is 2:1 or wider.
-        doc.addImage(image, 'PNG', x, cy - 40, Math.min(colW, 168), 40, undefined, 'FAST');
+        doc.addImage(image, 'PNG', x, cy - 33, Math.min(colW, 150), 33, undefined, 'FAST');
       } catch (e) { /* a corrupt data URL must not lose the whole PDF */ }
     }
 

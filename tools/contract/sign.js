@@ -12,7 +12,8 @@
  */
 
 import {
-  decodeContract, AGENCY, longDate, todayISO, referenceFor, COOLING_OFF_DAYS
+  decodeContract, AGENCY, longDate, todayISO, referenceFor, COOLING_OFF_DAYS,
+  linkExpiry, LINK_EXPIRY_HOURS
 } from './contract-model.js';
 import { renderDocument, DOCUMENT_CSS } from './document.js';
 import { buildPdf } from './pdf.js';
@@ -65,6 +66,14 @@ try {
   fail('We could not read this link',
     'The agreement in this link could not be opened. It may have been truncated in transit.');
   throw err;
+}
+
+const expiry = linkExpiry(d);
+if (expiry.expired) {
+  fail('This signing link has expired',
+    `Signing links are good for ${LINK_EXPIRY_HOURS} hours. This one has run out, so it can no ` +
+    'longer be signed.');
+  throw new Error('link expired');
 }
 
 const reference = referenceFor(d);
