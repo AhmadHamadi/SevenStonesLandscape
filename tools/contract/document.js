@@ -265,10 +265,17 @@ export const DOCUMENT_CSS = `
 .sig-date-label{font-size:8pt;text-transform:uppercase;letter-spacing:.08em;color:#555;margin-top:3px;}
 .sheet-foot{margin-top:26px;border-top:1px solid #ddd;padding-top:10px;display:flex;
   justify-content:space-between;gap:16px;font-size:7.5pt;color:#777;}
+/* A long email or an unbroken address must wrap rather than widen the sheet;
+   nothing here may cause the page to scroll sideways on a phone. */
+.sheet-summary td,.sheet-summary th,.clause-body{overflow-wrap:anywhere;}
 @media (max-width:680px){
   .sheet{padding:22px 18px;}
   .sheet-head{flex-direction:column;}
   .sheet-contact{text-align:left;}
   .sig-grid{grid-template-columns:1fr;gap:26px;}
+  .sheet-summary th{width:88px;}
+  .sheet-summary th,.sheet-summary td{padding:6px 8px;font-size:9pt;}
+  .sheet-title{font-size:15pt;}
+  .clause h2{font-size:11pt;}
 }
 `;
