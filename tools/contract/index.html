@@ -58,6 +58,10 @@
   .f textarea{min-height:96px;resize:vertical;line-height:1.6;}
   .f input:focus,.f select:focus,.f textarea:focus{border-color:var(--brand);}
   .f .hint{font-size:11.5px;color:var(--muted);margin-top:4px;line-height:1.45;}
+  .opt{font-weight:500;text-transform:none;letter-spacing:0;color:#9AA5B3;font-size:10.5px;}
+  .lede{margin:0 0 14px;font-size:12.5px;line-height:1.55;color:var(--muted);
+    background:var(--band-soft);border-left:3px solid var(--brand);
+    border-radius:0 7px 7px 0;padding:9px 11px;}
   .row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
   .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
 
@@ -141,12 +145,15 @@
 
       <div class="panel">
         <h2>Customer</h2>
+        <p class="lede">Seven things are needed: name, email, property address, the three
+          dates, and a price. Everything else is optional &mdash; the box at the bottom
+          tells you what is still missing.</p>
         <div class="f">
           <label for="clientName">Customer name</label>
           <input type="text" id="clientName" autocomplete="name" placeholder="Jane and Mark Whitfield">
         </div>
         <div class="f">
-          <label for="clientContact">Who signs (if different)</label>
+          <label for="clientContact">Who signs <span class="opt">optional</span></label>
           <input type="text" id="clientContact" autocomplete="name">
         </div>
         <div class="row">
@@ -155,7 +162,7 @@
             <input type="email" id="clientEmail" autocomplete="email">
           </div>
           <div class="f">
-            <label for="clientPhone">Phone</label>
+            <label for="clientPhone">Phone <span class="opt">optional</span></label>
             <input type="tel" id="clientPhone" autocomplete="tel">
           </div>
         </div>
@@ -164,11 +171,11 @@
           <input type="text" id="siteAddress" autocomplete="street-address">
         </div>
         <div class="f">
-          <label for="clientAddress">Mailing address (if different)</label>
+          <label for="clientAddress">Mailing address <span class="opt">only if different</span></label>
           <input type="text" id="clientAddress">
         </div>
         <div class="f">
-          <label for="clientTitle">Described as</label>
+          <label for="clientTitle">Described as <span class="opt">optional</span></label>
           <input type="text" id="clientTitle" placeholder="Homeowner">
         </div>
       </div>
@@ -197,17 +204,17 @@
         <h2>The work</h2>
         <div id="services"></div>
         <div class="f" style="margin-top:14px;">
-          <label>Anything else (one per line)</label>
+          <label>Anything else <span class="opt">optional</span></label>
           <div id="customList"></div>
           <button type="button" id="addCustom" style="font-size:12.5px;padding:7px 11px;">Add a line</button>
         </div>
         <div class="f">
-          <label for="scope">Agreed details and measurements</label>
+          <label for="scope">Agreed details and measurements <span class="opt">optional</span></label>
           <textarea id="scope" placeholder="450 sq ft rear patio in Unilock Beacon Hill Flag, Sierra blend&#10;8 inch compacted granular A base&#10;Two-tier seat wall along the north edge, 14 ft"></textarea>
           <div class="hint">One item per line. These print as bullets under &ldquo;The Work&rdquo;.</div>
         </div>
         <div class="f">
-          <label for="exclusions">Explicitly not included</label>
+          <label for="exclusions">Explicitly not included <span class="opt">optional</span></label>
           <textarea id="exclusions" placeholder="Removal of the existing deck&#10;Any planting or garden beds&#10;Permit fees"></textarea>
           <div class="hint">Worth filling in. Most disputes are about what someone assumed was included.</div>
         </div>

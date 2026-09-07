@@ -434,6 +434,13 @@ await test('an invalid customer email is not used as a recipient', async () => {
   assert.deepEqual(sent[0].body.to, [AGENCY.email]);
 });
 
+await test('a customer address equal to the office is not emailed twice', async () => {
+  sent.length = 0;
+  const token = encodeContract({ ...sample, clientEmail: AGENCY.email.toUpperCase() });
+  await handler(mockReq({ ...goodBody(), token }), mockRes());
+  assert.deepEqual(sent[0].body.to, [AGENCY.email], 'duplicate recipient');
+});
+
 await test('reply-to is the Seven Stones office, not the unverified sender', async () => {
   sent.length = 0;
   await handler(mockReq(goodBody()), mockRes());

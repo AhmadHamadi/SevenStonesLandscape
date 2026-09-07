@@ -418,8 +418,13 @@ export default async function handler(req, res) {
   });
 
   const office = process.env.MAIL_TO || AGENCY.email;
+  /* Deduped case-insensitively: when the customer address is the office address -
+     a test, or a job for ourselves - one copy is right, not two. */
   const recipients = [office];
-  if (isValidEmail(d.clientEmail)) recipients.push(d.clientEmail);
+  if (isValidEmail(d.clientEmail)
+      && d.clientEmail.trim().toLowerCase() !== String(office).trim().toLowerCase()) {
+    recipients.push(d.clientEmail.trim());
+  }
 
   const attachments = [
     { filename: `signature-${reference}.png`, content: m[1], contentId: signatureCid }
