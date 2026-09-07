@@ -38,6 +38,24 @@ function loadJsPDF() {
   return loader;
 }
 
+/* The letterhead mark, fetched once and kept as a data URL so the PDF letterhead
+   matches the document on screen. Best-effort like everything else here: if it
+   cannot be fetched the contract simply prints without it. */
+let logoPromise = null;
+function loadLogo() {
+  if (logoPromise) return logoPromise;
+  logoPromise = fetch(AGENCY.logo)
+    .then((r) => (r.ok ? r.blob() : Promise.reject(new Error(`logo ${r.status}`))))
+    .then((blob) => new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = () => reject(new Error('logo unreadable'));
+      reader.readAsDataURL(blob);
+    }))
+    .catch(() => null);
+  return logoPromise;
+}
+
 /* Letter portrait, 12mm margins, in points. */
 const PAGE = { w: 612, h: 792, margin: 32 };
 const INK = [17, 17, 17];
@@ -115,15 +133,26 @@ export async function buildPdf(d, opts = {}) {
   };
 
   /* ---- letterhead -------------------------------------------------------- */
+  const mark = await loadLogo();
+  let nameX = PAGE.margin;
+  if (mark) {
+    try {
+      doc.addImage(mark, 'PNG', PAGE.margin, y - 2, 34, 34, undefined, 'FAST');
+      nameX = PAGE.margin + 42;
+    } catch (e) { /* a bad logo must not cost us the contract */ }
+  }
+
   doc.setFont('helvetica', 'bold').setFontSize(13).setTextColor(...INK);
-  doc.text(AGENCY.legalName, PAGE.margin, y + 10);
+  doc.text(AGENCY.legalName, nameX, y + 18);
 
   doc.setFont('helvetica', 'normal').setFontSize(8).setTextColor(...MUTED);
   doc.text([AGENCY.site, AGENCY.email, AGENCY.phone], PAGE.w - PAGE.margin, y + 6, {
     align: 'right', lineHeightFactor: 1.5
   });
 
-  y += 28;
+  /* Three 8pt contact lines at 1.5 spacing put the last baseline at y+30, so the
+     rule has to clear that - at y+28 it struck straight through the phone number. */
+  y += 40;
   doc.setDrawColor(...INK).setLineWidth(1.2).line(PAGE.margin, y, PAGE.w - PAGE.margin, y);
   y += 20;
 
