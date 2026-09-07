@@ -8,6 +8,9 @@
 User-agent: *
 Allow: /
 Disallow: /api/
+Disallow: /contract
+Disallow: /sign
+Disallow: /tools/
 
 # Explicit allow for major search-engine crawlers
 User-agent: Googlebot

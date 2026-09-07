@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="referrer" content="no-referrer" />
+<link rel="icon" href="/favicon.ico" sizes="any" />
+<title>Sign your agreement | Seven Stones Landscape</title>
+<meta name="description" content="Read and sign your Seven Stones Landscape work agreement." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap">
+<style>
+  :root{
+    --brand:#1B62B5; --brand-deep:#134A8A;
+    --band:#BDD4EA; --band-soft:#E4EEF7;
+    --ink:#15202E; --muted:#6B7688;
+    --rule:#C9D3DE; --rule-soft:#E3E9EF;
+    --ground:#EDEFF2;
+    --ok:#12674A; --ok-bg:#E4F1EB;
+    --bad:#A32A20; --bad-bg:#FAE8E6;
+    --font:'DM Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+  }
+  *,*::before,*::after{box-sizing:border-box;}
+  body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--font);
+    font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased;}
+  .shell{max-width:860px;margin:0 auto;padding:0 16px 90px;}
+
+  .topbar{position:sticky;top:0;z-index:30;background:#fff;border-bottom:1px solid var(--rule);
+    box-shadow:0 1px 8px rgba(0,0,0,.05);}
+  .topbar-in{max-width:860px;margin:0 auto;padding:11px 16px;display:flex;align-items:center;gap:12px;}
+  .topbar img{height:34px;width:auto;}
+  .topbar .who{flex:1 1 auto;min-width:0;}
+  .topbar .who b{display:block;font-size:14px;line-height:1.2;}
+  .topbar .who span{font-size:12px;color:var(--muted);}
+  .topbar button{font:inherit;font-size:14px;font-weight:700;cursor:pointer;border-radius:8px;
+    border:1px solid var(--brand);background:var(--brand);color:#fff;padding:9px 15px;white-space:nowrap;}
+  .topbar button:hover{background:var(--brand-deep);border-color:var(--brand-deep);}
+
+  .lead{background:#fff;border:1px solid var(--rule);border-radius:12px;padding:20px 22px;margin:20px 0;}
+  .lead h1{margin:0 0 8px;font-size:21px;letter-spacing:-.01em;}
+  .lead p{margin:0 0 10px;font-size:15px;color:#3C4A5C;}
+  .lead p:last-child{margin-bottom:0;}
+  .lead .rights{background:var(--band-soft);border-left:3px solid var(--brand);border-radius:0 8px 8px 0;
+    padding:11px 13px;font-size:14px;color:#1a3350;margin-top:14px;}
+
+  .paper{background:#fff;border:1px solid var(--rule);border-radius:12px;overflow:hidden;}
+
+  .signbox{background:#fff;border:1px solid var(--rule);border-radius:12px;padding:20px 22px;margin-top:20px;}
+  .signbox h2{margin:0 0 4px;font-size:18px;}
+  .signbox .sub{margin:0 0 18px;font-size:14px;color:var(--muted);}
+
+  .pad-label{display:flex;justify-content:space-between;align-items:baseline;gap:10px;
+    font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;
+    color:var(--muted);margin-bottom:6px;}
+  .pad-label button{font:inherit;font-size:11.5px;text-transform:none;letter-spacing:0;
+    cursor:pointer;border-radius:6px;border:1px solid var(--rule);background:#fff;
+    color:var(--ink);padding:4px 9px;}
+  .pad-label button:hover{border-color:var(--brand);color:var(--brand);}
+  .padwrap{position:relative;border:1px solid var(--rule);border-bottom:2px solid var(--ink);
+    border-radius:8px 8px 0 0;background:#FCFDFE;}
+  .padwrap.err{border-color:var(--bad);}
+  canvas.pad{display:block;width:100%;height:150px;touch-action:none;cursor:crosshair;
+    border-radius:8px 8px 0 0;}
+  .padhint{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:14px;
+    color:#A9B3C0;pointer-events:none;font-style:italic;}
+  .padwrap.inked .padhint{display:none;}
+
+  .f{margin-top:18px;}
+  .f label{display:block;font-size:11px;font-weight:700;letter-spacing:.09em;
+    text-transform:uppercase;color:var(--muted);margin-bottom:5px;}
+  .f input[type=text]{width:100%;border:1px solid var(--rule);border-radius:8px;background:#fff;
+    font:inherit;font-size:16px;color:var(--ink);padding:11px 12px;}
+  .f input[type=text]:focus{border-color:var(--brand);outline:2px solid var(--brand);outline-offset:1px;}
+  .f input.err{border-color:var(--bad);}
+
+  .agree{display:flex;gap:10px;align-items:flex-start;margin-top:18px;font-size:14.5px;line-height:1.5;}
+  .agree input{margin:3px 0 0;flex:0 0 auto;width:19px;height:19px;accent-color:var(--brand);}
+
+  .err-msg{color:var(--bad);font-size:13px;font-weight:600;margin-top:5px;}
+  .sendfail{background:var(--bad-bg);color:var(--bad);border-radius:8px;padding:11px 13px;
+    font-size:14px;line-height:1.55;margin-top:16px;}
+
+  .submit{margin-top:20px;width:100%;font:inherit;font-size:16px;font-weight:700;cursor:pointer;
+    border-radius:10px;border:1px solid var(--brand);background:var(--brand);color:#fff;padding:15px;}
+  .submit:hover{background:var(--brand-deep);border-color:var(--brand-deep);}
+  .submit:disabled{opacity:.55;cursor:not-allowed;}
+
+  .state{background:#fff;border:1px solid var(--rule);border-radius:12px;padding:34px 26px;
+    margin:26px 0;text-align:center;}
+  .state h1{margin:0 0 10px;font-size:21px;}
+  .state p{margin:0 auto 8px;font-size:15px;color:#3C4A5C;max-width:52ch;}
+  .state.done{border-color:#A9D5C1;background:var(--ok-bg);}
+  .state.done h1{color:var(--ok);}
+  .state a{color:var(--brand);font-weight:700;}
+
+  .footnote{text-align:center;font-size:13px;color:var(--muted);margin-top:22px;line-height:1.6;}
+  .footnote a{color:var(--brand);}
+
+  @media (max-width:560px){
+    .lead,.signbox{padding:17px 15px;}
+    .topbar .who span{display:none;}
+  }
+
+  @media print{
+    @page{size:letter portrait;margin:12mm;}
+    body{background:#fff;}
+    .shell{max-width:none;padding:0;}
+    .topbar,.lead,.signbox,.footnote,.noprint{display:none !important;}
+    .paper{border:0;border-radius:0;overflow:visible;}
+    .sheet{padding:0 !important;}
+  }
+  @media (prefers-reduced-motion:reduce){*{transition:none !important;}}
+</style>
+</head>
+<body>
+
+<div class="topbar noprint" id="topbar" hidden>
+  <div class="topbar-in">
+    <img src="/assets/images/logo.png" alt="Seven Stones Landscape">
+    <div class="who">
+      <b id="topName">Your agreement</b>
+      <span id="topRef"></span>
+    </div>
+    <button type="button" id="jump">Go to signature</button>
+  </div>
+</div>
+
+<div class="shell">
+  <div id="app">
+    <div class="state" id="loading">
+      <h1>Loading your agreement&hellip;</h1>
+      <p>One moment.</p>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="/tools/contract/sign.js"></script>
+<noscript>
+  <div style="max-width:640px;margin:60px auto;padding:24px;text-align:center;font-family:sans-serif;">
+    <h1>Sign your agreement</h1>
+    <p>This page needs JavaScript to display and sign your agreement.</p>
+    <p>Call <a href="tel:+12897000312">(289) 700-0312</a> and we will sort it out with you.</p>
+  </div>
+</noscript>
+
+</body>
+</html>

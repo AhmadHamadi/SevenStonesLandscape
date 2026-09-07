@@ -2,8 +2,17 @@
   "name": "sevenstoneslandscape",
   "version": "1.0.0",
   "private": true,
-  "description": "Seven Stones Landscape website and quote form API",
+  "description": "Seven Stones Landscape website, quote form API, and contract signing system",
   "dependencies": {
     "nodemailer": "^6.9.16"
+  },
+  "type": "module",
+  "scripts": {
+    "test": "node scripts/test-contract.js && node scripts/test-routing.js",
+    "test:contract": "node scripts/test-contract.js",
+    "test:routing": "node scripts/test-routing.js"
+  },
+  "optionalDependencies": {
+    "@vercel/blob": "^2.8.0"
   }
 }
