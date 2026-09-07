@@ -643,6 +643,36 @@ await test('a Resend failure with no SMTP fallback returns 502, not a false succ
   globalThis.fetch = real;
 });
 
+await test('a corrected contract re-sent the same day is not treated as a duplicate', async () => {
+  // Same customer, same day, same signature - but the price changed. These are two
+  // different agreements and both must send.
+  const keys = [];
+  const realFetch = globalThis.fetch;
+  globalThis.fetch = async (url, opts) => {
+    keys.push(opts.headers['Idempotency-Key']);
+    return realFetch(url, opts);
+  };
+  for (const price of ['28500', '31000']) {
+    await handler(mockReq({ ...goodBody(), token: encodeContract({ ...sample, projectPrice: price }) }), mockRes());
+  }
+  globalThis.fetch = realFetch;
+  assert.equal(keys.length, 2);
+  assert.notEqual(keys[0], keys[1], 'corrected contract reused the first key');
+});
+
+await test('a true retry of the identical request reuses the key', async () => {
+  const keys = [];
+  const realFetch = globalThis.fetch;
+  globalThis.fetch = async (url, opts) => {
+    keys.push(opts.headers['Idempotency-Key']);
+    return realFetch(url, opts);
+  };
+  await handler(mockReq(goodBody()), mockRes());
+  await handler(mockReq(goodBody()), mockRes());
+  globalThis.fetch = realFetch;
+  assert.equal(keys[0], keys[1], 'identical retry produced a different key');
+});
+
 await test('the signed email carries the deliverability headers quote.js proved out', async () => {
   sent.length = 0;
   await handler(mockReq(goodBody()), mockRes());

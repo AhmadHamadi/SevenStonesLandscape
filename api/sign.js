@@ -352,9 +352,12 @@ export default async function handler(req, res) {
   const signedAtLong = longDate(signedAt) || longDate(new Date().toISOString().slice(0, 10));
   const signatureCid = 'ss-customer-signature';
 
-  /* Stable across retries of this exact signature, different for a genuine re-sign. */
+  /* Identical for a retry of this exact request, different for anything else.
+     The token is in the hash on purpose: a corrected contract re-sent the same
+     day to the same customer is a different agreement, and must not collide
+     with the first one and be swallowed as a duplicate. */
   const idempotencyKey = crypto.createHash('sha256')
-    .update(`${reference}|${typedName}|${signedAt}|${m[1].slice(0, 512)}`)
+    .update(`${token}|${typedName}|${signedAt}|${m[1].slice(0, 512)}`)
     .digest('hex')
     .slice(0, 48);
 
