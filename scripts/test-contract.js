@@ -609,7 +609,42 @@ await test('the signed email states the cancellation right in both parts', () =>
   assert.ok(html.includes('Consumer Protection Act'));
   assert.ok(text.includes('YOUR RIGHT TO CANCEL'));
   assert.ok(html.includes('cid:cid1'), 'signature must be embedded inline');
-  assert.ok(html.includes('PDF is attached'));
+  assert.ok(html.includes('attached to this email as a PDF'), 'does not say the PDF is attached');
+});
+
+await test('with the PDF attached the email is short and does not repeat the clauses', () => {
+  const { html, text } = signApi.buildSignedEmail({
+    d: sample, typedName: 'Jane Whitfield', signedAtLong: 'September 7, 2026',
+    reference: 'SSL-TEST-260907', signatureCid: 'c', hasPdf: true
+  });
+  assert.equal((html.match(/<h2/g) || []).length, 0, 'clauses repeated despite the PDF');
+  assert.ok(html.length < 9000, `html is ${html.length} bytes, still a wall of text`);
+  assert.ok(text.split(String.fromCharCode(10)).length < 40, 'plain text is still a wall of text');
+  assert.ok(/attached to this email as a PDF/.test(html), 'does not say where the agreement is');
+});
+
+await test('without a PDF the full agreement is still in the email', () => {
+  const { html, text } = signApi.buildSignedEmail({
+    d: sample, typedName: 'Jane Whitfield', signedAtLong: 'x',
+    reference: 'r', signatureCid: 'c', hasPdf: false
+  });
+  for (const c of buildClauses(sample)) {
+    assert.ok(html.includes(c.title), `fallback email missing clause: ${c.title}`);
+    assert.ok(text.includes(c.title.toUpperCase()), `fallback text missing: ${c.title}`);
+  }
+});
+
+await test('the short email still carries the money, dates and cancellation right', () => {
+  const { html, text } = signApi.buildSignedEmail({
+    d: sample, typedName: 'Jane Whitfield', signedAtLong: 'September 7, 2026',
+    reference: 'SSL-TEST-260907', signatureCid: 'c', hasPdf: true
+  });
+  assert.ok(html.includes('$32,205'), 'total missing');
+  assert.ok(html.includes('September 22, 2026'), 'start date missing');
+  assert.ok(html.includes('Consumer Protection Act'), 'cancellation right missing');
+  assert.ok(html.includes(`cid:c`), 'signature not embedded');
+  assert.ok(text.includes('YOUR RIGHT TO CANCEL'), 'text lacks the cancellation right');
+  assert.ok(text.includes('Jane Whitfield'), 'text lacks the signer');
 });
 
 await test('the signed email escapes html a customer typed', () => {

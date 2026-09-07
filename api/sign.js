@@ -167,7 +167,9 @@ export function buildSignedEmail({ d, typedName, signedAtLong, reference, signat
       <strong>${escapeHtml(typedName)}</strong> for
       <strong>${escapeHtml(d.clientName || 'the Customer')}</strong>, and by
       <strong>${escapeHtml(signer.name)}</strong> for ${escapeHtml(AGENCY.name)}.
-      ${hasPdf ? 'The signed PDF is attached. ' : ''}Keep this email for your records.
+      ${hasPdf
+        ? 'The full signed agreement is attached to this email as a PDF. Keep it for your records.'
+        : 'The full agreement is set out below. Keep this email for your records.'}
     </p>
 
     <div style="background:#E4EEF7;border-left:3px solid #1B62B5;padding:11px 13px;font-size:13px;line-height:1.6;margin:0 0 18px;">
@@ -187,9 +189,10 @@ export function buildSignedEmail({ d, typedName, signedAtLong, reference, signat
       </tbody>
     </table>
 
-    <hr style="border:none;border-top:2px solid #15202E;margin:26px 0 8px;" />
-
-    ${clauses.map(clauseHtml).join('')}
+    ${hasPdf ? '' : `
+      <hr style="border:none;border-top:2px solid #15202E;margin:26px 0 8px;" />
+      <p style="font-size:12px;color:#6B7688;margin:0;">The full agreement follows.</p>
+      ${clauses.map(clauseHtml).join('')}`}
 
     <hr style="border:none;border-top:2px solid #15202E;margin:26px 0 16px;" />
 
@@ -234,7 +237,8 @@ export function buildSignedEmail({ d, typedName, signedAtLong, reference, signat
     '',
     `Signed electronically on ${signedAtLong} by ${typedName} for ${d.clientName || 'the Customer'},`,
     `and by ${signer.name} for ${AGENCY.name}.`,
-    hasPdf ? 'The signed PDF is attached.' : '',
+    hasPdf ? 'The full signed agreement is attached to this email as a PDF.'
+           : 'The full agreement is set out below.',
     '',
     'YOUR RIGHT TO CANCEL: this is a direct agreement under Ontario\'s Consumer Protection',
     'Act, 2002. You may cancel for any reason within 10 days of receiving this copy, and any',
@@ -242,9 +246,7 @@ export function buildSignedEmail({ d, typedName, signedAtLong, reference, signat
     '',
     ...summaryRows.map(([k, v]) => `${`${k}:`.padEnd(18, ' ')}${v}`),
     '',
-    '='.repeat(64),
-    '',
-    ...clauses.map(clauseText),
+    ...(hasPdf ? [] : ['='.repeat(64), '', ...clauses.map(clauseText)]),
     '='.repeat(64),
     '',
     `For ${AGENCY.name}:  ${signer.name}, ${signer.title}   ${agreementDate}`,
