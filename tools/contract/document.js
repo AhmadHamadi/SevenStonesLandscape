@@ -8,8 +8,7 @@
  */
 
 import {
-  SIGNERS, AGENCY, buildClauses, money, longDate, priceBreakdown,
-  referenceFor, COOLING_OFF_DAYS
+  SIGNERS, AGENCY, buildClauses, money, longDate, priceBreakdown, referenceFor
 } from './contract-model.js';
 
 const el = (tag, cls, text) => {
@@ -158,15 +157,6 @@ export function renderDocument(d, opts = {}) {
   table.appendChild(tbody);
   sheet.appendChild(table);
 
-  /* ---------- the cancellation notice, up front where it belongs ---------- */
-  const notice = el('div', 'sheet-notice');
-  notice.appendChild(el('strong', null, 'Your right to cancel. '));
-  notice.appendChild(document.createTextNode(
-    `This is a direct agreement under Ontario's Consumer Protection Act, 2002. You may cancel it for any ` +
-    `reason within ${COOLING_OFF_DAYS} days of receiving your written copy.`
-  ));
-  sheet.appendChild(notice);
-
   /* ---------- clauses ---------- */
   for (const c of clauses) {
     const section = el('section', 'clause');
@@ -240,8 +230,6 @@ export const DOCUMENT_CSS = `
 .sheet-summary td{padding:7px 10px;vertical-align:top;border-bottom:1px solid #ddd;}
 .sheet-summary tr:last-child th,.sheet-summary tr:last-child td{border-bottom:0;}
 .sheet-summary .muted{color:#555;font-size:9pt;margin-top:2px;}
-.sheet-notice{border:1px solid #BDD4EA;border-left:3px solid #1B62B5;background:#E4EEF7;
-  padding:10px 12px;font-size:9pt;line-height:1.6;color:#1a3350;margin-bottom:18px;}
 .clause{margin-bottom:14px;break-inside:avoid;}
 .clause h2{font-size:11.5pt;font-weight:700;margin:0 0 3px;}
 .clause-body p{margin:5px 0;}

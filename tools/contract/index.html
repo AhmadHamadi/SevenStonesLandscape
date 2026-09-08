@@ -62,8 +62,11 @@
   .lede{margin:0 0 14px;font-size:12.5px;line-height:1.55;color:var(--muted);
     background:var(--band-soft);border-left:3px solid var(--brand);
     border-radius:0 7px 7px 0;padding:9px 11px;}
-  .row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-  .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+  /* Date inputs have a wide intrinsic minimum once the picker icon is counted, so
+     a fixed three-column row clipped the third one out of view in the 420px panel.
+     auto-fit lets them wrap instead of overflowing. */
+  .row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;}
+  .row3{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;}
 
   .svc{display:flex;gap:9px;align-items:flex-start;padding:7px 0;border-bottom:1px solid var(--rule-soft);}
   .svc:last-of-type{border-bottom:0;}
