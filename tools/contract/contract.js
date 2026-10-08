@@ -14,9 +14,11 @@ import {
   ESTIMATE_OVERRUN_CAP, LINK_EXPIRY_HOURS
 } from './contract-model.js';
 import { renderDocument, DOCUMENT_CSS } from './document.js';
+import { createSignaturePad, validSignature } from './signature-ink.js';
 
 const $ = (id) => document.getElementById(id);
 const KEY = 'ss-contract-draft-v1';
+const SIGNATURE_KEY = 'ss-office-signatures-v1';
 
 /* The document stylesheet lives in document.js so /sign and /tools/signed cannot
    drift from it. Inject it once. */
@@ -25,6 +27,40 @@ style.textContent = DOCUMENT_CSS;
 document.head.appendChild(style);
 
 let d = { ...DEFAULTS };
+let savedSignatures = {};
+
+try {
+  const stored = JSON.parse(localStorage.getItem(SIGNATURE_KEY) || '{}');
+  if (stored && typeof stored === 'object' && !Array.isArray(stored)) {
+    for (const [index, value] of Object.entries(stored)) {
+      if (SIGNERS[Number(index)] && validSignature(value)) savedSignatures[index] = value;
+    }
+  }
+} catch (e) { /* storage unavailable: drawing still works for this session */ }
+
+const signaturePad = createSignaturePad($('repSignaturePad'), (value) => {
+  const index = String(d.signerIndex);
+  if (value) savedSignatures[index] = value;
+  else delete savedSignatures[index];
+  d.repSignature = value;
+  try {
+    localStorage.setItem(SIGNATURE_KEY, JSON.stringify(savedSignatures));
+    $('repSignatureStatus').textContent = value
+      ? `${SIGNERS[d.signerIndex].name}'s signature is saved in this browser.`
+      : `${SIGNERS[d.signerIndex].name} has no saved signature.`;
+  } catch (e) {
+    $('repSignatureStatus').textContent = 'Could not save in this browser. Keep this page open until you print or copy the link.';
+  }
+  update({ skipRead: true });
+});
+
+function showSignerSignature() {
+  d.repSignature = savedSignatures[d.signerIndex] || '';
+  signaturePad.load(d.repSignature);
+  $('repSignatureStatus').textContent = d.repSignature
+    ? `${SIGNERS[d.signerIndex].name}'s signature is saved in this browser.`
+    : `${SIGNERS[d.signerIndex].name} has no saved signature.`;
+}
 
 /* ------------------------------------------------------------------
    Field wiring
@@ -239,9 +275,19 @@ function update(opts = {}) {
    ------------------------------------------------------------------ */
 for (const id of [...TEXT_FIELDS, ...NUMBER_FIELDS, ...SELECT_FIELDS, ...CHECKBOX_FIELDS]) {
   const node = $(id);
-  node.addEventListener('input', () => update());
-  node.addEventListener('change', () => update());
+  node.addEventListener('input', () => {
+    if (id === 'signerIndex') { d.signerIndex = Number(node.value); showSignerSignature(); }
+    update();
+    if (id === 'signerIndex') save();
+  });
+  node.addEventListener('change', () => {
+    if (id === 'signerIndex') { d.signerIndex = Number(node.value); showSignerSignature(); }
+    update();
+    if (id === 'signerIndex') save();
+  });
 }
+
+$('clearRepSignature').addEventListener('click', () => signaturePad.clear());
 
 for (const btn of document.querySelectorAll('[data-copy]')) {
   btn.addEventListener('click', async () => {
@@ -287,6 +333,7 @@ $('clear').addEventListener('click', () => {
   d = { ...DEFAULTS };
   try { localStorage.removeItem(KEY); } catch (e) { /* nothing to remove */ }
   writeForm();
+  showSignerSignature();
   update();
 });
 
@@ -296,6 +343,7 @@ $('clear').addEventListener('click', () => {
 load();
 buildSelects();
 writeForm();
+showSignerSignature();
 update();
 
 document.title = `Contract Creator | ${AGENCY.name}`;

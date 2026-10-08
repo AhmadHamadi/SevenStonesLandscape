@@ -111,6 +111,12 @@
   .preview-scroll{max-height:78vh;overflow:auto;}
 
   .note{font-size:12px;color:var(--muted);line-height:1.55;margin-top:10px;}
+  .rep-signature-pad{display:block;width:100%;height:128px;border:1px solid var(--rule);
+    border-radius:8px;background:#fff;touch-action:none;cursor:crosshair;}
+  .rep-signature-actions{display:flex;align-items:center;justify-content:space-between;
+    gap:10px;margin-top:8px;}
+  .rep-signature-actions button{font-size:12px;padding:6px 10px;}
+  .rep-signature-actions .hint{margin:0;}
   .warnbox{background:var(--warn-bg);border:1px solid #E8CE93;color:var(--warn);
     border-radius:8px;padding:10px 12px;font-size:12.5px;line-height:1.6;margin-bottom:14px;}
 
@@ -272,6 +278,15 @@
         <div class="f">
           <label for="signerIndex">Signed for Seven Stones by</label>
           <select id="signerIndex"></select>
+        </div>
+        <div class="f">
+          <label for="repSignaturePad">Draw the selected person's signature</label>
+          <canvas id="repSignaturePad" class="rep-signature-pad" aria-label="Draw the selected representative's signature"></canvas>
+          <div class="rep-signature-actions">
+            <span class="hint" id="repSignatureStatus" role="status"></span>
+            <button type="button" id="clearRepSignature">Remove signature</button>
+          </div>
+          <div class="hint">Use a finger, mouse, or stylus. John and Riaad each have a signature saved in this browser; the selected signature is included in the signing link.</div>
         </div>
       </div>
 

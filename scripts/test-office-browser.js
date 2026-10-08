@@ -20,6 +20,23 @@ let passed = 0; const failures = [];
 const test = async (n, f) => { try { await f(); passed++; console.log('  ok    ' + n); }
   catch (e) { failures.push([n, e.message]); console.log('  FAIL  ' + n); } };
 const ok = (c, m) => { if (!c) throw new Error(m); };
+const inkedPixels = (locator) => locator.evaluate((c) => {
+  const px = c.getContext('2d').getImageData(0, 0, c.width, c.height).data;
+  let count = 0;
+  for (let i = 3; i < px.length; i += 4) if (px[i]) count++;
+  return count;
+});
+async function drawOfficeSignature(page, offset) {
+  const pad = page.locator('#repSignaturePad');
+  await pad.scrollIntoViewIfNeeded();
+  const box = await pad.boundingBox();
+  await page.mouse.move(box.x + 25, box.y + 65);
+  await page.mouse.down();
+  for (let i = 0; i < 35; i++) {
+    await page.mouse.move(box.x + 25 + i * 8, box.y + 65 + Math.sin(i / 3 + offset) * 23);
+  }
+  await page.mouse.up();
+}
 
 console.log(); console.log('  office pages: ' + ORIGIN); console.log();
 const browser = await chromium.launch();
@@ -107,9 +124,39 @@ await test('the signer choice updates the agreement', async () => {
   ok(preview.includes('On behalf of Seven Stones Landscape'), 'signer title is missing');
 });
 
+await test('Riaad and John keep separate saved drawings above their names', async () => {
+  await drawOfficeSignature(page, 0);
+  ok(await inkedPixels(page.locator('#repSignaturePad')) > 400, 'Riaad pad has no ink');
+  const riaad = await page.locator('#doc .sig-block').first().locator('.sig-slot img').getAttribute('src');
+  ok(riaad?.startsWith('data:image/png;base64,'), 'Riaad preview has no signature');
+  await page.selectOption('#signerIndex', '0');
+  ok(await inkedPixels(page.locator('#repSignaturePad')) === 0, 'Riaad signature appeared on John pad');
+  await drawOfficeSignature(page, 1);
+  const john = await page.locator('#doc .sig-block').first().locator('.sig-slot img').getAttribute('src');
+  ok(john !== riaad, 'John and Riaad have the same drawing');
+  await page.selectOption('#signerIndex', '1');
+  ok(await page.locator('#doc .sig-block').first().locator('.sig-slot img').getAttribute('src') === riaad,
+    'switching back did not restore Riaad');
+  await page.reload({ waitUntil: 'networkidle' });
+  ok(await page.locator('#doc .sig-block').first().locator('.sig-slot img').getAttribute('src') === riaad,
+    'saved signature disappeared on reload');
+});
+
+await test('the signing link contains the selected signature and print has an image', async () => {
+  const link = await page.inputValue('#signLink');
+  const m = await import(new URL('../tools/contract/contract-model.js', import.meta.url).href);
+  const d = m.decodeContract(new URL(link).searchParams.get('a'));
+  ok(d.signerIndex === 1 && d.repSignature.length > 20, 'Riaad drawing missing from link');
+  ok(!await page.locator('#doc .sig-placeholder').count(), 'old signature placeholder still printed');
+  const pdf = await page.pdf({ format: 'Letter', printBackground: true });
+  ok((pdf.toString('latin1').match(/\/Subtype\s*\/Image/g) || []).length >= 2,
+    'print PDF does not contain the logo and drawn signature');
+});
+
 await test('the signing link and covering email are produced', async () => {
   const link = await page.inputValue('#signLink');
-  ok(link.startsWith(ORIGIN + "/sign/jane-mark-whitfield/?a="), 'bad link: ' + link.slice(0, 70));
+  ok(link.startsWith('https://www.sevenstoneslandscape.ca/sign/jane-mark-whitfield/?a='),
+    'bad link: ' + link.slice(0, 70));
   const body = await page.inputValue('#emailBody');
   ok(body.includes(link), 'email body does not carry the same link');
   ok(body.includes('$32,205'), 'email lacks the total');
@@ -123,11 +170,13 @@ await test('the link the customer would open actually decodes and renders', asyn
   const p2 = await browser.newPage();
   const errs2 = [];
   p2.on('pageerror', (e) => errs2.push(e.message));
-  await p2.goto(link, { waitUntil: 'networkidle' });
+  await p2.goto(link.replace('https://www.sevenstoneslandscape.ca', ORIGIN), { waitUntil: 'networkidle' });
   const txt = await p2.locator('body').innerText();
   ok(/here is your agreement to sign/i.test(txt), 'sign page did not render: ' + txt.slice(0, 100));
   ok(txt.includes('450 sq ft rear interlock patio'), 'work missing on the sign page');
   ok(txt.includes('$32,205'), 'total missing on the sign page');
+  ok(await p2.locator('.paper .sig-block').first().locator('.sig-slot img').count() === 1,
+    'representative signature missing on customer page');
   ok(errs2.length === 0, errs2.join(' | '));
   await p2.close();
 });
@@ -138,6 +187,19 @@ await test('the creator itself sends nothing to the server', async () => {
   await page.fill('#projectPrice', '31000');
   await page.waitForTimeout(600);
   ok(calls.length === 0, 'creator called the API: ' + calls.join(', '));
+});
+
+await test('removing one saved signature clears its print and link without touching the other', async () => {
+  await page.locator('#clearRepSignature').click();
+  ok(await inkedPixels(page.locator('#repSignaturePad')) === 0, 'pad still has ink');
+  ok(await page.locator('#doc .sig-block').first().locator('.sig-slot img').count() === 0,
+    'removed signature is still in preview');
+  const m = await import(new URL('../tools/contract/contract-model.js', import.meta.url).href);
+  const link = await page.inputValue('#signLink');
+  ok(m.decodeContract(new URL(link).searchParams.get('a')).repSignature === '',
+    'removed signature is still in the signing link');
+  await page.selectOption('#signerIndex', '0');
+  ok(await inkedPixels(page.locator('#repSignaturePad')) > 400, 'John signature was cleared too');
 });
 
 await test('no JS errors after driving the whole form', () => ok(errors.length === 0, errors.join(' | ')));

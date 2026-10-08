@@ -13,6 +13,7 @@
 import {
   AGENCY, SIGNERS, buildClauses, money, longDate, priceBreakdown, referenceFor
 } from './contract-model.js';
+import { signaturePng } from './signature-ink.js';
 
 const JSPDF_URL = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
 
@@ -74,6 +75,7 @@ const RULE = [205, 213, 222];
 export async function buildPdf(d, opts = {}) {
   const JsPDF = await loadJsPDF();
   const { clientSignature = '', clientSignedAt = '', typedName = '' } = opts;
+  const repSignature = signaturePng(d.repSignature);
 
   const doc = new JsPDF({ unit: 'pt', format: 'letter', compress: true });
   const signer = SIGNERS[d.signerIndex] || SIGNERS[0];
@@ -245,8 +247,11 @@ export async function buildPdf(d, opts = {}) {
 
     if (image) {
       try {
-        // Fit inside the slot without distorting; the pad is 2:1 or wider.
-        doc.addImage(image, 'PNG', x, cy - 33, Math.min(colW, 150), 33, undefined, 'FAST');
+        const size = doc.getImageProperties(image);
+        const scale = Math.min(150 / size.width, 33 / size.height);
+        const width = size.width * scale;
+        const height = size.height * scale;
+        doc.addImage(image, 'PNG', x, cy - height, width, height, undefined, 'FAST');
       } catch (e) { /* a corrupt data URL must not lose the whole PDF */ }
     }
 
@@ -271,7 +276,7 @@ export async function buildPdf(d, opts = {}) {
     return cy;
   };
 
-  const a = signatureBlock(colX[0], `For ${AGENCY.name}`, '', signer.name, signer.title, agreementDate);
+  const a = signatureBlock(colX[0], `For ${AGENCY.name}`, repSignature, signer.name, signer.title, agreementDate);
   const b = signatureBlock(
     colX[1], `For ${d.clientName || 'the Customer'}`, clientSignature,
     typedName || d.clientContact || d.clientName, d.clientTitle, clientSignedAt

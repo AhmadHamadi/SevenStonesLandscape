@@ -10,6 +10,7 @@
 import {
   SIGNERS, AGENCY, buildClauses, money, longDate, priceBreakdown, referenceFor
 } from './contract-model.js';
+import { signaturePng } from './signature-ink.js';
 
 const el = (tag, cls, text) => {
   const n = document.createElement(tag);
@@ -48,15 +49,13 @@ function paragraphs(paras) {
   return frag;
 }
 
-function signatureSlot(image, placeholder) {
+function signatureSlot(image) {
   const wrap = el('div', 'sig-slot');
   if (image) {
     const img = el('img');
     img.src = image;
     img.alt = 'Signature';
     wrap.appendChild(img);
-  } else {
-    wrap.appendChild(el('span', 'sig-placeholder', placeholder));
   }
   return wrap;
 }
@@ -70,7 +69,7 @@ function signatureSlot(image, placeholder) {
  * @returns {HTMLElement}
  */
 export function renderDocument(d, opts = {}) {
-  const { repSignature = '', clientSignature = '', clientSignedAt = '' } = opts;
+  const { repSignature = signaturePng(d.repSignature), clientSignature = '', clientSignedAt = '' } = opts;
 
   const signer = SIGNERS[d.signerIndex] || SIGNERS[0];
   const clauses = buildClauses(d);
@@ -171,10 +170,10 @@ export function renderDocument(d, opts = {}) {
 
   const grid = el('div', 'sig-grid');
 
-  const block = (heading, image, placeholder, name, title, date) => {
+  const block = (heading, image, name, title, date) => {
     const b = el('div', 'sig-block');
     b.appendChild(el('div', 'sig-head', heading));
-    b.appendChild(signatureSlot(image, placeholder));
+    b.appendChild(signatureSlot(image));
     b.appendChild(el('div', 'sig-rule'));
     b.appendChild(el('div', 'sig-name', name));
     if (title) b.appendChild(el('div', 'sig-title', title));
@@ -187,11 +186,11 @@ export function renderDocument(d, opts = {}) {
   };
 
   grid.appendChild(block(
-    `For ${AGENCY.name}`, repSignature, '(signature)',
+    `For ${AGENCY.name}`, repSignature,
     signer.name, signer.title, agreementDate
   ));
   grid.appendChild(block(
-    `For ${d.clientName || 'the Customer'}`, clientSignature, '(signature)',
+    `For ${d.clientName || 'the Customer'}`, clientSignature,
     d.clientContact || d.clientName || 'Print name',
     d.clientTitle || '', clientSignedAt
   ));
@@ -239,7 +238,6 @@ export const DOCUMENT_CSS = `
   color:#555;margin-bottom:6px;}
 .sig-slot{height:60px;display:flex;align-items:flex-end;}
 .sig-slot img{max-height:58px;max-width:100%;object-fit:contain;object-position:left bottom;}
-.sig-placeholder{font-size:8pt;font-style:italic;color:#999;}
 .sig-rule{border-bottom:1px solid #111;}
 .sig-name{font-size:9.5pt;font-weight:700;margin-top:5px;}
 .sig-title{font-size:8.5pt;color:#555;}

@@ -75,6 +75,8 @@ const {
   ESTIMATE_OVERRUN_CAP,
   linkExpiry, LINK_EXPIRY_HOURS, PAYMENT_METHODS, DEPOSIT_PRESETS
 } = model;
+const { parseSignature, validSignature } = await import(pathToFileURL('./tools/contract/signature-ink.js').href);
+const repInk = '100,500;200,450;300,510|350,500;450,470';
 
 const sample = {
   ...DEFAULTS,
@@ -175,7 +177,6 @@ await test('overrun cap is the total plus ten percent', () => {
 await test('codec round-trips every field', () => {
   const back = decodeContract(encodeContract(sample));
   for (const k of Object.keys(sample)) {
-    if (k === 'signatureData') continue;
     assert.deepEqual(back[k], sample[k], `field ${k} did not survive`);
   }
 });
@@ -228,10 +229,21 @@ await test('malformed tokens throw rather than half-decoding', () => {
   assert.throws(() => decodeContract(Buffer.from('"a string"').toString('base64url')));
 });
 
-await test('the drawn signature is never encoded into the link', () => {
-  const withSig = { ...sample, signatureData: 'data:image/png;base64,AAAA' };
-  assert.equal(JSON.stringify(packContract(withSig)).includes('AAAA'), false);
-  assert.equal(decodeContract(encodeContract(withSig)).signatureData, '');
+await test('the selected representative drawing travels in the signing link', () => {
+  const withSig = { ...sample, signerIndex: 1, repSignature: repInk };
+  const decoded = decodeContract(encodeContract(withSig));
+  assert.equal(decoded.repSignature, repInk);
+  assert.equal(decoded.signerIndex, 1);
+  assert.ok(new URL(signingUrl(withSig)).href.length < 6000);
+});
+
+await test('bad or oversized representative drawings are rejected on decode', () => {
+  assert.equal(validSignature(repInk), true);
+  assert.equal(parseSignature(repInk).length, 2);
+  for (const bad of ['<svg onload=alert(1)>', '1001,0', '1,1;'.repeat(1000), '1,1|']) {
+    assert.equal(validSignature(bad), false);
+    assert.equal(unpackContract({ ...packContract(sample), rs: bad }).repSignature, '');
+  }
 });
 
 /* ==================================================================
@@ -843,12 +855,13 @@ await test('the archive endpoint is marked noindex', async () => {
    END TO END — the journey the customer actually takes
    ================================================================== */
 await test('creator link -> decode -> sign -> both parties emailed', async () => {
-  // 1. John fills the creator and it produces a link.
-  const url = signingUrl(sample);
-  assert.deepEqual(contractGaps(sample), [], 'creator should report it is ready to send');
+  // 1. Riaad fills the creator, signs, and it produces a link.
+  const officeSigned = { ...sample, signerIndex: 1, repSignature: repInk };
+  const url = signingUrl(officeSigned);
+  assert.deepEqual(contractGaps(officeSigned), [], 'creator should report it is ready to send');
 
   // 2. The covering email carries that exact link.
-  const { body } = coveringEmail(sample, url);
+  const { body } = coveringEmail(officeSigned, url);
   assert.ok(body.includes(url));
 
   // 3. The customer opens it; the sign page decodes the same agreement.
@@ -856,6 +869,8 @@ await test('creator link -> decode -> sign -> both parties emailed', async () =>
   const decoded = decodeContract(token);
   assert.equal(decoded.clientName, sample.clientName);
   assert.equal(decoded.projectPrice, sample.projectPrice);
+  assert.equal(decoded.signerIndex, 1);
+  assert.equal(decoded.repSignature, repInk);
 
   // 4. What they read matches what John built, clause for clause.
   assert.deepEqual(

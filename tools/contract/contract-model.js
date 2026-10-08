@@ -20,6 +20,8 @@
  * schedule. Keep the shared renderers and link codec in sync when changing it.
  */
 
+import { validSignature } from './signature-ink.js';
+
 export const SIGNERS = [
   { name: 'John Scime', title: 'On behalf of Seven Stones Landscape' },
   { name: 'Riaad Hamadi', title: 'On behalf of Seven Stones Landscape' }
@@ -95,7 +97,7 @@ export const DEFAULTS = {
   exclusions: '',
 
   signerIndex: 0,
-  signatureData: ''           // never encoded into a link, see packContract
+  repSignature: ''
 };
 
 /* ============================================================
@@ -202,8 +204,7 @@ export function priceBreakdown(d) {
    LINK CODEC
    The agreement travels inside the signing link, so there is no database to keep
    in sync and no record to go stale. Keys are one or two characters to keep the
-   URL short. The drawn signature is deliberately left out - far too large for a
-   URL, and the countersignature is attested by name and date on the signing page.
+   URL short. The representative's compact pen strokes travel with the agreement.
    ============================================================ */
 
 const PACK_KEYS = [
@@ -214,7 +215,7 @@ const PACK_KEYS = [
   ['projectPrice', 'pp'], ['taxRate', 'tr'], ['depositPercent', 'dp'], ['paymentPlan', 'pl'],
   ['paymentMethod', 'pm'], ['issuedAt', 'ia'], ['nonce', 'nc'],
   ['scope', 'sc'], ['exclusions', 'ex'],
-  ['signerIndex', 'si']
+  ['signerIndex', 'si'], ['repSignature', 'rs']
 ];
 
 function utf8ToBase64Url(str) {
@@ -244,6 +245,7 @@ export function packContract(d) {
   const out = {};
   for (const [full, short] of PACK_KEYS) {
     let v = d[full];
+    if (full === 'repSignature' && !validSignature(v)) continue;
     // Drop anything absent or empty; unpack rebuilds it from DEFAULTS.
     if (v === undefined || v === null || v === '' || (Array.isArray(v) && v.length === 0)) continue;
     out[short] = v;
@@ -267,6 +269,7 @@ export function unpackContract(packed) {
   const dp = Number(d.depositPercent);
   d.depositPercent = Number.isFinite(dp) && dp >= 0 && dp <= 100 ? dp : DEFAULTS.depositPercent;
   if (!SIGNERS[d.signerIndex]) d.signerIndex = DEFAULTS.signerIndex;
+  if (!validSignature(d.repSignature)) d.repSignature = '';
   if (!PAYMENT_PLANS.some((p) => p.id === d.paymentPlan)) d.paymentPlan = DEFAULTS.paymentPlan;
   if (!PAYMENT_METHODS.includes(d.paymentMethod)) d.paymentMethod = DEFAULTS.paymentMethod;
   const ia = Number(d.issuedAt);

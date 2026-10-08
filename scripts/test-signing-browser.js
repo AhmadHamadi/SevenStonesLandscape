@@ -32,6 +32,7 @@ const d = {
   siteAddress: '18 Ridgemount Ave, Hamilton, ON',
   agreementDate: m.todayISO(), startDate: '2026-09-22', completeDate: '2026-10-10',
   projectPrice: '28500', depositPercent: 15, paymentMethod: 'Cash or e-transfer',
+  signerIndex: 1, repSignature: '100,500;200,350;300,580;420,400|450,500;560,420;680,510',
   scope: '450 sq ft rear interlock patio, Unilock Beacon Hill Flag\n8 inch compacted granular A base\nTwo-tier seat wall, 14 ft',
   exclusions: 'Deck removal\nPermit fees'
 };
@@ -91,6 +92,8 @@ await test('the page renders the agreement', async () => {
   const txt = await page.locator('body').innerText();
   ok(txt.includes('450 sq ft rear interlock patio'), 'the work is missing');
   ok(txt.includes('$32,205'), 'the total is missing');
+  ok(await page.locator('.paper .sig-block').first().locator('.sig-slot img').count() === 1,
+    'Riaad signature is missing above his name');
 });
 
 await test('no JavaScript errors on load', () => {
@@ -150,7 +153,8 @@ await test('the PDF is one page with the signature embedded as an image', () => 
   const raw = buf.toString('latin1');
   const pages = (raw.match(/\/Type\s*\/Page[^s]/g) || []).length;
   ok(pages === 1, 'PDF is ' + pages + ' pages, should be one');
-  ok(/\/Subtype\s*\/Image/.test(raw), 'no image - the signature did not embed');
+  ok((raw.match(/\/Subtype\s*\/Image/g) || []).length >= 2,
+    'both representative and customer signatures did not embed');
   ok(/\/Font/.test(raw), 'no font - the text is not selectable');
   console.log('        (' + pages + ' page, ' + Math.round(buf.length / 1024) + 'KB)');
 });
