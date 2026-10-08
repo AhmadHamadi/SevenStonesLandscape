@@ -5,11 +5,8 @@
  *   node scripts/test-office-browser.js
  *   node scripts/test-office-browser.js http://localhost:3000
  *
- * Not part of `npm test`, because it needs a browser download. It covers what
- * jsdom cannot: real layout. It was written after a fixed three-column dates row
- * clipped the completion date out of view at desktop widths - a field the
- * Consumer Protection Act requires - which every assertion-based test missed
- * because the value was set correctly, just invisible.
+ * Not part of `npm test`, because it needs a browser download. It covers real
+ * layout, optional date checkboxes, signer choices, and the compact agreement.
  *
  * It also proves the creator makes no network calls at all, and that the archive
  * refuses to show a customer contract without the passphrase.
@@ -40,6 +37,8 @@ await test('creator loads with no JS errors', () => ok(errors.length === 0, erro
 await test('the service checkboxes are gone, one description box remains', async () => {
   ok(await page.locator('#services').count() === 0, 'service checkboxes still there');
   ok(await page.locator('#scope').count() === 1, 'no description box');
+  ok(await page.locator('#clientAddress').count() === 0, 'mailing address field still exists');
+  ok(await page.locator('#warrantyYears').count() === 0, 'warranty field still exists');
 });
 
 await test('cash is offered as a payment method', async () => {
@@ -52,25 +51,38 @@ await test('deposit presets are offered', async () => {
   ok(await page.locator('#depositPresets option').count() >= 5, 'no deposit presets');
 });
 
+await test('John and Riaad are available as contract signers', async () => {
+  const options = await page.locator('#signerIndex option').allTextContents();
+  ok(options.some((x) => /John Scime/.test(x)), options.join(', '));
+  ok(options.some((x) => /Riaad Hamadi/.test(x)), options.join(', '));
+});
+
 await test('an empty form lists what is missing', async () => {
   const g = await page.locator('#gaps').innerText();
   for (const want of ['Customer name', 'Price for the work', 'Description of the work',
-                      'Start date', 'Completion date']) {
+                      'Customer email', 'Property address']) {
     ok(g.includes(want), 'gap missing: ' + want + '  (' + g.replace(/\n/g, ' ') + ')');
   }
+  ok(!/Start date|Completion date/.test(g), 'optional dates still block the agreement');
 });
 
-await test('filling the seven required fields reaches Ready to send', async () => {
+await test('filling the required fields reaches Ready to send without dates', async () => {
   await page.fill('#clientName', 'Jane & Mark Whitfield');
   await page.fill('#clientEmail', 'jane@example.com');
   await page.fill('#siteAddress', '18 Ridgemount Ave, Hamilton, ON');
-  await page.fill('#startDate', '2026-09-22');
-  await page.fill('#completeDate', '2026-10-10');
   await page.fill('#projectPrice', '28500');
   await page.fill('#scope', '450 sq ft rear interlock patio\n8 inch granular A base');
   await page.waitForTimeout(400);
   const g = await page.locator('#gaps').innerText();
   ok(/Ready to send/.test(g), 'still gapped: ' + g.replace(/\n/g, ' '));
+});
+
+await test('date checkboxes reveal and include only selected dates', async () => {
+  await page.locator('#includeStartDate').check();
+  await page.fill('#startDate', '2026-09-22');
+  const preview = await page.locator('#doc .sheet').innerText();
+  ok(preview.includes('September 22, 2026'), 'selected start date missing');
+  ok(!preview.includes('October 10, 2026'), 'unchecked completion date appeared');
 });
 
 await test('the totals and the statutory cap are right', async () => {
@@ -84,7 +96,15 @@ await test('the live preview shows the finished contract', async () => {
   const s = await page.locator('#doc .sheet').innerText();
   ok(s.includes('450 sq ft rear interlock patio'), 'work missing');
   ok(!/ICPI/i.test(s), 'ICPI present');
-  ok(await page.locator('#doc .clause').count() === 3, 'clause count is not 3');
+  ok(await page.locator('#doc .clause').count() === 2, 'clause count is not 2');
+  ok(!/Terms|Warranty|Site\.|General\.|WSIB|insurance/i.test(s), 'removed section text is still present');
+});
+
+await test('the signer choice updates the agreement', async () => {
+  await page.selectOption('#signerIndex', '1');
+  const preview = await page.locator('#doc .sheet').innerText();
+  ok(preview.includes('Riaad Hamadi'), 'selected signer is missing from preview');
+  ok(preview.includes('On behalf of Seven Stones Landscape'), 'signer title is missing');
 });
 
 await test('the signing link and covering email are produced', async () => {
@@ -93,6 +113,7 @@ await test('the signing link and covering email are produced', async () => {
   const body = await page.inputValue('#emailBody');
   ok(body.includes(link), 'email body does not carry the same link');
   ok(body.includes('$32,205'), 'email lacks the total');
+  ok(body.includes('Riaad Hamadi'), 'email does not show the selected signer');
   ok((await page.inputValue('#emailSubject')).includes('Jane'), 'bad subject');
   ok((await page.locator('#linkLen').innerText()).includes('48 hours'), 'no expiry note');
 });

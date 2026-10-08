@@ -58,6 +58,8 @@
   .f textarea{min-height:96px;resize:vertical;line-height:1.6;}
   .f input:focus,.f select:focus,.f textarea:focus{border-color:var(--brand);}
   .f .hint{font-size:11.5px;color:var(--muted);margin-top:4px;line-height:1.45;}
+  .date-field .date-check{display:flex;align-items:center;gap:6px;margin-bottom:6px;color:var(--ink);font-size:11px;letter-spacing:0;}
+  .date-check input{width:15px;height:15px;margin:0;accent-color:var(--brand);}
   .opt{font-weight:500;text-transform:none;letter-spacing:0;color:#9AA5B3;font-size:10.5px;}
   .lede{margin:0 0 14px;font-size:12.5px;line-height:1.55;color:var(--muted);
     background:var(--band-soft);border-left:3px solid var(--brand);
@@ -116,7 +118,7 @@
   @media (max-width:560px){ .row,.row3{grid-template-columns:1fr;} }
 
   @media print{
-    @page{size:letter portrait;margin:12mm;}
+    @page{size:letter portrait;margin:7mm;}
     body{background:#fff;}
     .shell{max-width:none;padding:0;}
     .bar,.panel,.preview-bar,.noprint{display:none !important;}
@@ -124,6 +126,23 @@
     .preview{border:0;border-radius:0;overflow:visible;}
     .preview-scroll{max-height:none;overflow:visible;}
     .sheet{padding:0 !important;}
+    .sheet{zoom:.78;font-size:8pt;line-height:1.25;}
+    .sheet-head{padding-bottom:6px;}
+    .sheet-logo{width:34px;height:34px;}
+    .sheet-title{font-size:12pt;margin:7px 0 1px;}
+    .sheet-sub{font-size:7pt;margin-bottom:7px;}
+    .sheet-summary{font-size:7.5pt;margin-bottom:7px;}
+    .sheet-summary th,.sheet-summary td{padding:3px 6px;}
+    .clause{margin-bottom:5px;}
+    .clause h2{font-size:8.5pt;margin-bottom:1px;}
+    .clause-body p,.clause-body .doc-list{margin-top:2px;margin-bottom:2px;}
+    .clause-body .doc-list li{margin:1px 0;}
+    .sheet-sigs{margin-top:8px;padding-top:7px;}
+    .sheet-sigs-lead{font-size:7.5pt;margin-bottom:7px;}
+    .sig-slot{height:32px;}
+    .sig-slot img{max-height:30px;}
+    .sig-date{margin-top:6px;}
+    .sheet-foot{margin-top:8px;padding-top:5px;}
   }
   @media (prefers-reduced-motion:reduce){*{transition:none !important;}}
 </style>
@@ -148,8 +167,7 @@
 
       <div class="panel">
         <h2>Customer</h2>
-        <p class="lede">Seven things are needed: name, email, property address, the three
-          dates, a description of the work, and a price. Everything else is optional &mdash; the box at the bottom
+        <p class="lede">Add the customer, property, work and price. Dates and other details are optional &mdash; the box at the bottom
           tells you what is still missing.</p>
         <div class="f">
           <label for="clientName">Customer name</label>
@@ -174,10 +192,6 @@
           <input type="text" id="siteAddress" autocomplete="street-address">
         </div>
         <div class="f">
-          <label for="clientAddress">Mailing address <span class="opt">only if different</span></label>
-          <input type="text" id="clientAddress">
-        </div>
-        <div class="f">
           <label for="clientTitle">Described as <span class="opt">optional</span></label>
           <input type="text" id="clientTitle" placeholder="Homeowner">
         </div>
@@ -186,21 +200,23 @@
       <div class="panel">
         <h2>Dates</h2>
         <div class="row3">
-          <div class="f">
+          <div class="f date-field">
+            <label class="date-check"><input type="checkbox" id="includeAgreementDate"> Include agreement date</label>
             <label for="agreementDate">Agreement</label>
-            <input type="date" id="agreementDate">
+            <input type="date" id="agreementDate" disabled>
           </div>
-          <div class="f">
+          <div class="f date-field">
+            <label class="date-check"><input type="checkbox" id="includeStartDate"> Include start date</label>
             <label for="startDate">Work starts</label>
-            <input type="date" id="startDate">
+            <input type="date" id="startDate" disabled>
           </div>
-          <div class="f">
+          <div class="f date-field">
+            <label class="date-check"><input type="checkbox" id="includeCompleteDate"> Include completion date</label>
             <label for="completeDate">Complete by</label>
-            <input type="date" id="completeDate">
+            <input type="date" id="completeDate" disabled>
           </div>
         </div>
-        <p class="note">Start and completion dates are required on a consumer contract in Ontario. An
-          approximate date is fine &mdash; clause 3 already allows for weather and ground conditions.</p>
+        <p class="note">Tick a date to include it. You can leave any date off this agreement.</p>
       </div>
 
       <div class="panel">
@@ -252,17 +268,10 @@
       </div>
 
       <div class="panel">
-        <h2>Warranty and signer</h2>
-        <div class="row">
-          <div class="f">
-            <label for="warrantyYears">Workmanship warranty (years)</label>
-            <input type="number" id="warrantyYears" min="0" max="25" step="1" value="5">
-            <div class="hint">0 removes the warranty clause entirely and renumbers the rest.</div>
-          </div>
-          <div class="f">
-            <label for="signerIndex">Signed for Seven Stones by</label>
-            <select id="signerIndex"></select>
-          </div>
+        <h2>Contract signer</h2>
+        <div class="f">
+          <label for="signerIndex">Signed for Seven Stones by</label>
+          <select id="signerIndex"></select>
         </div>
       </div>
 

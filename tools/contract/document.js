@@ -102,10 +102,10 @@ export function renderDocument(d, opts = {}) {
   sheet.appendChild(el('h1', 'sheet-title', 'Work Agreement'));
   sheet.appendChild(el(
     'p', 'sheet-sub',
-    `${agreementDate ? `Dated ${agreementDate}` : 'Dated ________________'} · Ref ${reference}`
+    `${d.includeAgreementDate && agreementDate ? `Dated ${agreementDate} · ` : ''}Ref ${reference}`
   ));
 
-  /* ---------- terms at a glance ---------- */
+  /* ---------- agreement summary ---------- */
   const table = el('table', 'sheet-summary');
   const tbody = el('tbody');
 
@@ -128,30 +128,27 @@ export function renderDocument(d, opts = {}) {
   });
 
   row('Property', (td) => {
-    td.appendChild(document.createTextNode(d.siteAddress || d.clientAddress || '________________'));
+    td.appendChild(document.createTextNode(d.siteAddress || '________________'));
   });
 
   row('Price', (td) => {
     if (!p) { td.appendChild(document.createTextNode('________________')); return; }
-    td.appendChild(el('strong', null, money(p.total, d.currency)));
-    td.appendChild(el('div', 'muted',
-      `${money(p.base, d.currency)} plus HST at ${p.taxRate}% (${money(p.tax, d.currency)})`));
+    td.appendChild(el('strong', null, `Total ${money(p.total, d.currency)}`));
   });
 
   row('Payment', (td) => {
     if (!p) { td.appendChild(document.createTextNode('________________')); return; }
     const parts = [];
-    if (p.deposit > 0) parts.push(`${money(p.deposit, d.currency)} deposit on signing`);
-    for (const i of p.instalments) parts.push(`${money(i.value, d.currency)} ${i.label.toLowerCase()}`);
+    if (p.deposit > 0) parts.push(`Deposit ${money(p.deposit, d.currency)} on signing`);
+    p.instalments.slice(0, 2).forEach((i, index) =>
+      parts.push(`${index === 0 ? 'First payment' : 'Second payment'} ${money(i.value, d.currency)} ${i.label.toLowerCase()}`));
     td.appendChild(document.createTextNode(parts.join(', ')));
   });
 
-  row('Dates', (td) => {
-    const s = longDate(d.startDate);
-    const c = longDate(d.completeDate);
-    td.appendChild(document.createTextNode(
-      s || c ? `${s || '________'} to ${c || '________'}` : '________________'
-    ));
+  const start = d.includeStartDate ? longDate(d.startDate) : '';
+  const complete = d.includeCompleteDate ? longDate(d.completeDate) : '';
+  if (start || complete) row('Dates', (td) => {
+    td.appendChild(document.createTextNode([start && `Starts ${start}`, complete && `Complete by ${complete}`].filter(Boolean).join(' · ')));
   });
 
   table.appendChild(tbody);
@@ -170,7 +167,7 @@ export function renderDocument(d, opts = {}) {
   /* ---------- signatures ---------- */
   const sigs = el('section', 'sheet-sigs');
   sigs.appendChild(el('p', 'sheet-sigs-lead',
-    'The parties agree to the terms above and have signed on the dates shown.'));
+    'The parties agree to the work and payment described above and sign below.'));
 
   const grid = el('div', 'sig-grid');
 
@@ -205,7 +202,7 @@ export function renderDocument(d, opts = {}) {
   const footer = el('footer', 'sheet-foot');
   footer.appendChild(el('span', null, `${AGENCY.legalName} — Work Agreement`));
   footer.appendChild(el('span', null,
-    `${d.clientName || 'Customer'}${agreementDate ? ` · ${agreementDate}` : ''} · ${reference}`));
+    `${d.clientName || 'Customer'}${d.includeAgreementDate && agreementDate ? ` · ${agreementDate}` : ''} · ${reference}`));
   sheet.appendChild(footer);
 
   return sheet;

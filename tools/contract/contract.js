@@ -11,7 +11,7 @@
 import {
   DEFAULTS, SIGNERS, PAYMENT_PLANS, PAYMENT_METHODS, DEPOSIT_PRESETS, AGENCY,
   priceBreakdown, money, signingUrl, coveringEmail, contractGaps,
-  todayISO, ESTIMATE_OVERRUN_CAP, LINK_EXPIRY_HOURS
+  ESTIMATE_OVERRUN_CAP, LINK_EXPIRY_HOURS
 } from './contract-model.js';
 import { renderDocument, DOCUMENT_CSS } from './document.js';
 
@@ -30,12 +30,17 @@ let d = { ...DEFAULTS };
    Field wiring
    ------------------------------------------------------------------ */
 const TEXT_FIELDS = [
-  'clientName', 'clientContact', 'clientTitle', 'clientAddress', 'siteAddress',
+  'clientName', 'clientContact', 'clientTitle', 'siteAddress',
   'clientEmail', 'clientPhone', 'agreementDate', 'startDate', 'completeDate',
   'projectPrice', 'scope', 'exclusions'
 ];
-const NUMBER_FIELDS = ['taxRate', 'depositPercent', 'warrantyYears', 'signerIndex'];
+const NUMBER_FIELDS = ['taxRate', 'depositPercent', 'signerIndex'];
 const SELECT_FIELDS = ['paymentPlan', 'paymentMethod'];
+const CHECKBOX_FIELDS = ['includeAgreementDate', 'includeStartDate', 'includeCompleteDate'];
+const CHECKBOX_TARGETS = {
+  includeAgreementDate: 'agreementDate', includeStartDate: 'startDate',
+  includeCompleteDate: 'completeDate'
+};
 
 function buildSelects() {
   const plan = $('paymentPlan');
@@ -55,7 +60,7 @@ function buildSelects() {
     o.textContent = `${s.name} — ${s.title}`;
     signer.appendChild(o);
   });
-  // One signer today; the control is noise until there are two.
+  // Keep the selector hidden only when there is no choice to make.
   signer.closest('.f').hidden = SIGNERS.length < 2;
 
   const method = $('paymentMethod');
@@ -82,12 +87,26 @@ function readForm() {
     const raw = $(id).value;
     d[id] = raw === '' ? DEFAULTS[id] : Number(raw);
   }
+  for (const id of CHECKBOX_FIELDS) {
+    d[id] = $(id).checked;
+    const inputId = CHECKBOX_TARGETS[id];
+    $(inputId).disabled = !d[id];
+    if (!d[id]) {
+      $(inputId).value = '';
+      d[inputId] = '';
+    }
+  }
   for (const id of SELECT_FIELDS) d[id] = $(id).value;
 }
 
 function writeForm() {
   for (const id of TEXT_FIELDS) $(id).value = d[id] ?? '';
   for (const id of NUMBER_FIELDS) $(id).value = d[id] ?? '';
+  for (const id of CHECKBOX_FIELDS) {
+    $(id).checked = Boolean(d[id]);
+    const inputId = CHECKBOX_TARGETS[id];
+    $(inputId).disabled = !$(id).checked;
+  }
   for (const id of SELECT_FIELDS) $(id).value = d[id] ?? '';
 }
 
@@ -118,11 +137,10 @@ function renderTotals() {
     host.appendChild(row);
   };
 
-  line('Subtotal', money(p.base, d.currency));
-  line(`HST ${p.taxRate}%`, money(p.tax, d.currency));
   line('Total', money(p.total, d.currency), true);
   if (p.deposit > 0) line(`Deposit ${p.depositPercent}%`, money(p.deposit, d.currency));
-  for (const i of p.instalments) line(i.label, money(i.value, d.currency));
+  p.instalments.slice(0, 2).forEach((i, index) =>
+    line(index === 0 ? 'First payment' : 'Second payment', money(i.value, d.currency)));
 
   $('capNote').textContent =
     `The Consumer Protection Act caps the final price at ${money(p.cap, d.currency)} ` +
@@ -192,6 +210,9 @@ function load() {
     const saved = JSON.parse(raw);
     if (saved && typeof saved === 'object' && !Array.isArray(saved)) {
       d = { ...DEFAULTS, ...saved };
+      if (!Object.hasOwn(saved, 'includeAgreementDate')) d.includeAgreementDate = Boolean(d.agreementDate);
+      if (!Object.hasOwn(saved, 'includeStartDate')) d.includeStartDate = Boolean(d.startDate);
+      if (!Object.hasOwn(saved, 'includeCompleteDate')) d.includeCompleteDate = Boolean(d.completeDate);
     }
   } catch (e) { /* corrupt draft: fall back to defaults rather than dying on load */ }
 }
@@ -216,7 +237,7 @@ function update(opts = {}) {
 /* ------------------------------------------------------------------
    Wiring
    ------------------------------------------------------------------ */
-for (const id of [...TEXT_FIELDS, ...NUMBER_FIELDS, ...SELECT_FIELDS]) {
+for (const id of [...TEXT_FIELDS, ...NUMBER_FIELDS, ...SELECT_FIELDS, ...CHECKBOX_FIELDS]) {
   const node = $(id);
   node.addEventListener('input', () => update());
   node.addEventListener('change', () => update());
@@ -242,6 +263,21 @@ for (const btn of document.querySelectorAll('[data-copy]')) {
   });
 }
 
+window.addEventListener('beforeprint', () => {
+  const sheet = document.querySelector('.sheet');
+  if (!sheet) return;
+  const printableHeight = 11 * 96 - 2 * (7 * 96 / 25.4);
+  const currentZoom = Number.parseFloat(getComputedStyle(sheet).zoom) || 1;
+  const naturalHeight = sheet.getBoundingClientRect().height / currentZoom;
+  const scale = Math.min(0.78, printableHeight / naturalHeight);
+  sheet.style.zoom = String(scale);
+});
+
+window.addEventListener('afterprint', () => {
+  const sheet = document.querySelector('.sheet');
+  if (sheet) sheet.style.removeProperty('zoom');
+});
+
 $('print').addEventListener('click', () => window.print());
 
 $('archive').addEventListener('click', () => { window.location.href = '/tools/signed/'; });
@@ -249,7 +285,6 @@ $('archive').addEventListener('click', () => { window.location.href = '/tools/si
 $('clear').addEventListener('click', () => {
   if (!confirm('Clear this contract and start a new one?')) return;
   d = { ...DEFAULTS };
-  d.agreementDate = todayISO();
   try { localStorage.removeItem(KEY); } catch (e) { /* nothing to remove */ }
   writeForm();
   update();
@@ -260,7 +295,6 @@ $('clear').addEventListener('click', () => {
    ------------------------------------------------------------------ */
 load();
 buildSelects();
-if (!d.agreementDate) d.agreementDate = todayISO();
 writeForm();
 update();
 

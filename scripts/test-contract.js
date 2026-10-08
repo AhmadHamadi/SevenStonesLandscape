@@ -68,11 +68,11 @@ const mockReq = (body, headers = {}) => ({
 /* ------------------------------------------------------------------ */
 const model = await import(pathToFileURL('./tools/contract/contract-model.js').href);
 const {
-  DEFAULTS, PAYMENT_PLANS, AGENCY,
+  DEFAULTS, PAYMENT_PLANS, AGENCY, SIGNERS,
   money, amount, longDate, todayISO, slugify,
   priceBreakdown, encodeContract, decodeContract, packContract, unpackContract,
   signingUrl, referenceFor, buildClauses, contractGaps, coveringEmail,
-  COOLING_OFF_DAYS, ESTIMATE_OVERRUN_CAP,
+  ESTIMATE_OVERRUN_CAP,
   linkExpiry, LINK_EXPIRY_HOURS, PAYMENT_METHODS, DEPOSIT_PRESETS
 } = model;
 
@@ -213,7 +213,7 @@ await test('a tampered numeric falls back rather than silently changing the mone
   const d = unpackContract({ ...packContract(sample), tr: 'evil', dp: 999, wy: -4 });
   assert.equal(d.taxRate, DEFAULTS.taxRate);
   assert.equal(d.depositPercent, DEFAULTS.depositPercent);
-  assert.equal(d.warrantyYears, DEFAULTS.warrantyYears);
+  assert.equal(d.signerIndex, DEFAULTS.signerIndex);
 });
 
 await test('an unknown payment plan falls back instead of dropping instalments', () => {
@@ -326,16 +326,16 @@ await test('clauses are numbered from one with no gaps', () => {
   c.forEach((clause, i) => assert.equal(clause.n, i + 1));
 });
 
-await test('the contract is three short clauses, not eleven', () => {
+await test('the contract contains only work and price/payment clauses', () => {
   const c = buildClauses(sample);
-  assert.equal(c.length, 3, c.map((x) => x.title).join(' | '));
-  assert.deepEqual(c.map((x) => x.title), ['The Work', 'Price and Payment', 'Terms']);
+  assert.equal(c.length, 2, c.map((x) => x.title).join(' | '));
+  assert.deepEqual(c.map((x) => x.title), ['The Work', 'Price and Payment']);
   c.forEach((x, i) => assert.equal(x.n, i + 1));
 });
 
 await test('the whole contract stays short enough for one page', () => {
   const words = buildClauses(sample)
-    .flatMap((c) => c.paras).join(' ').split(/s+/).length;
+    .flatMap((c) => c.paras).join(' ').split(/\s+/).length;
   assert.ok(words < 420, 'contract is ' + words + ' words, too long for one page');
 });
 
@@ -353,30 +353,29 @@ await test('an empty description still renders a blank line, never undefined', (
   assert.ok(!work.paras.join(' ').includes('undefined'));
 });
 
-await test('Terms always carries the cancellation right and the 10 percent cap', () => {
-  for (const variant of [sample, { ...sample, warrantyYears: 0 }, DEFAULTS]) {
-    const terms = buildClauses(variant).find((c) => c.title === 'Terms').paras.join(' ');
-    assert.ok(terms.includes(COOLING_OFF_DAYS + ' days'), 'no cancellation right');
-    assert.ok(terms.includes('Consumer Protection Act'), 'Act not cited');
-    assert.ok(terms.includes(ESTIMATE_OVERRUN_CAP + '%'), 'no price cap');
-  }
-});
-
-await test('the warranty line drops out at zero years and back in above it', () => {
-  const on = buildClauses(sample).find((c) => c.title === 'Terms').paras.join(' ');
-  const off = buildClauses({ ...sample, warrantyYears: 0 }).find((c) => c.title === 'Terms').paras.join(' ');
-  assert.ok(on.includes('Workmanship is warranted for 5 years'));
-  assert.ok(!off.includes('Workmanship is warranted'));
-  assert.equal(buildClauses({ ...sample, warrantyYears: 0 }).length, 3, 'clause count changed');
+await test('the agreement omits the removed terms, site, warranty and general sections', () => {
+  const all = buildClauses(sample).flatMap((c) => [c.title, ...c.paras]).join(' ');
+  assert.ok(!/Terms|Site\.|Warranty|General\.|insurance|WSIB|Consumer Protection Act/i.test(all));
 });
 
 await test('gaps catch every required field including the description', () => {
   const g = contractGaps(DEFAULTS);
   for (const want of ['Customer name', 'Customer email', 'Property address',
-                      'Price for the work', 'Description of the work',
-                      'Start date', 'Completion date']) {
+                      'Price for the work', 'Description of the work']) {
     assert.ok(g.some((x) => x.includes(want)), 'no gap for ' + want);
   }
+});
+
+await test('only the core customer, property, price and work fields are required', () => {
+  const minimal = {
+    ...DEFAULTS,
+    clientName: 'Jane Doe',
+    clientEmail: 'jane@example.com',
+    siteAddress: '18 Ridgemount Ave, Hamilton, ON',
+    projectPrice: '10000',
+    scope: 'Install a patio'
+  };
+  assert.deepEqual(contractGaps(minimal), []);
 });
 
 await test('the contract no longer claims an ICPI certification', () => {
@@ -390,21 +389,33 @@ await test('a complete contract reports no gaps', () => {
   assert.deepEqual(contractGaps(sample), []);
 });
 
-await test('gaps name the CPA-required dates', () => {
-  const g = contractGaps({ ...sample, startDate: '', completeDate: '' });
-  assert.ok(g.some((x) => /Start date/i.test(x)));
-  assert.ok(g.some((x) => /Completion date/i.test(x)));
+await test('optional dates only become required when their checkbox is selected', () => {
+  const none = contractGaps({ ...sample, startDate: '', completeDate: '', agreementDate: '' });
+  assert.ok(!none.some((x) => /date/i.test(x)));
+  const selected = contractGaps({ ...sample, includeStartDate: true, includeCompleteDate: true, startDate: '', completeDate: '' });
+  assert.ok(selected.some((x) => /Start date/i.test(x)));
+  assert.ok(selected.some((x) => /Completion date/i.test(x)));
 });
 
-await test('covering email carries the link, the money, and the cancellation note', () => {
+await test('covering email carries the link and compact payment summary', () => {
   const url = signingUrl(sample);
   const { subject, body } = coveringEmail(sample, url);
   assert.ok(subject.includes('Jane & Mark Whitfield'));
   assert.ok(body.includes(url));
-  assert.ok(body.includes('$32,205'));
-  assert.ok(body.includes(`${COOLING_OFF_DAYS} days`));
+  assert.ok(body.includes('Total: $32,205'));
+  assert.ok(body.includes('Deposit: $3,220.50'));
+  assert.ok(!/warranty|cancel for any reason|WSIB|insurance/i.test(body));
   assert.ok(body.includes('Jane'), 'should greet by first name');
   assert.ok(body.includes(AGENCY.phone));
+});
+
+await test('John and Riaad are both selectable representatives', () => {
+  assert.deepEqual(SIGNERS.map((signer) => signer.name), ['John Scime', 'Riaad Hamadi']);
+  for (const signer of SIGNERS) assert.match(signer.title, /on behalf of Seven Stones Landscape/i);
+  const riaad = unpackContract(packContract({ ...sample, signerIndex: 1 }));
+  assert.equal(riaad.signerIndex, 1);
+  assert.ok(coveringEmail(riaad, 'https://example.com').body.includes('Riaad Hamadi'));
+  assert.equal(unpackContract({ ...packContract(sample), si: 99 }).signerIndex, 0);
 });
 
 await test('covering email degrades gracefully on an empty contract', () => {

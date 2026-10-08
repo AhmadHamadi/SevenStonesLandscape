@@ -16,21 +16,13 @@
  * same wording renders to the screen, to an HTML email, and to plain text without
  * three copies drifting apart.
  *
- * LEGAL SHAPE. This is a business-to-consumer contract: a hardscape contractor and
- * a homeowner. That makes it a "direct agreement" under Ontario's Consumer
- * Protection Act, 2002 whenever it is signed away from the company's own premises,
- * which is nearly always. Three things follow, and they are why this clause set is
- * not the marketing agreement it was adapted from:
- *   - the customer gets 10 days to cancel for any reason (CPA s.43);
- *   - the final price may not exceed the estimate by more than 10% (CPA s.10);
- *   - the agreement must state what is being done, itemised, and when it starts
- *     and ends (O. Reg. 17/05 s.35).
- * The clauses below are written to satisfy all three. Have a lawyer read them
- * before the first one goes out.
+ * The generated agreement currently contains the work description and price/payment
+ * schedule. Keep the shared renderers and link codec in sync when changing it.
  */
 
 export const SIGNERS = [
-  { name: 'John Scime', title: 'Owner, Seven Stones Landscape' }
+  { name: 'John Scime', title: 'On behalf of Seven Stones Landscape' },
+  { name: 'Riaad Hamadi', title: 'On behalf of Seven Stones Landscape' }
 ];
 
 /** How the customer pays. Cash is a real option on a job this size, so it is listed. */
@@ -52,8 +44,7 @@ export const LINK_EXPIRY_HOURS = 48;
 
 /** How the balance is split after the deposit. Mirrors tools/estimate-contract/. */
 export const PAYMENT_PLANS = [
-  { id: 'startComplete', label: 'Half on start, half on completion' },
-  { id: 'thirds',        label: 'Thirds: start, midpoint, completion' },
+  { id: 'startComplete', label: 'Two payments: start and completion' },
   { id: 'completion',    label: 'Full balance on completion' }
 ];
 
@@ -80,7 +71,6 @@ export const DEFAULTS = {
   clientName: '',
   clientContact: '',
   clientTitle: 'Homeowner',
-  clientAddress: '',
   siteAddress: '',
   clientEmail: '',
   clientPhone: '',
@@ -88,6 +78,9 @@ export const DEFAULTS = {
   agreementDate: '',
   startDate: '',
   completeDate: '',
+  includeAgreementDate: false,
+  includeStartDate: false,
+  includeCompleteDate: false,
   currency: 'CAD',
 
   projectPrice: '',
@@ -101,7 +94,6 @@ export const DEFAULTS = {
   scope: '',
   exclusions: '',
 
-  warrantyYears: 5,
   signerIndex: 0,
   signatureData: ''           // never encoded into a link, see packContract
 };
@@ -194,14 +186,6 @@ export function priceBreakdown(d) {
   let instalments;
   if (d.paymentPlan === 'completion') {
     instalments = [{ label: 'On completion', value: balance }];
-  } else if (d.paymentPlan === 'thirds') {
-    const a = round2(balance / 3);
-    const b = round2(balance / 3);
-    instalments = [
-      { label: 'On start', value: a },
-      { label: 'At midpoint', value: b },
-      { label: 'On completion', value: round2(balance - a - b) }
-    ];
   } else {
     const a = round2(balance / 2);
     instalments = [
@@ -226,10 +210,11 @@ const PACK_KEYS = [
   ['clientName', 'n'], ['clientContact', 'c'], ['clientTitle', 't'],
   ['clientAddress', 'a'], ['siteAddress', 'sa'], ['clientEmail', 'e'], ['clientPhone', 'p'],
   ['agreementDate', 'ad'], ['startDate', 'sd'], ['completeDate', 'cd'], ['currency', 'cu'],
+  ['includeAgreementDate', 'iad'], ['includeStartDate', 'isd'], ['includeCompleteDate', 'icd'],
   ['projectPrice', 'pp'], ['taxRate', 'tr'], ['depositPercent', 'dp'], ['paymentPlan', 'pl'],
   ['paymentMethod', 'pm'], ['issuedAt', 'ia'], ['nonce', 'nc'],
   ['scope', 'sc'], ['exclusions', 'ex'],
-  ['warrantyYears', 'wy'], ['signerIndex', 'si']
+  ['signerIndex', 'si']
 ];
 
 function utf8ToBase64Url(str) {
@@ -271,14 +256,17 @@ export function unpackContract(packed) {
   for (const [full, short] of PACK_KEYS) {
     if (packed[short] !== undefined) d[full] = packed[short];
   }
+  // Older signing links predate the include-date checkboxes; preserve their dates.
+  if (packed.iad === undefined) d.includeAgreementDate = Boolean(d.agreementDate);
+  if (packed.isd === undefined) d.includeStartDate = Boolean(d.startDate);
+  if (packed.icd === undefined) d.includeCompleteDate = Boolean(d.completeDate);
   d.signerIndex = Number(d.signerIndex) || 0;
   // A tampered or truncated numeric must not silently become 0 and change the money.
   const tr = Number(d.taxRate);
   d.taxRate = Number.isFinite(tr) && tr >= 0 && tr <= 100 ? tr : DEFAULTS.taxRate;
   const dp = Number(d.depositPercent);
   d.depositPercent = Number.isFinite(dp) && dp >= 0 && dp <= 100 ? dp : DEFAULTS.depositPercent;
-  const wy = Number(d.warrantyYears);
-  d.warrantyYears = Number.isFinite(wy) && wy >= 0 ? wy : DEFAULTS.warrantyYears;
+  if (!SIGNERS[d.signerIndex]) d.signerIndex = DEFAULTS.signerIndex;
   if (!PAYMENT_PLANS.some((p) => p.id === d.paymentPlan)) d.paymentPlan = DEFAULTS.paymentPlan;
   if (!PAYMENT_METHODS.includes(d.paymentMethod)) d.paymentMethod = DEFAULTS.paymentMethod;
   const ia = Number(d.issuedAt);
@@ -359,9 +347,8 @@ const BLANK = '________________';
 export function buildClauses(d) {
   const p = priceBreakdown(d);
 
-  const startOn = longDate(d.startDate) || BLANK;
-  const finishOn = longDate(d.completeDate) || BLANK;
-  const years = Number(d.warrantyYears) || 0;
+  const startOn = d.includeStartDate ? longDate(d.startDate) : '';
+  const finishOn = d.includeCompleteDate ? longDate(d.completeDate) : '';
 
   const clauses = [];
   const add = (title, paras) => clauses.push({ n: clauses.length + 1, title, paras });
@@ -378,21 +365,20 @@ export function buildClauses(d) {
       ? ['**Not included:** ' + String(d.exclusions).trim().split(/\n+/)
           .map((l) => l.trim()).filter(Boolean).join('; ') + '.']
       : []),
-    `Work starts **${startOn}** and is to be substantially complete by **${finishOn}**, ` +
-    'weather and ground conditions permitting.'
+    ...(startOn ? [`Work starts **${startOn}**, weather and ground conditions permitting.`] : []),
+    ...(finishOn ? [`Substantial completion is expected by **${finishOn}**, weather and ground conditions permitting.`] : [])
   ]);
 
   /* 2. PRICE AND PAYMENT ----------------------------------------------- */
   const lines = [];
   if (p) {
-    lines.push(`- Price ${money(p.base, d.currency)} plus HST ${p.taxRate}% ` +
-      `(${money(p.tax, d.currency)}) = **${money(p.total, d.currency)}**`);
+    lines.push(`- **Total: ${money(p.total, d.currency)}**`);
     if (p.deposit > 0) {
-      lines.push(`- **${money(p.deposit, d.currency)} deposit** (${p.depositPercent}%) on signing`);
+      lines.push(`- Deposit: **${money(p.deposit, d.currency)}** (${p.depositPercent}%) on signing`);
     }
-    for (const i of p.instalments) {
-      lines.push(`- **${money(i.value, d.currency)}** ${i.label.toLowerCase()}`);
-    }
+    p.instalments.slice(0, 2).forEach((i, index) => {
+      lines.push(`- ${index === 0 ? 'First payment' : 'Second payment'}: **${money(i.value, d.currency)}** ${i.label.toLowerCase()}`);
+    });
   } else {
     lines.push(`- Price ${BLANK}`);
   }
@@ -400,49 +386,6 @@ export function buildClauses(d) {
     lines.push(`Payable by **${d.paymentMethod}**.`);
   }
   add('Price and Payment', lines);
-
-  /* 3. TERMS ------------------------------------------------------------
-     Everything a one-page contract still has to say. The cancellation right
-     and the 10% cap are required by the Consumer Protection Act, 2002; the
-     rest are the protections worth keeping in a single line each. */
-  const terms = [];
-
-  terms.push(
-    `**Your right to cancel.** This agreement is signed away from our place of business, which makes ` +
-    `it a direct agreement under Ontario's Consumer Protection Act, 2002. **You may cancel it for any ` +
-    `reason within ${COOLING_OFF_DAYS} days** of receiving your copy, in writing to ${AGENCY.email}. ` +
-    `Any deposit is refunded within 15 days.`
-  );
-
-  terms.push(
-    p
-      ? `**Price.** The final price will not exceed ${money(p.cap, d.currency)} — this agreement plus ` +
-        `${ESTIMATE_OVERRUN_CAP}% — unless you agree to extra work in writing.`
-      : `**Price.** The final price will not exceed this agreement by more than ${ESTIMATE_OVERRUN_CAP}% ` +
-        'unless you agree to extra work in writing.'
-  );
-
-  if (years > 0) {
-    terms.push(
-      `**Warranty.** Workmanship is warranted for ${years} year${years === 1 ? '' : 's'}. Pavers carry ` +
-      'their own manufacturer warranty. Not covered: efflorescence, natural stone colour variation, ' +
-      'de-icing salt, vehicle loading on a surface built for foot traffic, and damage by others.'
-    );
-  }
-
-  terms.push(
-    '**Site.** Please clear the work area and point out any private underground lines — irrigation, ' +
-    'lighting, pool or invisible fencing. We locate public utilities; private lines are not covered. ' +
-    'If we uncover something unexpected below grade we will stop and price it with you before continuing. ' +
-    'Permits, where needed, are yours unless listed above.'
-  );
-
-  terms.push(
-    `**General.** We carry liability insurance and WSIB coverage, available on request. Ontario law ` +
-    'applies. An electronic signature counts the same as ink.'
-  );
-
-  add('Terms', terms);
 
   return clauses;
 }
@@ -452,14 +395,12 @@ export function contractGaps(d) {
   const gaps = [];
   if (!String(d.clientName).trim())    gaps.push('Customer name');
   if (!String(d.clientEmail).trim())   gaps.push('Customer email (needed to send it)');
-  if (!String(d.siteAddress).trim() && !String(d.clientAddress).trim()) {
-    gaps.push('Property address');
-  }
+  if (!String(d.siteAddress).trim()) gaps.push('Property address');
   if (priceBreakdown(d) === null)      gaps.push('Price for the work');
   if (!String(d.scope).trim())         gaps.push('Description of the work');
-  if (!d.agreementDate) gaps.push('Agreement date');
-  if (!d.startDate)     gaps.push('Start date (required by the Consumer Protection Act)');
-  if (!d.completeDate)  gaps.push('Completion date (required by the Consumer Protection Act)');
+  if (d.includeAgreementDate && !d.agreementDate) gaps.push('Agreement date');
+  if (d.includeStartDate && !d.startDate) gaps.push('Start date');
+  if (d.includeCompleteDate && !d.completeDate) gaps.push('Completion date');
   return gaps;
 }
 
@@ -477,32 +418,29 @@ export function coveringEmail(d, url) {
 
   const moneyLines = p
     ? [
-        `- Price for the work: ${money(p.base, d.currency)} plus HST. Total ${money(p.total, d.currency)}.`,
+        `- Total: ${money(p.total, d.currency)}.`,
         ...(p.deposit > 0 ? [`- Deposit: ${money(p.deposit, d.currency)} on signing.`] : []),
-        ...p.instalments.map((i) => `- ${i.label}: ${money(i.value, d.currency)}.`)
+        ...p.instalments.slice(0, 2).map((i, index) =>
+          `- ${index === 0 ? 'First payment' : 'Second payment'}: ${money(i.value, d.currency)} ${i.label.toLowerCase()}.`)
       ]
     : ['- Price: [to be filled in]'];
 
   const body = [
     `Hi ${first},`,
     '',
-    `Thanks for having us out. Here is the agreement for ${d.siteAddress || d.clientAddress || 'your property'}, ` +
+    `Thanks for having us out. Here is the agreement for ${d.siteAddress || 'your property'}, ` +
     'attached as a PDF and linked below so you can sign it online.',
     '',
     'The short version:',
     ...moneyLines,
-    d.startDate ? `- Start: ${longDate(d.startDate)}.` : '',
-    d.completeDate ? `- Substantially complete by: ${longDate(d.completeDate)}.` : '',
-    Number(d.warrantyYears) > 0 ? `- Workmanship warranty: ${d.warrantyYears} years.` : '',
+    d.includeStartDate && d.startDate ? `- Start: ${longDate(d.startDate)}.` : '',
+    d.includeCompleteDate && d.completeDate ? `- Substantially complete by: ${longDate(d.completeDate)}.` : '',
     '',
     'To sign, open this link and scroll to the bottom:',
     url,
     '',
     'It takes about a minute. Sign with your finger or your mouse, and a copy of the signed agreement comes ' +
     'to you by email straight away.',
-    '',
-    `Worth knowing: because we signed this at your place rather than ours, you have ${COOLING_OFF_DAYS} days ` +
-    'to cancel for any reason. Nothing gets ordered before then unless you tell us to go ahead.',
     '',
     'Any questions before you sign, just reply here or give me a call.',
     '',

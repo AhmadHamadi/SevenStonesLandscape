@@ -80,7 +80,7 @@ export async function buildPdf(d, opts = {}) {
   const clauses = buildClauses(d);
   const p = priceBreakdown(d);
   const reference = referenceFor(d);
-  const agreementDate = longDate(d.agreementDate);
+  const agreementDate = d.includeAgreementDate ? longDate(d.agreementDate) : '';
   const contentW = PAGE.w - PAGE.margin * 2;
 
   let y = PAGE.margin;
@@ -166,20 +166,22 @@ export async function buildPdf(d, opts = {}) {
   );
   y += 18;
 
-  /* ---- terms at a glance ------------------------------------------------- */
+  /* ---- agreement summary ------------------------------------------------ */
   const summary = [
     ['Customer', [d.clientName, d.clientContact && d.clientContact !== d.clientName ? `— ${d.clientContact}` : '']
       .filter(Boolean).join(' ') || '________'],
-    ['Property', d.siteAddress || d.clientAddress || '________'],
-    ['Price', p ? `${money(p.total, d.currency)}  (${money(p.base, d.currency)} plus HST at ${p.taxRate}%)` : '________'],
+    ['Property', d.siteAddress || '________'],
+    ['Total', p ? money(p.total, d.currency) : '________'],
     ['Payment', p
-      ? [p.deposit > 0 ? `${money(p.deposit, d.currency)} deposit on signing` : '',
-         ...p.instalments.map((i) => `${money(i.value, d.currency)} ${i.label.toLowerCase()}`)]
+      ? [p.deposit > 0 ? `Deposit ${money(p.deposit, d.currency)} on signing` : '',
+         ...p.instalments.slice(0, 2).map((i, index) => `${index === 0 ? 'First payment' : 'Second payment'} ${money(i.value, d.currency)} ${i.label.toLowerCase()}`)]
         .filter(Boolean).join(', ')
       : '________'],
-    ['Dates', (longDate(d.startDate) || longDate(d.completeDate))
-      ? `${longDate(d.startDate) || '________'} to ${longDate(d.completeDate) || '________'}`
-      : '________']
+    ...((d.includeStartDate && longDate(d.startDate) || d.includeCompleteDate && longDate(d.completeDate)) ? [[
+      'Dates', [d.includeStartDate && longDate(d.startDate) && `Starts ${longDate(d.startDate)}`,
+        d.includeCompleteDate && longDate(d.completeDate) && `Complete by ${longDate(d.completeDate)}`]
+        .filter(Boolean).join(' · ')
+    ]] : [])
   ];
 
   const labelW = 96;
@@ -203,18 +205,18 @@ export async function buildPdf(d, opts = {}) {
   /* ---- clauses ----------------------------------------------------------- */
   for (const c of clauses) {
     room(30);
-    doc.setFont('helvetica', 'bold').setFontSize(10).setTextColor(...INK);
+    doc.setFont('helvetica', 'bold').setFontSize(8.5).setTextColor(...INK);
     doc.text(`${c.n}. ${c.title}`, PAGE.margin, y);
     y += 13;
 
     for (const para of c.paras) {
       if (para.startsWith('- ')) {
         room(12);
-        doc.setFont('helvetica', 'normal').setFontSize(8.8).setTextColor(...INK);
+        doc.setFont('helvetica', 'normal').setFontSize(7.6).setTextColor(...INK);
         doc.text('•', PAGE.margin + 8, y);
-        richText(para.slice(2), PAGE.margin + 20, contentW - 20, 8.8, 10.6);
+        richText(para.slice(2), PAGE.margin + 20, contentW - 20, 7.6, 8.8);
       } else {
-        richText(para, PAGE.margin, contentW, 8.8, 10.6);
+        richText(para, PAGE.margin, contentW, 7.6, 8.8);
       }
       y += 1.5;
     }
@@ -228,7 +230,7 @@ export async function buildPdf(d, opts = {}) {
   y += 15;
 
   doc.setFont('helvetica', 'normal').setFontSize(8.8).setTextColor(...INK);
-  doc.text('The parties agree to the terms above and have signed on the dates shown.', PAGE.margin, y);
+  doc.text('The parties agree to the work and payment described above and sign below.', PAGE.margin, y);
   y += 20;
 
   const colW = (contentW - 34) / 2;
