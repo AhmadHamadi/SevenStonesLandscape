@@ -74,6 +74,7 @@ export function renderDocument(d, opts = {}) {
   const signer = SIGNERS[d.signerIndex] || SIGNERS[0];
   const clauses = buildClauses(d);
   const agreementDate = longDate(d.agreementDate);
+  const repDate = longDate(d.repSignedAt);
   const p = priceBreakdown(d);
   const reference = referenceFor(d);
 
@@ -187,7 +188,7 @@ export function renderDocument(d, opts = {}) {
 
   grid.appendChild(block(
     `For ${AGENCY.name}`, repSignature,
-    signer.name, signer.title, agreementDate
+    signer.name, signer.title, repDate
   ));
   grid.appendChild(block(
     `For ${d.clientName || 'the Customer'}`, clientSignature,

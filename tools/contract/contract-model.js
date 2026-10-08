@@ -97,6 +97,7 @@ export const DEFAULTS = {
   exclusions: '',
 
   signerIndex: 0,
+  repSignedAt: '',
   repSignature: ''
 };
 
@@ -138,13 +139,19 @@ export function amount(value) {
 
 const round2 = (n) => Math.round((n + Number.EPSILON) * 100) / 100;
 
+/** Checks a calendar date without letting Date normalise February 31 into March. */
+export function isValidISODate(iso) {
+  if (typeof iso !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(iso)) return false;
+  const [y, m, d] = iso.split('-').map(Number);
+  const dt = new Date(y, m - 1, d);
+  return dt.getFullYear() === y && dt.getMonth() === m - 1 && dt.getDate() === d;
+}
+
 /** Parses yyyy-mm-dd as a local date, so the day never shifts a timezone. */
 export function longDate(iso) {
-  if (!iso) return null;
+  if (!isValidISODate(iso)) return null;
   const [y, m, d] = String(iso).split('-').map(Number);
-  if (!y || !m || !d) return null;
   const dt = new Date(y, m - 1, d);
-  if (Number.isNaN(dt.getTime())) return null;
   return dt.toLocaleDateString('en-CA', { year: 'numeric', month: 'long', day: 'numeric' });
 }
 
@@ -215,7 +222,7 @@ const PACK_KEYS = [
   ['projectPrice', 'pp'], ['taxRate', 'tr'], ['depositPercent', 'dp'], ['paymentPlan', 'pl'],
   ['paymentMethod', 'pm'], ['issuedAt', 'ia'], ['nonce', 'nc'],
   ['scope', 'sc'], ['exclusions', 'ex'],
-  ['signerIndex', 'si'], ['repSignature', 'rs']
+  ['signerIndex', 'si'], ['repSignedAt', 'rd'], ['repSignature', 'rs']
 ];
 
 function utf8ToBase64Url(str) {
@@ -269,6 +276,7 @@ export function unpackContract(packed) {
   const dp = Number(d.depositPercent);
   d.depositPercent = Number.isFinite(dp) && dp >= 0 && dp <= 100 ? dp : DEFAULTS.depositPercent;
   if (!SIGNERS[d.signerIndex]) d.signerIndex = DEFAULTS.signerIndex;
+  if (d.repSignedAt && !isValidISODate(d.repSignedAt)) d.repSignedAt = '';
   if (!validSignature(d.repSignature)) d.repSignature = '';
   if (!PAYMENT_PLANS.some((p) => p.id === d.paymentPlan)) d.paymentPlan = DEFAULTS.paymentPlan;
   if (!PAYMENT_METHODS.includes(d.paymentMethod)) d.paymentMethod = DEFAULTS.paymentMethod;
@@ -404,6 +412,10 @@ export function contractGaps(d) {
   if (d.includeAgreementDate && !d.agreementDate) gaps.push('Agreement date');
   if (d.includeStartDate && !d.startDate) gaps.push('Start date');
   if (d.includeCompleteDate && !d.completeDate) gaps.push('Completion date');
+  if (d.repSignature && !isValidISODate(d.repSignedAt)) {
+    const signer = SIGNERS[d.signerIndex] || SIGNERS[0];
+    gaps.push(`${signer.name}'s signing date`);
+  }
   return gaps;
 }
 

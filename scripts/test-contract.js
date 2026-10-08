@@ -69,7 +69,7 @@ const mockReq = (body, headers = {}) => ({
 const model = await import(pathToFileURL('./tools/contract/contract-model.js').href);
 const {
   DEFAULTS, PAYMENT_PLANS, AGENCY, SIGNERS,
-  money, amount, longDate, todayISO, slugify,
+  money, amount, longDate, isValidISODate, todayISO, slugify,
   priceBreakdown, encodeContract, decodeContract, packContract, unpackContract,
   signingUrl, referenceFor, buildClauses, contractGaps, coveringEmail,
   ESTIMATE_OVERRUN_CAP,
@@ -230,9 +230,10 @@ await test('malformed tokens throw rather than half-decoding', () => {
 });
 
 await test('the selected representative drawing travels in the signing link', () => {
-  const withSig = { ...sample, signerIndex: 1, repSignature: repInk };
+  const withSig = { ...sample, signerIndex: 1, repSignature: repInk, repSignedAt: '2026-09-07' };
   const decoded = decodeContract(encodeContract(withSig));
   assert.equal(decoded.repSignature, repInk);
+  assert.equal(decoded.repSignedAt, '2026-09-07');
   assert.equal(decoded.signerIndex, 1);
   assert.ok(new URL(signingUrl(withSig)).href.length < 6000);
 });
@@ -401,6 +402,13 @@ await test('a complete contract reports no gaps', () => {
   assert.deepEqual(contractGaps(sample), []);
 });
 
+await test('a drawn office signature needs its own date', () => {
+  const undated = { ...sample, signerIndex: 1, repSignature: repInk };
+  assert.ok(contractGaps(undated).includes("Riaad Hamadi's signing date"));
+  assert.deepEqual(contractGaps({ ...undated, repSignedAt: '2026-09-07' }), []);
+  assert.ok(contractGaps({ ...undated, repSignedAt: '2026-02-31' }).length > 0);
+});
+
 await test('optional dates only become required when their checkbox is selected', () => {
   const none = contractGaps({ ...sample, startDate: '', completeDate: '', agreementDate: '' });
   assert.ok(!none.some((x) => /date/i.test(x)));
@@ -446,7 +454,10 @@ await test('longDate does not shift a day across a timezone', () => {
 });
 
 await test('longDate rejects junk', () => {
-  for (const bad of ['', null, undefined, 'nonsense', '2026-13']) assert.equal(longDate(bad), null);
+  for (const bad of ['', null, undefined, 'nonsense', '2026-13', '2026-02-31', '2026-2-3']) {
+    assert.equal(longDate(bad), null);
+    assert.equal(isValidISODate(bad), false);
+  }
 });
 
 await test('todayISO is a valid yyyy-mm-dd', () => {
@@ -598,6 +609,15 @@ await test('a missing or non-png signature is refused', async () => {
     const res = mockRes();
     await handler(mockReq({ ...goodBody(), signature: sig }), res);
     assert.equal(res.statusCode, 400, `accepted ${sig}`);
+  }
+});
+
+await test('the server requires a real customer signing date', async () => {
+  for (const signedAt of ['', '2026-02-31', 'not-a-date']) {
+    const res = mockRes();
+    await handler(mockReq({ ...goodBody(), signedAt }), res);
+    assert.equal(res.statusCode, 400, `accepted ${signedAt}`);
+    assert.match(res.payload.error, /signing date/i);
   }
 });
 
@@ -856,7 +876,7 @@ await test('the archive endpoint is marked noindex', async () => {
    ================================================================== */
 await test('creator link -> decode -> sign -> both parties emailed', async () => {
   // 1. Riaad fills the creator, signs, and it produces a link.
-  const officeSigned = { ...sample, signerIndex: 1, repSignature: repInk };
+  const officeSigned = { ...sample, signerIndex: 1, repSignature: repInk, repSignedAt: '2026-09-07' };
   const url = signingUrl(officeSigned);
   assert.deepEqual(contractGaps(officeSigned), [], 'creator should report it is ready to send');
 
@@ -871,6 +891,7 @@ await test('creator link -> decode -> sign -> both parties emailed', async () =>
   assert.equal(decoded.projectPrice, sample.projectPrice);
   assert.equal(decoded.signerIndex, 1);
   assert.equal(decoded.repSignature, repInk);
+  assert.equal(decoded.repSignedAt, '2026-09-07');
 
   // 4. What they read matches what John built, clause for clause.
   assert.deepEqual(
@@ -899,6 +920,8 @@ await test('creator link -> decode -> sign -> both parties emailed', async () =>
   // 6. The email states the same total the customer signed.
   assert.ok(mail.html.includes('$32,205'), 'email total does not match the contract');
   assert.ok(mail.text.includes('Jane Whitfield'), 'signer missing from the plain-text part');
+  assert.ok(mail.text.includes('Riaad Hamadi for Seven Stones Landscape on September 7, 2026'),
+    'representative signing date is missing from the email');
 });
 
 await test('the customer and the office receive the identical document', async () => {

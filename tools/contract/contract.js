@@ -57,6 +57,7 @@ const signaturePad = createSignaturePad($('repSignaturePad'), (value) => {
 function showSignerSignature() {
   d.repSignature = savedSignatures[d.signerIndex] || '';
   signaturePad.load(d.repSignature);
+  $('repDateLabel').textContent = `Date ${SIGNERS[d.signerIndex].name} signed`;
   $('repSignatureStatus').textContent = d.repSignature
     ? `${SIGNERS[d.signerIndex].name}'s signature is saved in this browser.`
     : `${SIGNERS[d.signerIndex].name} has no saved signature.`;
@@ -67,7 +68,7 @@ function showSignerSignature() {
    ------------------------------------------------------------------ */
 const TEXT_FIELDS = [
   'clientName', 'clientContact', 'clientTitle', 'siteAddress',
-  'clientEmail', 'clientPhone', 'agreementDate', 'startDate', 'completeDate',
+  'clientEmail', 'clientPhone', 'agreementDate', 'startDate', 'completeDate', 'repSignedAt',
   'projectPrice', 'scope', 'exclusions'
 ];
 const NUMBER_FIELDS = ['taxRate', 'depositPercent', 'signerIndex'];
@@ -275,16 +276,18 @@ function update(opts = {}) {
    ------------------------------------------------------------------ */
 for (const id of [...TEXT_FIELDS, ...NUMBER_FIELDS, ...SELECT_FIELDS, ...CHECKBOX_FIELDS]) {
   const node = $(id);
-  node.addEventListener('input', () => {
-    if (id === 'signerIndex') { d.signerIndex = Number(node.value); showSignerSignature(); }
+  const changed = () => {
+    if (id === 'signerIndex' && d.signerIndex !== Number(node.value)) {
+      d.signerIndex = Number(node.value);
+      d.repSignedAt = '';
+      $('repSignedAt').value = '';
+      showSignerSignature();
+    }
     update();
-    if (id === 'signerIndex') save();
-  });
-  node.addEventListener('change', () => {
-    if (id === 'signerIndex') { d.signerIndex = Number(node.value); showSignerSignature(); }
-    update();
-    if (id === 'signerIndex') save();
-  });
+    if (id === 'signerIndex' || id === 'repSignedAt') save();
+  };
+  node.addEventListener('input', changed);
+  node.addEventListener('change', changed);
 }
 
 $('clearRepSignature').addEventListener('click', () => signaturePad.clear());

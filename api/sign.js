@@ -123,6 +123,7 @@ function clauseText(clause) {
 
 export function buildSignedEmail({ d, typedName, signedAtLong, reference, signatureCid, hasPdf }) {
   const signer = SIGNERS[d.signerIndex] || SIGNERS[0];
+  const repSignedAtLong = longDate(d.repSignedAt);
   const clauses = buildClauses(d);
   const p = priceBreakdown(d);
   const first = String(d.clientContact || d.clientName || '').trim().split(/\s+/)[0] || 'there';
@@ -167,7 +168,7 @@ export function buildSignedEmail({ d, typedName, signedAtLong, reference, signat
 
   <p style="font-size:14px;color:#6B7688;">
     Signed electronically on ${escapeHtml(signedAtLong)} by ${escapeHtml(typedName)},
-    and by ${escapeHtml(signer.name)} for ${escapeHtml(AGENCY.name)}.
+    and by ${escapeHtml(signer.name)} for ${escapeHtml(AGENCY.name)}${repSignedAtLong ? ` on ${escapeHtml(repSignedAtLong)}` : ''}.
     <br><img src="cid:${signatureCid}" alt="Signature" style="max-height:38px;margin-top:6px;display:block;">
   </p>
 
@@ -195,7 +196,7 @@ export function buildSignedEmail({ d, typedName, signedAtLong, reference, signat
     `and any deposit comes back within 15 days. Reply to this email or call ${AGENCY.phone}.`,
     '',
     `Signed electronically on ${signedAtLong} by ${typedName},`,
-    `and by ${signer.name} for ${AGENCY.name}.`,
+    `and by ${signer.name} for ${AGENCY.name}${repSignedAtLong ? ` on ${repSignedAtLong}` : ''}.`,
     ...(hasPdf ? [] : ['', '='.repeat(60), '', ...clauses.map(clauseText)]),
     '',
     signer.name,
@@ -349,7 +350,8 @@ export default async function handler(req, res) {
     });
   }
 
-  const signedAtLong = longDate(signedAt) || longDate(new Date().toISOString().slice(0, 10));
+  const signedAtLong = longDate(signedAt);
+  if (!signedAtLong) return res.status(400).json({ error: 'Please enter a valid signing date.' });
   const signatureCid = 'ss-customer-signature';
 
   /* Identical for a retry of this exact request, different for anything else.

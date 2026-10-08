@@ -276,7 +276,7 @@ export async function buildPdf(d, opts = {}) {
     return cy;
   };
 
-  const a = signatureBlock(colX[0], `For ${AGENCY.name}`, repSignature, signer.name, signer.title, agreementDate);
+  const a = signatureBlock(colX[0], `For ${AGENCY.name}`, repSignature, signer.name, signer.title, longDate(d.repSignedAt));
   const b = signatureBlock(
     colX[1], `For ${d.clientName || 'the Customer'}`, clientSignature,
     typedName || d.clientContact || d.clientName, d.clientTitle, clientSignedAt

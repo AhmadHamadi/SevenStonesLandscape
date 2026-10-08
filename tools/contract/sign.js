@@ -12,7 +12,7 @@
  */
 
 import {
-  decodeContract, AGENCY, longDate, todayISO, referenceFor, COOLING_OFF_DAYS,
+  decodeContract, AGENCY, longDate, isValidISODate, referenceFor, COOLING_OFF_DAYS,
   linkExpiry, LINK_EXPIRY_HOURS
 } from './contract-model.js';
 import { renderDocument, DOCUMENT_CSS } from './document.js';
@@ -144,6 +144,25 @@ const nameErr = el('div', 'err-msg');
 nameErr.hidden = true;
 nameField.appendChild(nameErr);
 box.appendChild(nameField);
+
+const dateField = el('div', 'f');
+const dateLabel = el('label', null, 'Date you are signing');
+dateLabel.setAttribute('for', 'signedAt');
+const dateInput = el('input');
+dateInput.type = 'date';
+dateInput.id = 'signedAt';
+dateInput.required = true;
+dateField.append(dateLabel, dateInput);
+const dateErr = el('div', 'err-msg');
+dateErr.hidden = true;
+dateField.appendChild(dateErr);
+box.appendChild(dateField);
+dateInput.addEventListener('input', () => {
+  const dateOnDocument = paper.querySelectorAll('.sig-date-value')[1];
+  if (dateOnDocument) dateOnDocument.textContent = longDate(dateInput.value) || '\u00a0';
+  dateErr.hidden = true;
+  dateInput.classList.remove('err');
+});
 
 const agreeWrap = el('label', 'agree');
 const agreeBox = el('input');
@@ -278,6 +297,15 @@ submit.addEventListener('click', async () => {
     nameErr.hidden = true;
     nameInput.classList.remove('err');
   }
+  if (!isValidISODate(dateInput.value)) {
+    dateErr.textContent = 'Please enter the date you are signing.';
+    dateErr.hidden = false;
+    dateInput.classList.add('err');
+    bad = true;
+  } else {
+    dateErr.hidden = true;
+    dateInput.classList.remove('err');
+  }
   if (!agreeBox.checked) {
     agreeErr.textContent = 'Please confirm you have read and agree to the terms.';
     agreeErr.hidden = false;
@@ -292,7 +320,7 @@ submit.addEventListener('click', async () => {
   sendFail.hidden = true;
 
   const signature = canvas.toDataURL('image/png');
-  const signedAt = todayISO();
+  const signedAt = dateInput.value;
   const signedAtLong = longDate(signedAt);
   const typedName = nameInput.value.trim();
 

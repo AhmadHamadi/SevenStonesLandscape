@@ -32,7 +32,8 @@ const d = {
   siteAddress: '18 Ridgemount Ave, Hamilton, ON',
   agreementDate: m.todayISO(), startDate: '2026-09-22', completeDate: '2026-10-10',
   projectPrice: '28500', depositPercent: 15, paymentMethod: 'Cash or e-transfer',
-  signerIndex: 1, repSignature: '100,500;200,350;300,580;420,400|450,500;560,420;680,510',
+  signerIndex: 1, repSignedAt: '2026-10-01',
+  repSignature: '100,500;200,350;300,580;420,400|450,500;560,420;680,510',
   scope: '450 sq ft rear interlock patio, Unilock Beacon Hill Flag\n8 inch compacted granular A base\nTwo-tier seat wall, 14 ft',
   exclusions: 'Deck removal\nPermit fees'
 };
@@ -94,6 +95,8 @@ await test('the page renders the agreement', async () => {
   ok(txt.includes('$32,205'), 'the total is missing');
   ok(await page.locator('.paper .sig-block').first().locator('.sig-slot img').count() === 1,
     'Riaad signature is missing above his name');
+  ok((await page.locator('.paper .sig-block').first().innerText()).includes('October 1, 2026'),
+    'Riaad signing date is missing');
 });
 
 await test('no JavaScript errors on load', () => {
@@ -136,10 +139,24 @@ await test('Clear wipes it, and it can be drawn again', async () => {
   ok(await inkedPixels(page.locator('canvas.pad')) > 500, 'could not draw again after Clear');
 });
 
+await test('a drawn signature cannot be sent without a customer signing date', async () => {
+  await page.locator('.submit').click();
+  const errors = await page.locator('.err-msg:visible').allInnerTexts();
+  ok(errors.some((e) => /date you are signing/i.test(e)), 'missing date was accepted');
+  ok(captured === null, 'request was sent without a date');
+});
+
+await test('the customer enters a date that appears on the agreement', async () => {
+  await page.locator('#signedAt').fill('2026-10-08');
+  const date = await page.locator('.paper .sig-block').nth(1).locator('.sig-date-value').innerText();
+  ok(date === 'October 8, 2026', 'customer date did not appear on the agreement: ' + date);
+});
+
 await test('signing posts the drawn signature and a PDF', async () => {
   await page.locator('.submit').click();
   await page.waitForTimeout(6000);   // the PDF library loads from a CDN
   ok(captured, 'nothing was posted');
+  ok(captured.signedAt === '2026-10-08', 'entered date was not sent');
   ok(/^data:image\/png;base64,/.test(captured.signature), 'signature is not a PNG data URL');
   ok(captured.signature.length > 2000,
      'signature is only ' + captured.signature.length + ' chars - probably blank');

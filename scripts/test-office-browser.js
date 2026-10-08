@@ -127,14 +127,23 @@ await test('the signer choice updates the agreement', async () => {
 await test('Riaad and John keep separate saved drawings above their names', async () => {
   await drawOfficeSignature(page, 0);
   ok(await inkedPixels(page.locator('#repSignaturePad')) > 400, 'Riaad pad has no ink');
+  ok((await page.locator('#gaps').innerText()).includes("Riaad Hamadi's signing date"),
+    'undated office signature was marked ready');
+  await page.fill('#repSignedAt', '2026-10-01');
   const riaad = await page.locator('#doc .sig-block').first().locator('.sig-slot img').getAttribute('src');
   ok(riaad?.startsWith('data:image/png;base64,'), 'Riaad preview has no signature');
+  ok((await page.locator('#doc .sig-block').first().innerText()).includes('October 1, 2026'),
+    'Riaad date missing below signature');
   await page.selectOption('#signerIndex', '0');
   ok(await inkedPixels(page.locator('#repSignaturePad')) === 0, 'Riaad signature appeared on John pad');
+  ok(await page.inputValue('#repSignedAt') === '', 'Riaad date was assigned to John');
   await drawOfficeSignature(page, 1);
+  await page.fill('#repSignedAt', '2026-10-02');
   const john = await page.locator('#doc .sig-block').first().locator('.sig-slot img').getAttribute('src');
   ok(john !== riaad, 'John and Riaad have the same drawing');
   await page.selectOption('#signerIndex', '1');
+  ok(await page.inputValue('#repSignedAt') === '', 'John date was assigned to Riaad');
+  await page.fill('#repSignedAt', '2026-10-01');
   ok(await page.locator('#doc .sig-block').first().locator('.sig-slot img').getAttribute('src') === riaad,
     'switching back did not restore Riaad');
   await page.reload({ waitUntil: 'networkidle' });
@@ -147,6 +156,7 @@ await test('the signing link contains the selected signature and print has an im
   const m = await import(new URL('../tools/contract/contract-model.js', import.meta.url).href);
   const d = m.decodeContract(new URL(link).searchParams.get('a'));
   ok(d.signerIndex === 1 && d.repSignature.length > 20, 'Riaad drawing missing from link');
+  ok(d.repSignedAt === '2026-10-01', 'Riaad date missing from link');
   ok(!await page.locator('#doc .sig-placeholder').count(), 'old signature placeholder still printed');
   const pdf = await page.pdf({ format: 'Letter', printBackground: true });
   ok((pdf.toString('latin1').match(/\/Subtype\s*\/Image/g) || []).length >= 2,
@@ -177,6 +187,8 @@ await test('the link the customer would open actually decodes and renders', asyn
   ok(txt.includes('$32,205'), 'total missing on the sign page');
   ok(await p2.locator('.paper .sig-block').first().locator('.sig-slot img').count() === 1,
     'representative signature missing on customer page');
+  ok((await p2.locator('.paper .sig-block').first().innerText()).includes('October 1, 2026'),
+    'representative signing date missing on customer page');
   ok(errs2.length === 0, errs2.join(' | '));
   await p2.close();
 });
