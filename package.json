@@ -4,13 +4,15 @@
   "private": true,
   "description": "Seven Stones Landscape website, quote form API, and contract signing system",
   "dependencies": {
+    "libphonenumber-js": "^1.13.16",
     "nodemailer": "^6.9.16"
   },
   "type": "module",
   "scripts": {
-    "test": "node scripts/test-contract.js && node scripts/test-routing.js",
+    "test": "node scripts/test-contract.js && node scripts/test-routing.js && node scripts/resend-verify-all.mjs",
     "test:contract": "node scripts/test-contract.js",
     "test:routing": "node scripts/test-routing.js",
+    "test:quote": "node scripts/resend-verify-all.mjs",
     "test:browser": "node scripts/test-signing-browser.js && node scripts/test-office-browser.js"
   },
   "optionalDependencies": {

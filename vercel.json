@@ -20,6 +20,9 @@
     }
   ],
   "functions": {
+    "api/quote.js": {
+      "maxDuration": 15
+    },
     "api/sign.js": {
       "maxDuration": 15
     },

@@ -66,6 +66,30 @@
   }
 
   function runUI() {
+    // Reuse a reference after an in-page retry or refresh so downstream lookup can
+    // correlate the attempt. The reference alone does not guarantee duplicate prevention.
+    document.querySelectorAll('form[action*="/api/quote"]').forEach(function(form, index) {
+      var source = form.querySelector('[name="form_source"]');
+      var storageKey = 'sevenstones-estimate:' + location.pathname + ':' + (source ? source.value : index);
+      form.dataset.submissionStorageKey = storageKey;
+      var field = form.querySelector('[name="submission_id"]');
+      if (!field) {
+        field = document.createElement('input');
+        field.type = 'hidden';
+        field.name = 'submission_id';
+        form.appendChild(field);
+      }
+      try {
+        var id = sessionStorage.getItem(storageKey);
+        if (!id || !/^[0-9a-f-]{36}$/i.test(id)) {
+          id = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) { var r = Math.random() * 16 | 0; return (c === 'x' ? r : (r & 3 | 8)).toString(16); });
+          sessionStorage.setItem(storageKey, id);
+        }
+        field.value = id;
+      } catch (_) {
+        if (!field.value) field.value = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) { var r = Math.random() * 16 | 0; return (c === 'x' ? r : (r & 3 | 8)).toString(16); });
+      }
+    });
     var header = document.getElementById('site-header');
     var toggle = document.querySelector('.nav-toggle');
     var mobileNav = document.querySelector('.nav-mobile');
@@ -311,6 +335,7 @@
           return resp.json().catch(function() { return {}; }).then(function(data) {
             // A silently-dropped bot submission comes back with an explicit redirect to
             // /contact/, so spam can never reach /thank-you/ and fire a conversion.
+            try { sessionStorage.removeItem(form.dataset.submissionStorageKey); } catch (_) {}
             window.location.href = (data && data.redirect) || '/thank-you/';
           });
         }).catch(function() {

@@ -923,6 +923,7 @@
       if (timer) window.clearTimeout(timer);
       if (!resp.ok) { showSubmitError(); return; }
       return resp.json().catch(function () { return {}; }).then(function (data) {
+        try { sessionStorage.removeItem(form.dataset.submissionStorageKey); } catch (_) {}
         window.location.href = (data && data.redirect) || redirectTo;
       });
     }).catch(function () {
