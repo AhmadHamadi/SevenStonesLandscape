@@ -1,139 +1,43 @@
-# Resend — Seven Stones form email
+# Resend setup for the quote form
 
-Everything about how this site sends email. Last verified **2026-08-24**.
+Last checked: 2026-11-15. This repository is public. Never put an API key, webhook URL, `.env` file, or client submission data in Git.
 
-## Where the key lives
+## Current deployment state
 
-**`RESEND-API-KEY.txt`** in the project root. Plain text, gitignored, never committed.
-Key name in the Resend dashboard: **SEVEN STONES** (full access).
+- Vercel project: `seven-stones-landscape`; Git repository: `AhmadHamadi/SevenStonesLandscape`; Production branch: `main`.
+- Production is still on commit `7a34658`. Quote-intake changes are on `codex/sevenstones-ghl-intake-preview` at `de7ad4c`; do not assume the Preview sender or webhook code is live in Production.
+- Vercel has a Secret `RESEND_API_KEY` in Production scope. Its value was not read. Production `GHL_INBOUND_WEBHOOK_URL` is also a Secret; its value was not read.
+- Preview intentionally has no Production email or GHL secrets. Do not copy production credentials into Preview just to test the form.
+- At the last account check, `arvenogrowth.com` was verified for sending. The Preview code uses `Arveno Growth Website <website@arvenogrowth.com>` by default. This does not verify the sender configured in the older Production commit.
 
-Vercel cannot read that file. For the live site the same key must also be set as an
-environment variable — see *Going live* below.
+## How the handler chooses a transport
 
-## Commands
+`api/quote.js` is the source of truth:
 
+1. If `RESEND_API_KEY` is present, send through Resend.
+2. If `SMTP_HOST` is also configured, SMTP is the fallback if Resend fails.
+3. `EMAIL_FROM` overrides the sender; only use a sender address on a domain verified for that transport.
+4. The handler sends an internal notification to the recipients in `api/quote.js`; the customer's address is used for `Reply-To`.
+
+Do not rely on the legacy SMTP fallback until its mailbox, sender domain, and environment variables are verified. Keep all credentials server-side in Vercel or a local ignored environment file.
+
+## Safe checks
+
+- `npm test` and `node scripts/resend-verify-all.mjs` stub network calls. They exercise the handler and all listed form sources without sending email or calling GHL.
+- `node scripts/resend-test.mjs domains` and `node scripts/resend-test.mjs status <email-id>` are read-only API calls and require `RESEND_API_KEY` in the environment.
+- `ping`, `quote`, and `all` are real email sends. They now require `--send`, plus `RESEND_TEST_TO` (a controlled test inbox) and `RESEND_TEST_FROM` (a verified sender). Do not run them during routine QA or against customer addresses.
+
+Example of an explicitly approved test send (do not paste credentials into the command or source):
+
+```sh
+RESEND_API_KEY="$RESEND_API_KEY" \
+RESEND_TEST_TO="<controlled test inbox>" \
+RESEND_TEST_FROM="<verified sender>" \
+node scripts/resend-test.mjs ping --send
 ```
-node scripts/resend-test.mjs domains        # domains + verification state
-node scripts/resend-test.mjs ping           # one plain deliverability probe
-node scripts/resend-test.mjs quote          # one realistic lead, real template
-node scripts/resend-test.mjs all [filter]   # one email per subject variant
-node scripts/resend-test.mjs status <id>    # delivery state of a sent email
 
-node scripts/resend-verify-all.mjs          # offline: all 34 form sources, sends nothing
-```
+Use shell-managed environment values; never commit them. The command intentionally sends a real email.
 
-`resend-verify-all.mjs` stubs `fetch`, so it exercises the real handler without sending
-anything. Run it after any change to `api/quote.js`. It must print **34/34**.
+## Release gate
 
-## How sending works
-
-`api/quote.js` is the only email path on the site. All 34 forms POST to `/api/quote`.
-
-Transport is chosen at runtime:
-
-| Condition | Transport |
-|---|---|
-| `RESEND_API_KEY` set | **Resend** (preferred) |
-| otherwise, `SMTP_*` set | nodemailer / cPanel SMTP (legacy fallback) |
-| neither | 500, logged |
-
-Both transports build the **same** subject, HTML and text from the same three functions,
-so a lead looks identical either way. Resend is preferred because it signs DKIM itself
-from a verified domain, which is the actual fix for the spam problem in `FORMS_SETUP.md`.
-
-Recipients (`RECIPIENTS` in `api/quote.js`): `info@sevenstoneslandscape.ca`,
-`ahmadhamadi2002@gmail.com`. Both go in `To:`, never Bcc. `Reply-To` is the customer.
-
-## Subject lines
-
-`buildSubject()` tags by `form_source`:
-
-| Source | Subject |
-|---|---|
-| `ads-concrete-landing` | `[Concrete LP] Quote request from NAME` |
-| `ads-interlock-landing` | `[Interlock LP] Quote request from NAME` |
-| `service-hero-*` (20 pages) | `[Service: retaining walls] Quote request from NAME` |
-| `hero` | `[Homepage] Quote request from NAME` |
-| `contact` | `[Contact page] Quote request from NAME` |
-| city pages + `full` (12) | `Quote request from NAME` (no tag) |
-
-> **Fixed 2026-08-24.** `service-hero-*` was previously tested *after* the bare `hero`
-> check. Every service-page source contains the substring `hero`, so all 20 service pages
-> were mislabeled `[Homepage]` and the `[Service: ...]` branch never ran. The service test
-> now runs first. Historical service leads in the inbox carry the wrong `[Homepage]` tag.
-
-## Limits — do not abuse
-
-Confirmed from live API response headers:
-
-- **Rate limit: 10 requests/second.** Header `ratelimit-policy: 10;w=1`. Exceeding it
-  returns 429. The batch loop in `resend-test.mjs` sleeps 600 ms between sends, well under.
-
-Plan quotas are **not exposed by the API** — confirm the current plan at
-resend.com/settings/billing. Resend's free tier is 3,000 emails/month / 100 per day;
-paid tiers start at 50,000/month.
-
-Real volume for this site is far below any tier: one email per genuine lead, and the
-handler already drops bots, spam and B2B solicitation before sending. Additional limits
-that already protect the quota:
-
-- **Rate limiting per IP:** 12 submissions per 10 minutes (`RATE_MAX_REQUESTS`).
-- **Honeypots:** `bot-field` and `website` — filled means silent drop, no send.
-- **Solicitation filter:** SEO/web-design pitches dropped before sending.
-
-**Keep test volume low.** `resend-test.mjs all` sends 7 emails per run. Use
-`resend-verify-all.mjs` (sends nothing) for routine checking, and reserve real sends for
-confirming inbox placement.
-
-## Account state (2026-08-24)
-
-| Domain | Status |
-|---|---|
-| `tradeleadsmarketing.com` | **verified, sending enabled — this is the live sender** |
-| `sevenstoneslandscape.ca` | added but `not_started`; unused for now, DNS never published |
-
-Sending identity is **`Seven Stones Landscape <info@tradeleadsmarketing.com>`**, set as
-`DEFAULT_RESEND_FROM` in `api/quote.js`. All test sends so far: `delivered`, zero bounces,
-zero complaints.
-
-The `From` default is deliberately **transport-aware**:
-
-| Transport | Default From | Why |
-|---|---|---|
-| Resend | `info@tradeleadsmarketing.com` | the only verified domain; anything else 400s |
-| SMTP fallback | `forms@clinimedia.ca` | the mailbox SMTP authenticates against |
-
-`EMAIL_FROM` overrides either. This means setting **`RESEND_API_KEY` alone is safe** — no
-second variable is required for the forms to work.
-
-## Going live
-
-> **LIVE as of 2026-08-25.** `RESEND_API_KEY` is set in Vercel and the live form was
-> verified end to end across service, homepage, contact, city and Google Ads pages --
-> all delivered to both recipients with correct subject tags.
-
-Set one environment variable in Vercel → project → Settings → Environment Variables
-(Production):
-
-| Name | Value |
-|---|---|
-| `RESEND_API_KEY` | the key from `RESEND-API-KEY.txt` |
-
-Redeploy. The handler switches to Resend automatically; the existing `SMTP_*` variables can
-stay untouched as a fallback. Do **not** set `EMAIL_FROM` unless you intend to override the
-sender — if you do, it must be on a Resend-verified domain.
-
-### Verify after deploying
-
-1. Submit a real form on the live site.
-2. Confirm it arrives at `info@sevenstoneslandscape.ca` and `ahmadhamadi2002@gmail.com`.
-3. Gmail → **Show original** → SPF, DKIM and DMARC should read **PASS**
-   (Resend signs DKIM for `tradeleadsmarketing.com` automatically).
-4. Check the subject carries the right tag for the page you submitted from.
-
-### Optional, later
-
-To send as the brand domain instead, verify `sevenstoneslandscape.ca` in Resend (it is
-already added — publish the TXT `resend._domainkey`, MX `send`, and TXT `send` records shown
-in the dashboard), then set `EMAIL_FROM` to `Seven Stones Landscape
-<forms@sevenstoneslandscape.ca>`. Nothing else changes.
+A Ready Vercel deployment proves that the build completed. It does not prove email delivery or GHL intake. Before Production is updated, use an isolated approved test path, read back the CRM record chain, verify email and GHL independently, and confirm the sender and recovery behavior. The client workflow's inbound webhook trigger may incur per-execution charges; confirm the test destination and cost first. No live website form has been submitted as part of this review.
