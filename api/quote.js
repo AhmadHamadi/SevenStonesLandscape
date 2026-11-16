@@ -30,12 +30,14 @@ const RECIPIENTS = [
 const DEFAULT_FROM = 'Seven Stones Landscape <forms@clinimedia.ca>';
 const DEFAULT_RESEND_FROM = 'Arveno Growth Website <website@arvenogrowth.com>';
 const EMPTY_FALLBACK = '&mdash;';
+const SMS_CONSENT_VERSION = 'quote-sms-v1-2026-11';
+const SMS_CONSENT_TEXT = 'I agree to receive text messages from Seven Stones Landscape about this estimate request and scheduling. Message frequency varies; message and data rates may apply. Reply STOP to opt out, HELP for help. Consent is not required to purchase.';
 
 const RATE_WINDOW_MS = 10 * 60 * 1000; // 10 minutes
 const RATE_MAX_REQUESTS = 12;
 const RATE_MAP_MAX_KEYS = 1000;
 const rateMap = new Map();
-async function deliverToGhlWebhook({ fullName, email, phone, address, service, message, formSource, submissionId }) {
+async function deliverToGhlWebhook({ fullName, email, phone, address, service, message, formSource, submissionId, smsConsentFields }) {
   const webhookUrl = process.env.GHL_INBOUND_WEBHOOK_URL;
   if (!webhookUrl) throw new Error('GHL inbound webhook URL is not configured.');
   const url = new URL(webhookUrl);
@@ -46,7 +48,7 @@ async function deliverToGhlWebhook({ fullName, email, phone, address, service, m
     const response = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Idempotency-Key': submissionId },
-      body: JSON.stringify({ submissionId, full_name: fullName, email, phone, address, services: service, message, form_source: formSource }),
+      body: JSON.stringify({ submissionId, full_name: fullName, email, phone, address, services: service, message, form_source: formSource, ...smsConsentFields }),
       signal: controller.signal,
     });
     if (!response.ok) throw new Error(`GHL inbound webhook returned HTTP ${response.status}.`);
@@ -439,6 +441,15 @@ export default async function handler(req, res) {
   const address = asTrimmedString(body.address);
   const service = asTrimmedString(body.services);
   const formSource = asTrimmedString(body.form_source) || 'website';
+  const smsConsentAccepted = asTrimmedString(body.sms_consent).toLowerCase() === 'yes';
+  // Keep evidence per enquiry; do not overwrite contact-level DND or consent state.
+  const smsConsentFields = {
+    sms_consent_this_submission: smsConsentAccepted,
+    sms_consent_text: smsConsentAccepted ? SMS_CONSENT_TEXT : '',
+    sms_consent_version: smsConsentAccepted ? SMS_CONSENT_VERSION : '',
+    sms_consent_at: smsConsentAccepted ? new Date().toISOString() : '',
+    sms_consent_source: smsConsentAccepted ? formSource : '',
+  };
   const submittedId = asTrimmedString(body.submission_id || body.submissionId);
   const submissionId = submittedId || crypto.createHash('sha256')
     .update(JSON.stringify([fullName, email, phone, address, service, message, formSource]))
@@ -485,7 +496,7 @@ export default async function handler(req, res) {
   // correlation key; the GHL lookup/create workflow is not an atomic idempotency lock.
   let webhookError = null;
   try {
-    await deliverToGhlWebhook({ fullName, email, phone, address, service, message, formSource, submissionId });
+    await deliverToGhlWebhook({ fullName, email, phone, address, service, message, formSource, submissionId, smsConsentFields });
   } catch (error) {
     webhookError = error;
     console.error('GHL intake webhook failed:', error?.message || 'unknown error');

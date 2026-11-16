@@ -13,6 +13,7 @@ process.env.GHL_INBOUND_WEBHOOK_URL = 'https://ghl.example.invalid/quote-test';
 
 const sent = [];
 const ghl = [];
+const SMS_CONSENT_TEXT = 'I agree to receive text messages from Seven Stones Landscape about this estimate request and scheduling. Message frequency varies; message and data rates may apply. Reply STOP to opt out, HELP for help. Consent is not required to purchase.';
 let failGhl = false;
 global.fetch = async (url, opts) => {
   if (String(url) === process.env.GHL_INBOUND_WEBHOOK_URL) {
@@ -86,6 +87,7 @@ for (const [i, source] of SOURCES.entries()) {
       timeline: 'Spring 2027',
       message: 'Replacing a cracked asphalt driveway, about 620 sq ft, plus a front walkway.',
       form_source: source,
+      sms_consent: i % 2 === 0 ? 'yes' : '',
     },
   }, res);
 
@@ -114,6 +116,13 @@ for (const [i, source] of SOURCES.entries()) {
     if (g.services !== 'Interlock & Hardscaping') problems.push('GHL service missing');
     if (g.message !== 'Replacing a cracked asphalt driveway, about 620 sq ft, plus a front walkway.') problems.push('GHL original message changed');
     if (g.form_source !== source) problems.push('GHL form source changed');
+    const consent = i % 2 === 0;
+    if (g.sms_consent_this_submission !== consent) problems.push('SMS consent choice missing or incorrect');
+    if (consent && g.sms_consent_text !== SMS_CONSENT_TEXT) problems.push('SMS consent wording missing or changed');
+    if (consent && g.sms_consent_version !== 'quote-sms-v1-2026-11') problems.push('SMS consent version missing');
+    if (consent && (!g.sms_consent_at || Number.isNaN(Date.parse(g.sms_consent_at)))) problems.push('SMS consent timestamp missing');
+    if (consent && g.sms_consent_source !== source) problems.push('SMS consent source missing');
+    if (!consent && (g.sms_consent_text || g.sms_consent_at || g.sms_consent_version || g.sms_consent_source)) problems.push('unchecked form recorded as SMS consent');
   }
   if (res.statusCode !== 302 && res.statusCode !== 200) problems.push(`status ${res.statusCode}`);
 

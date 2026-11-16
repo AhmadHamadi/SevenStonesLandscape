@@ -9,7 +9,7 @@
   },
   "type": "module",
   "scripts": {
-    "test": "node scripts/test-contract.js && node scripts/test-routing.js && node scripts/test-resend-test.mjs && node scripts/resend-verify-all.mjs",
+    "test": "node scripts/test-contract.js && node scripts/test-routing.js && node scripts/test-resend-test.mjs && node scripts/resend-verify-all.mjs && node scripts/test-sms-consent.mjs",
     "test:contract": "node scripts/test-contract.js",
     "test:routing": "node scripts/test-routing.js",
     "test:quote": "node scripts/resend-verify-all.mjs",
