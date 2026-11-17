@@ -91,6 +91,40 @@
         if (submitButton) form.insertBefore(consent, submitButton);
         else form.appendChild(consent);
       }
+      var pagePathField = form.querySelector('[name="form_page_path"]');
+      if (!pagePathField) {
+        pagePathField = document.createElement('input');
+        pagePathField.type = 'hidden';
+        pagePathField.name = 'form_page_path';
+        form.appendChild(pagePathField);
+      }
+      pagePathField.value = window.location.pathname || '/';
+
+      var referrerHost = '';
+      try {
+        if (document.referrer) referrerHost = new URL(document.referrer).hostname;
+      } catch (_) {}
+      var referrerField = form.querySelector('[name="referrer_host"]');
+      if (!referrerField) {
+        referrerField = document.createElement('input');
+        referrerField.type = 'hidden';
+        referrerField.name = 'referrer_host';
+        form.appendChild(referrerField);
+      }
+      referrerField.value = referrerHost;
+
+      var trackingParams = new URLSearchParams(window.location.search);
+      ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'gclid', 'gbraid', 'wbraid', 'msclkid'].forEach(function(name) {
+        var field = form.querySelector('[name="' + name + '"]');
+        if (!field) {
+          field = document.createElement('input');
+          field.type = 'hidden';
+          field.name = name;
+          form.appendChild(field);
+        }
+        field.value = trackingParams.get(name) || '';
+      });
+
       var source = form.querySelector('[name="form_source"]');
       var storageKey = 'sevenstones-estimate:' + location.pathname + ':' + (source ? source.value : index);
       form.dataset.submissionStorageKey = storageKey;

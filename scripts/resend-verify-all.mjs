@@ -83,6 +83,14 @@ for (const [i, source] of SOURCES.entries()) {
       address: '22 Example Street, Burlington, ON L7M 1A1',
       submission_id: submissionId,
       city: 'Burlington',
+      form_page_path: '/service-areas/burlington/?utm_source=private#section',
+      referrer_host: 'https://www.google.com/search?q=private',
+      utm_source: 'google',
+      utm_medium: 'cpc',
+      utm_campaign: 'spring-landscaping',
+      utm_content: 'patio-ad',
+      utm_term: 'landscaping quote',
+      gclid: 'test-click-id',
       services: 'Interlock & Hardscaping',
       timeline: 'Spring 2027',
       message: 'Replacing a cracked asphalt driveway, about 620 sq ft, plus a front walkway.',
@@ -102,6 +110,9 @@ for (const [i, source] of SOURCES.entries()) {
     if (b.reply_to !== 'daniel.reyes.test@gmail.com') problems.push('Reply-To not set to customer');
     if (!b.html?.includes('New quote request')) problems.push('no HTML part');
     if (!b.text?.includes('New quote request')) problems.push('no text part');
+    if (!b.text?.includes('Property address: 22 Example Street, Burlington, ON L7M 1A1')) problems.push('email property address was not kept raw');
+    if (!b.text?.includes('Form city context: Burlington')) problems.push('email did not label city-page context separately');
+    if (b.text?.includes('22 Example Street, Burlington, ON L7M 1A1, Burlington')) problems.push('email appended unverified city context to property address');
     if (!b.headers?.['X-Entity-Ref-ID']) problems.push('no X-Entity-Ref-ID');
     if (!b.subject?.includes('Daniel Reyes')) problems.push('name missing from subject');
     // Resend currently verifies arvenogrowth.com; catch regressions to unverified senders.
@@ -113,6 +124,12 @@ for (const [i, source] of SOURCES.entries()) {
     if (g.email !== 'daniel.reyes.test@gmail.com') problems.push('GHL email missing');
     if (!g.phone?.startsWith('+1')) problems.push('GHL phone not normalized');
     if (g.address !== '22 Example Street, Burlington, ON L7M 1A1') problems.push('GHL address changed');
+    if (g.form_city_context !== 'Burlington') problems.push('GHL page-city context missing');
+    if (g.form_page_path !== '/service-areas/burlington/') problems.push('GHL form page path missing');
+    if (g.referrer_host !== 'www.google.com') problems.push('GHL referrer host missing');
+    if (g.utm_source !== 'google' || g.utm_medium !== 'cpc') problems.push('GHL UTM source/medium missing');
+    if (g.utm_campaign !== 'spring-landscaping' || g.utm_content !== 'patio-ad') problems.push('GHL UTM campaign/content missing');
+    if (g.utm_term !== 'landscaping quote' || g.gclid !== 'test-click-id') problems.push('GHL UTM term/click ID missing');
     if (g.services !== 'Interlock & Hardscaping') problems.push('GHL service missing');
     if (g.message !== 'Replacing a cracked asphalt driveway, about 620 sq ft, plus a front walkway.') problems.push('GHL original message changed');
     if (g.form_source !== source) problems.push('GHL form source changed');
