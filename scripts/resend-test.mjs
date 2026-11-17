@@ -1,39 +1,25 @@
 /**
- * Resend practice/verification harness for the Seven Stones quote form.
+ * Resend diagnostics and explicitly opt-in test sends.
  *
- *   node scripts/resend-test.mjs domains        list domains + verification state
- *   node scripts/resend-test.mjs ping           one plain deliverability probe
- *   node scripts/resend-test.mjs quote          one realistic lead, real template
- *   node scripts/resend-test.mjs all [filter]   one email per subject-tag variant
- *   node scripts/resend-test.mjs status <id>    delivery state of a sent email
+ * Read-only:
+ *   node scripts/resend-test.mjs domains
+ *   node scripts/resend-test.mjs status <email-id>
  *
- * It imports buildSubject/buildEmailBody/buildTextBody straight out of
- * api/quote.js, so what lands in the inbox is byte-identical to what the live
- * SMTP path produces. If the production template changes, this follows it.
- *
- * The API key is read from RESEND-API-KEY.txt at the project root (gitignored).
+ * Real sends require --send and RESEND_API_KEY, RESEND_TEST_TO (a controlled inbox),
+ * and RESEND_TEST_FROM (a verified sender). The script never reads project key files.
+ * It reuses the handler's subject/body builders, but does not exercise the live form.
  */
 
-import { readFileSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
-import { dirname, join } from 'node:path';
 import crypto from 'node:crypto';
 import { buildSubject, buildEmailBody, buildTextBody } from '../api/quote.js';
 
-const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
-
-// Practice sends go here only. Production recipients live in api/quote.js.
-const TEST_TO = 'ahmadhamadi2002@gmail.com';
-
-// Must match DEFAULT_RESEND_FROM in api/quote.js so test mail is indistinguishable
-// from production mail. tradeleadsmarketing.com is the verified sending domain.
-const FROM = 'Seven Stones Landscape <info@tradeleadsmarketing.com>';
+// This script can send real email. It never reads a key from a project file.
+const TEST_TO = process.env.RESEND_TEST_TO;
+const FROM = process.env.RESEND_TEST_FROM;
 
 function apiKey() {
-  const raw = readFileSync(join(ROOT, 'RESEND-API-KEY.txt'), 'utf8');
-  const match = raw.match(/\bre_[A-Za-z0-9_]+/);
-  if (!match) throw new Error('No re_... key found in RESEND-API-KEY.txt');
-  return match[0];
+  if (!process.env.RESEND_API_KEY) throw new Error('Set RESEND_API_KEY in the environment.');
+  return process.env.RESEND_API_KEY;
 }
 
 async function resend(path, options = {}) {
@@ -73,14 +59,13 @@ async function sendLead(body) {
 }
 
 const SAMPLE = {
-  full_name: 'Daniel Reyes',
-  email: 'daniel.reyes.test@gmail.com',
-  phone: '905-555-0142',
-  city: 'Burlington',
-  project_type: 'Interlock driveway',
-  services: 'Interlock & Hardscaping',
-  timeline: 'Spring 2027',
-  message: 'Looking to replace a cracked asphalt driveway, roughly 620 sq ft, plus a walkway to the front door. Would like a quote and a rough timeline.',
+  full_name: 'QA Test Lead',
+  email: 'qa@example.invalid',
+  phone: '+1 202-555-0100',
+  city: 'Example City',
+  project_type: 'Test project',
+  services: 'Test service',
+  message: 'Synthetic Resend template check; not a customer enquiry.',
   form_source: 'hero',
 };
 
@@ -96,7 +81,15 @@ const VARIANTS = [
   { form_source: 'full',                                    label: 'Full form (no tag)' },
 ];
 
-const [mode, arg] = process.argv.slice(2);
+const [mode, ...args] = process.argv.slice(2);
+const sendApproved = args.includes('--send');
+const arg = args.find((value) => value !== '--send');
+const sendModes = new Set(['ping', 'quote', 'all']);
+
+if (sendModes.has(mode)) {
+  if (!sendApproved) throw new Error(`Refusing to send: ${mode} requires the explicit --send flag.`);
+  if (!TEST_TO || !FROM) throw new Error('Set RESEND_TEST_TO and RESEND_TEST_FROM to a controlled test inbox and verified sender.');
+}
 
 if (mode === 'domains') {
   const d = await resend('/domains');
@@ -126,8 +119,10 @@ if (mode === 'domains') {
     await new Promise((r) => setTimeout(r, 600)); // Resend allows 10 req/s; this is just to keep inbox ordering readable
   }
 } else if (mode === 'status') {
+  if (!arg) throw new Error('Provide the Resend email ID to inspect.');
   const e = await resend(`/emails/${arg}`);
   console.log(`${e.last_event.padEnd(12)} ${e.subject}  -> ${e.to.join(', ')}`);
 } else {
-  console.log('usage: node scripts/resend-test.mjs domains|ping|quote|all|status <id>');
+  console.log('usage: node scripts/resend-test.mjs domains|status <id>|ping --send|quote --send|all [filter] --send');
+  console.log('For send modes, set RESEND_API_KEY, RESEND_TEST_TO, and RESEND_TEST_FROM.');
 }

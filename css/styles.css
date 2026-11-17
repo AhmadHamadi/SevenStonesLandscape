@@ -306,6 +306,51 @@ ul { list-style: none; }
   color: var(--form-optional);
   margin-top: 8px;
 }
+.sms-consent {
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr);
+  gap: 3px 9px;
+  grid-column: 1 / -1;
+  margin: 10px 0 12px;
+  color: var(--form-label);
+  font-size: 13px;
+  line-height: 1.45;
+  text-align: left;
+}
+.sms-consent input[type="checkbox"] {
+  grid-column: 1;
+  grid-row: 1;
+  width: 18px;
+  height: 18px;
+  margin: 1px 0 0;
+  padding: 0;
+  accent-color: var(--cta);
+}
+.sms-consent input[type="checkbox"]:focus-visible {
+  outline: 2px solid var(--cta);
+  outline-offset: 2px;
+}
+.sms-consent label {
+  grid-column: 2;
+  color: inherit;
+  font-size: inherit;
+  font-weight: 400;
+  line-height: inherit;
+  letter-spacing: normal;
+  cursor: pointer;
+}
+.sms-consent-links {
+  grid-column: 2;
+  margin: 2px 0 0;
+  color: inherit;
+  font-size: inherit;
+  line-height: inherit;
+}
+.sms-consent-links a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
 
 /* ===== 1. HEADER: TOP BAR + WHITE NAVBAR ===== */
 #site-header {

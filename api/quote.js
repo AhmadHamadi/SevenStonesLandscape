@@ -1,7 +1,8 @@
 /**
- * Vercel serverless function: accept quote form POST and email the team via SMTP.
+ * Vercel serverless function: accept quote form POST, deliver to the GHL intake webhook,
+ * and preserve the existing team email delivery/fallback.
  *
- * Production env (Vercel): set SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS. Optional: EMAIL_FROM.
+ * Production env (Vercel): GHL_INBOUND_WEBHOOK_URL and RESEND_API_KEY. Optional SMTP_* and EMAIL_FROM.
  * Forms POST application/x-www-form-urlencoded; Vercel parses into req.body.
  *
  * Deliverability rules this file depends on (see FORMS_SETUP.md):
@@ -14,6 +15,7 @@
 
 import nodemailer from 'nodemailer';
 import crypto from 'crypto';
+import { parsePhoneNumberFromString } from 'libphonenumber-js';
 
 const RECIPIENTS = [
   'info@sevenstoneslandscape.ca',
@@ -26,13 +28,35 @@ const RECIPIENTS = [
 // defaults separate means setting RESEND_API_KEY alone is safe; EMAIL_FROM still overrides
 // either transport.
 const DEFAULT_FROM = 'Seven Stones Landscape <forms@clinimedia.ca>';
-const DEFAULT_RESEND_FROM = 'Seven Stones Landscape <info@tradeleadsmarketing.com>';
+const DEFAULT_RESEND_FROM = 'Arveno Growth Website <website@arvenogrowth.com>';
 const EMPTY_FALLBACK = '&mdash;';
+const SMS_CONSENT_VERSION = 'sms-consent-v2-2026-11';
+const SMS_CONSENT_TEXT = 'I agree to receive text messages from Seven Stones Landscape about this estimate request and scheduling. Message frequency varies; message and data rates may apply. Reply STOP to opt out, HELP for help. Consent is not required to purchase.';
 
 const RATE_WINDOW_MS = 10 * 60 * 1000; // 10 minutes
 const RATE_MAX_REQUESTS = 12;
 const RATE_MAP_MAX_KEYS = 1000;
 const rateMap = new Map();
+async function deliverToGhlWebhook({ fullName, email, phone, address, service, message, formSource, submissionId, smsConsentFields, attributionFields }) {
+  const webhookUrl = process.env.GHL_INBOUND_WEBHOOK_URL;
+  if (!webhookUrl) throw new Error('GHL inbound webhook URL is not configured.');
+  const url = new URL(webhookUrl);
+  if (url.protocol !== 'https:') throw new Error('GHL inbound webhook must use HTTPS.');
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 8000);
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Idempotency-Key': submissionId },
+      body: JSON.stringify({ submissionId, full_name: fullName, email, phone, address, services: service, message, form_source: formSource, ...attributionFields, ...smsConsentFields }),
+      signal: controller.signal,
+    });
+    if (!response.ok) throw new Error(`GHL inbound webhook returned HTTP ${response.status}.`);
+    return true;
+  } finally {
+    clearTimeout(timer);
+  }
+}
 
 function escapeHtml(s) {
   if (s == null || s === '') return EMPTY_FALLBACK;
@@ -60,8 +84,42 @@ function asTrimmedString(value) {
   return String(value).trim();
 }
 
-function normalizePhone(phone) {
-  return phone.replace(/[^\d+]/g, '');
+function cleanTrackingValue(value, maxLength = 200) {
+  return asTrimmedString(value).replace(/[\u0000-\u001f\u007f]/g, '').slice(0, maxLength);
+}
+
+function cleanPagePath(value) {
+  const path = cleanTrackingValue(value, 500).split(/[?#]/, 1)[0];
+  return path.startsWith('/') && !path.startsWith('//') ? path : '';
+}
+
+function cleanReferrerHost(value) {
+  const raw = cleanTrackingValue(value, 2048);
+  if (!raw) return '';
+  try {
+    const url = new URL(raw.includes('://') ? raw : `https://${raw}`);
+    return /^[a-z0-9.-]+$/i.test(url.hostname) ? url.hostname.toLowerCase().slice(0, 253) : '';
+  } catch (_) {
+    return '';
+  }
+}
+
+function getAttributionFields(body) {
+  return {
+    // This is the city-page context, not a verified job-site city.
+    form_city_context: cleanTrackingValue(body.city, 100),
+    form_page_path: cleanPagePath(body.form_page_path),
+    referrer_host: cleanReferrerHost(body.referrer_host),
+    utm_source: cleanTrackingValue(body.utm_source),
+    utm_medium: cleanTrackingValue(body.utm_medium),
+    utm_campaign: cleanTrackingValue(body.utm_campaign),
+    utm_content: cleanTrackingValue(body.utm_content),
+    utm_term: cleanTrackingValue(body.utm_term),
+    gclid: cleanTrackingValue(body.gclid),
+    gbraid: cleanTrackingValue(body.gbraid),
+    wbraid: cleanTrackingValue(body.wbraid),
+    msclkid: cleanTrackingValue(body.msclkid),
+  };
 }
 
 function isValidEmail(email) {
@@ -206,25 +264,11 @@ function isRateLimited(ip) {
   return current.count > RATE_MAX_REQUESTS;
 }
 
-// The property address is the field the crew actually needs: it is what lets us measure the
-// job on satellite, confirm the lot is inside the service area, and route the site visit.
-// City pages still post a hidden `city`, so fold it in only when the customer did not
-// already type it as part of the address.
-function formatLocation(body) {
-  const address = asTrimmedString(body.address);
-  const city = asTrimmedString(body.city);
-  if (!address) return city;
-  if (city && !address.toLowerCase().includes(city.toLowerCase())) {
-    return `${address}, ${city}`;
-  }
-  return address;
-}
-
 // Rows that always print even when blank, so the shape of a lead email stays predictable.
 // Everything else is dropped when empty -- only the /lp/ forms send project_type and only
 // the site forms send services, so a fixed row list left a permanently blank line on
 // every single lead.
-const ALWAYS_SHOWN = new Set(['Name', 'Email', 'Phone', 'Property address', 'Message']);
+const ALWAYS_SHOWN = new Set(['Name', 'Email', 'Phone', 'Property address', 'Message', 'Submission reference']);
 
 function leadRows(body) {
   const message = asTrimmedString(body.message);
@@ -233,10 +277,24 @@ function leadRows(body) {
     ['Name', asTrimmedString(body.full_name)],
     ['Email', asTrimmedString(body.email)],
     ['Phone', asTrimmedString(body.phone)],
-    ['Property address', formatLocation(body)],
+    ['Property address', asTrimmedString(body.address) || (body.form_source === 'sms-opt-in' ? 'Not provided (SMS opt-in)' : '')],
+    ['Form city context', asTrimmedString(body.form_city_context)],
+    ['Form page path', asTrimmedString(body.form_page_path)],
+    ['Referrer host', asTrimmedString(body.referrer_host)],
+    ['UTM source', asTrimmedString(body.utm_source)],
+    ['UTM medium', asTrimmedString(body.utm_medium)],
+    ['UTM campaign', asTrimmedString(body.utm_campaign)],
+    ['UTM content', asTrimmedString(body.utm_content)],
+    ['UTM term', asTrimmedString(body.utm_term)],
+    ['Google click ID', asTrimmedString(body.gclid)],
     ['Project type', asTrimmedString(body.project_type)],
     ['Service', asTrimmedString(body.services)],
     ['Message', messageCapped],
+    ['SMS transactional consent', asTrimmedString(body.sms_transactional_consent) === 'yes' ? 'Yes' : 'No'],
+    ['SMS marketing consent', asTrimmedString(body.sms_marketing_consent) === 'yes' ? 'Yes' : 'No'],
+    ['SMS consent wording', asTrimmedString(body.sms_consent_text)],
+    ['SMS consent timestamp', asTrimmedString(body.sms_consent_at)],
+    ['Submission reference', asTrimmedString(body.submission_id)],
   ].filter(([label, value]) => ALWAYS_SHOWN.has(label) || value);
 }
 
@@ -299,7 +357,7 @@ export function buildSubject(body, fullName) {
 // FORMS_SETUP.md. SMTP stays as the fallback so nothing breaks until
 // RESEND_API_KEY is set in Vercel. Both build the SAME subject/html/text, so a
 // lead looks identical whichever transport carried it.
-async function sendViaResend({ from, subject, html, text, replyTo }) {
+async function sendViaResend({ from, subject, html, text, replyTo, submissionId }) {
   const payload = {
     from,
     to: RECIPIENTS,
@@ -309,7 +367,7 @@ async function sendViaResend({ from, subject, html, text, replyTo }) {
     headers: {
       // Same anti-threading / transactional hints the SMTP path sets. Resend
       // generates its own Message-ID, so that header is not set here.
-      'X-Entity-Ref-ID': crypto.randomUUID(),
+      'X-Entity-Ref-ID': submissionId,
       'Auto-Submitted': 'auto-generated',
     },
   };
@@ -321,7 +379,7 @@ async function sendViaResend({ from, subject, html, text, replyTo }) {
       Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
       'Content-Type': 'application/json',
       // Guards against a double-send if Vercel retries this invocation.
-      'Idempotency-Key': payload.headers['X-Entity-Ref-ID'],
+      'Idempotency-Key': `quote-${submissionId}`,
     },
     body: JSON.stringify(payload),
   });
@@ -333,7 +391,7 @@ async function sendViaResend({ from, subject, html, text, replyTo }) {
   return resp.json();
 }
 
-async function sendViaSmtp({ from, subject, html, text, replyTo, fromDomain }) {
+async function sendViaSmtp({ from, subject, html, text, replyTo, fromDomain, submissionId }) {
   const host = process.env.SMTP_HOST;
   const port = process.env.SMTP_PORT != null ? parseInt(process.env.SMTP_PORT, 10) : 465;
   const user = process.env.SMTP_USER;
@@ -366,12 +424,12 @@ async function sendViaSmtp({ from, subject, html, text, replyTo, fromDomain }) {
     text,
     html,
     // Keep the Message-ID on the From: domain; a mismatch is an extra spam signal.
-    messageId: `<${crypto.randomUUID()}@${fromDomain}>`,
+    messageId: `<${submissionId}@${fromDomain}>`,
     envelope: { from: envelopeFrom, to: RECIPIENTS },
     headers: {
       // Stops Gmail collapsing separate leads into one thread, and marks these as
       // transactional rather than promotional.
-      'X-Entity-Ref-ID': crypto.randomUUID(),
+      'X-Entity-Ref-ID': submissionId,
       'Auto-Submitted': 'auto-generated',
     },
   };
@@ -395,8 +453,8 @@ export default async function handler(req, res) {
   // dropped submission can never fire the Google Ads conversion.
   const dropToContact = () => (
     ajax
-      ? res.status(200).json({ ok: true, redirect: '/contact/?submitted=1' })
-      : res.redirect(302, '/contact/?submitted=1')
+      ? res.status(200).json({ ok: true, redirect: asTrimmedString(body.form_source) === 'sms-opt-in' ? '/sms-opt-in/?submitted=1' : '/contact/?submitted=1' })
+      : res.redirect(302, asTrimmedString(body.form_source) === 'sms-opt-in' ? '/sms-opt-in/?submitted=1' : '/contact/?submitted=1')
   );
 
   if (isRateLimited(ip)) {
@@ -412,27 +470,64 @@ export default async function handler(req, res) {
   }
 
   const fullName = asTrimmedString(body.full_name);
-  const email = asTrimmedString(body.email);
-  const phone = normalizePhone(asTrimmedString(body.phone));
+  const email = asTrimmedString(body.email).toLowerCase();
+  const rawPhone = asTrimmedString(body.phone);
+  const parsedPhone = parsePhoneNumberFromString(rawPhone, 'CA');
+  const phone = parsedPhone?.number || rawPhone;
   const message = asTrimmedString(body.message);
-  // Deliberately NOT server-side required: every form marks it `required`, but a lead that
-  // somehow arrives without one must still be delivered rather than 400'd away.
   const address = asTrimmedString(body.address);
+  const service = asTrimmedString(body.services);
+  const formSource = asTrimmedString(body.form_source) || 'website';
+  const attributionFields = getAttributionFields(body);
+  const isSmsOptIn = formSource === 'sms-opt-in';
+  const smsTransactionalConsent = asTrimmedString(body.sms_transactional_consent).toLowerCase() === 'yes';
+  const smsMarketingConsent = asTrimmedString(body.sms_marketing_consent).toLowerCase() === 'yes';
+  const smsConsentAccepted = asTrimmedString(body.sms_consent).toLowerCase() === 'yes' || smsTransactionalConsent || smsMarketingConsent;
+  const smsConsentText = [
+    smsTransactionalConsent ? 'I agree to receive non-promotional text messages from Seven Stones Landscape about my service inquiry, estimate, and scheduling. Message frequency varies; message and data rates may apply. Reply STOP to opt out or HELP for help. Consent is not required to purchase.' : '',
+    smsMarketingConsent ? 'I agree to receive promotional and marketing text messages from Seven Stones Landscape. Message frequency varies; message and data rates may apply. Reply STOP to opt out or HELP for help. Consent is not required to purchase.' : '',
+    !isSmsOptIn && asTrimmedString(body.sms_consent).toLowerCase() === 'yes' ? SMS_CONSENT_TEXT : '',
+  ].filter(Boolean).join(' ');
+  // Keep evidence per enquiry; do not overwrite contact-level DND or consent state.
+  const smsConsentFields = {
+    sms_consent_this_submission: smsConsentAccepted,
+    sms_consent_text: smsConsentAccepted ? smsConsentText : '',
+    sms_consent_version: smsConsentAccepted ? SMS_CONSENT_VERSION : '',
+    sms_consent_at: smsConsentAccepted ? new Date().toISOString() : '',
+    sms_consent_source: smsConsentAccepted ? formSource : '',
+    sms_transactional_consent: smsTransactionalConsent,
+    sms_marketing_consent: smsMarketingConsent,
+  };
+  const submittedId = asTrimmedString(body.submission_id || body.submissionId);
+  const submissionId = submittedId || crypto.createHash('sha256')
+    .update(JSON.stringify([fullName, email, phone, address, service, message, formSource, smsTransactionalConsent, smsMarketingConsent, asTrimmedString(body.sms_consent).toLowerCase() === 'yes']))
+    .digest('hex');
 
-  if (!fullName || (!email && !phone)) {
-    return res.status(400).json({ error: 'Please provide your name and either email or phone.' });
+  if (!fullName || !email || !phone || (!isSmsOptIn && !address)) {
+    return res.status(400).json({ error: isSmsOptIn ? 'Please provide your name, email, and phone number.' : 'Please provide your full name, email, phone, and property address.' });
+  }
+  if (isSmsOptIn && !smsTransactionalConsent && !smsMarketingConsent) {
+    return res.status(400).json({ error: 'Please select at least one SMS opt-in choice.' });
   }
 
   if (!isReasonableName(fullName)) {
     return res.status(400).json({ error: 'Please provide a valid full name.' });
   }
 
-  if (email && !isValidEmail(email)) {
+  if (!isValidEmail(email)) {
     return res.status(400).json({ error: 'Please provide a valid email address.' });
   }
 
-  if (phone && !email && !isReasonablePhone(phone)) {
+  if (!isReasonablePhone(rawPhone) || !parsedPhone?.isValid()) {
     return res.status(400).json({ error: 'Please provide a valid phone number.' });
+  }
+
+  if (address.length > 300 || message.length > 5000 || service.length > 200) {
+    return res.status(400).json({ error: 'Please shorten the address, service, or message and try again.' });
+  }
+
+  if (!/^(?:[0-9a-f-]{36}|[0-9a-f]{64})$/i.test(submissionId)) {
+    return res.status(400).json({ error: 'Please refresh the page and submit the form again.' });
   }
 
   if (looksLikeSpamMessage(message)) {
@@ -447,17 +542,31 @@ export default async function handler(req, res) {
     return dropToContact();
   }
 
+  // The website forwards the enquiry to one GHL inbound workflow. GHL owns CRM
+  // matching, project creation, qualification, and booking. The stable reference is a
+  // correlation key; the GHL lookup/create workflow is not an atomic idempotency lock.
+  let webhookError = null;
+  try {
+    await deliverToGhlWebhook({ fullName, email, phone, address, service, message, formSource, submissionId, smsConsentFields, attributionFields });
+  } catch (error) {
+    webhookError = error;
+    console.error('GHL intake webhook failed:', error?.message || 'unknown error');
+  }
+
   const useResend = Boolean(process.env.RESEND_API_KEY);
   const from = process.env.EMAIL_FROM || (useResend ? DEFAULT_RESEND_FROM : DEFAULT_FROM);
   const normalized = {
     ...body,
+    ...attributionFields,
+    ...smsConsentFields,
     full_name: fullName,
     email,
     phone,
     address,
     message,
+    submission_id: submissionId,
   };
-  const subject = buildSubject(body, fullName);
+  const subject = isSmsOptIn ? `SMS opt-in submission from ${fullName}` : buildSubject({ ...body, submission_id: submissionId }, fullName);
   const html = buildEmailBody(normalized);
   const text = buildTextBody(normalized);
   const replyTo = email || undefined;
@@ -468,14 +577,14 @@ export default async function handler(req, res) {
   // it -- with Resend configured, SMTP failing is now survivable and vice versa.
   const transports = [];
   if (useResend) {
-    transports.push(['Resend', () => sendViaResend({ from, subject, html, text, replyTo })]);
+    transports.push(['Resend', () => sendViaResend({ from, subject, html, text, replyTo, submissionId })]);
   }
   if (process.env.SMTP_HOST) {
     transports.push(['SMTP', () => sendViaSmtp({
       // SMTP can only send as the mailbox it authenticates against, so when it is acting
       // as the backup for Resend it must not inherit the Resend from address.
       from: process.env.EMAIL_FROM || DEFAULT_FROM,
-      subject, html, text, replyTo, fromDomain,
+      subject, html, text, replyTo, fromDomain, submissionId,
     })]);
   }
 
@@ -486,14 +595,16 @@ export default async function handler(req, res) {
 
   let delivered = false;
   const failures = [];
-  for (const [name, send] of transports) {
-    try {
-      await send();
-      delivered = true;
-      if (failures.length) console.warn(`Delivered via ${name} after: ${failures.join(' | ')}`);
-      break;
-    } catch (err) {
-      failures.push(`${name}: ${err.message}`);
+  if (!delivered) {
+    for (const [name, send] of transports) {
+      try {
+        await send();
+        delivered = true;
+        if (failures.length) console.warn(`Delivered via ${name} after: ${failures.join(' | ')}`);
+        break;
+      } catch (err) {
+        failures.push(`${name}: ${err.message}`);
+      }
     }
   }
 
@@ -514,15 +625,22 @@ export default async function handler(req, res) {
       services: asTrimmedString(body.services),
       message,
       form_source: body.form_source || 'website',
+      submission_id: submissionId,
     }));
     return res.status(500).json({ error: 'Failed to send email' });
+  }
+
+  if (webhookError) {
+    return res.status(503).json({
+      error: 'Your enquiry email was delivered, but we could not confirm the CRM received it. Please contact the team before submitting again to avoid a duplicate.',
+    });
   }
 
   // Confirmed success (email sent). Fetch clients (the Google Ads landing-page forms)
   // get JSON and redirect themselves to /thank-you/, which fires the conversion. Native
   // form posts keep the original 302 to the contact thank-you message.
   if (ajax) {
-    return res.status(200).json({ ok: true });
+    return res.status(200).json({ ok: true, redirect: isSmsOptIn ? '/sms-opt-in/?submitted=1' : undefined });
   }
-  return res.redirect(302, '/contact/?submitted=1');
+  return res.redirect(302, isSmsOptIn ? '/sms-opt-in/?submitted=1' : '/contact/?submitted=1');
 }

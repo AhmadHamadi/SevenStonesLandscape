@@ -1,181 +1,62 @@
-# Form submissions on Vercel → SMTP
+# Website quote forms and Vercel intake
 
-> ## ⚠️ Deliverability: why form emails were landing in spam
->
-> Diagnosed 2026-07-15. There were two independent causes. **The code half is fixed. The DNS/mailbox half is not — it needs changes you must make in DNS and cPanel/Google Admin. Until step 9 is done, expect mail to keep landing in spam.**
->
-> ### Fixed in `api/quote.js`
->
-> | Problem | Why Gmail punished it |
-> |---|---|
-> | Message was addressed `To: forms@clinimedia.ca` (its own From:) with all three real recipients in **Bcc** | A message whose only real recipients are Bcc'd, addressed to its own sender, is the textbook shape of bulk/list mail. This was the single biggest signal. Real recipients now go in `To:`. |
-> | **HTML-only** body, no text part | Standing SpamAssassin penalty (`MIME_HTML_ONLY`). Now sends `multipart/alternative` with a real text/plain part. |
-> | `Message-ID` generated from the Vercel container hostname | Domain mismatch against `From:`. Now pinned to the From: domain. |
-> | Envelope sender not pinned | SPF authenticates the **envelope** (Return-Path), not the `From:` header. Now pinned to the authenticated mailbox so SPF passes *and aligns* for DMARC. |
-> | No `X-Entity-Ref-ID` | Gmail collapsed separate leads into one thread and clipped them. |
->
-> ### NOT fixed — requires DNS + mailbox changes (step 9)
->
-> 1. **Brand/domain mismatch.** Mail says `Seven Stones Landscape <forms@clinimedia.ca>`. The display name claims one company; the domain belongs to another. Gmail treats display-name/domain mismatch as an impersonation signal. **This is now the biggest remaining cause.**
-> 2. **`sevenstoneslandscape.ca` has no DMARC record at all** (`_dmarc.sevenstoneslandscape.ca` → NXDOMAIN).
-> 3. **`clinimedia.ca` DMARC is `p=none`** — monitoring only, so it earns no trust.
-> 4. **Stale SPF.** `clinimedia.ca` publishes `ip4:69.90.221.129`, which is not the current mail host (`mail.clinimedia.ca` → `66.102.128.189`). Leftover from an old host.
-> 5. **Shared reseller IP with generic PTR.** `66.102.128.189` reverses to `res-cp6.yyz2.websiteservername.com`, not `mail.clinimedia.ca`. Forward-confirmed reverse DNS fails, and you inherit the spam reputation of every other tenant on that box.
->
-> **Recommended fix — send from the brand's own domain.** `sevenstoneslandscape.ca` already runs Google Workspace (`MX → smtp.google.com`, `SPF → include:_spf.google.com`). Sending `forms@sevenstoneslandscape.ca` → `info@sevenstoneslandscape.ca` is Google-to-Google *within the same domain*, which is about as deliverable as email gets, and it makes the From: domain match the brand. See **step 9**.
+Last checked: 2026-11-15. This is an operational note for the public `SevenStonesLandscape` repository. Do not store credentials or customer submissions here. Production remains on `main`; the optional SMS-consent change is Preview-only until owner/legal approval and end-to-end verification.
 
----
+## Current state
 
-## Original setup notes (cPanel SMTP)
+- Project: `seven-stones-landscape`, connected to `AhmadHamadi/SevenStonesLandscape`; `main` is the Vercel Production branch.
+- Production remains on `main` commit `7a34658`.
+- The reviewed intake code is on `codex/sevenstones-ghl-intake-preview` at `de7ad4c`. The Preview built successfully and the home page/forms were inspected without submission.
+- `RESEND_API_KEY` and `GHL_INBOUND_WEBHOOK_URL` are Vercel Production Secrets. Their values were not read. Preview has no copies of those secrets, by design.
+- The website project and domains are connected and valid. No Git reconnect or domain reset is needed.
 
-This site is deployed on **Vercel**. Form submissions are handled by a serverless function that sends one email to **both** team addresses using your **cPanel SMTP** settings. All form emails are sent **from forms@clinimedia.ca** so customers see one clear team address.
+## Form contract
 
----
+All quote forms POST URL-encoded form data to `/api/quote`. The server expects:
 
-## 1. How it works
+- `full_name`, `email`, `phone`, and `address`
+- `services` or `project_type`, depending on the form
+- original `message`, `form_source`, and a stable `submission_id`
+- optional `sms_consent=yes` when the visitor deliberately checks the unchecked-by-default estimate/scheduling SMS box
+- honeypots `bot-field` and `website`
 
-- Every form has **action="/api/quote"** and **method="POST"**.
-- On submit, the browser sends the form to **`/api/quote`** (Vercel serverless function).
-- The function checks hidden spam traps (**bot-field** and **website**), message spam patterns, and basic rate limits; suspicious submissions are silently dropped (no email sent).
-- Otherwise it sends one email **from forms@clinimedia.ca** via your cPanel SMTP server to:
-  - **info@sevenstoneslandscape.ca**
-  - **ahmadhamadi2002@gmail.com**
-- The user is redirected to **/contact/?submitted=1** and sees a thank-you message.
+The server validates required fields, normalizes Canadian phone numbers, limits field lengths, rate-limits by IP, and applies honeypot/spam filters. The frontend must not claim a successful submission until the server responds successfully.
 
----
+## What the server does
 
-## 2. Get your cPanel SMTP details
+On the Preview branch, `/api/quote`:
 
-In **cPanel** (for the account that hosts clinimedia.ca):
+1. Posts the original inquiry and per-submission consent evidence to the server-side `GHL_INBOUND_WEBHOOK_URL`.
+2. Sends the internal notification through Resend, with SMTP as a configured fallback.
 
-1. **Email Accounts** – Make sure **forms@clinimedia.ca** exists and note its password (or set one).
-2. **Email Deliverability** or **Email Routing** – Find the **outgoing SMTP** settings. They’re often:
-   - **Server:** `mail.clinimedia.ca` (or your server hostname, e.g. `box123.serversomething.com`)
-   - **Port:** **465** (SSL, recommended) or **587** (TLS)
-   - **Username:** `forms@clinimedia.ca` (full email)
-   - **Password:** the password for forms@clinimedia.ca
+When checked, the webhook payload includes `sms_consent_this_submission`, the exact text shown, a wording version, server timestamp, and form source. When unchecked, it records `false` and leaves the evidence fields blank. This is per-enquiry evidence; do not map it to overwrite a contact's global DND or prior consent state. The workflow still needs matching custom-field mapping and readback before this data is considered stored in GHL.
+3. Returns success only when both systems confirm receipt. If GHL fails but email succeeds, it returns `503` and tells the visitor to contact the team before resubmitting.
 
-If you’re not sure, check cPanel’s “Connect Devices” or “Configure SMTP” / “Manual Settings” for the exact host, port, and “secure” option.
+The `submission_id` and `Idempotency-Key` are correlation aids. The GHL Find Opportunity → Create Opportunity sequence is not an atomic lock, so it does not prove concurrent duplicate protection. The handler also does not have a durable outbox for recovery after provider failures. When all email transports fail, the current last-resort path writes submission details to Vercel logs; this is not a durable or privacy-minimized recovery system and is tracked for follow-up.
 
----
+## Safe validation
 
-## 3. Vercel environment variables
+Run locally from this project:
 
-In **Vercel** → your project → **Settings** → **Environment Variables**, add:
+```sh
+npm test
+node --check api/quote.js
+```
 
-| Name | Value | Environment |
-|------|--------|-------------|
-| **SMTP_HOST** | Your cPanel SMTP server (e.g. `mail.clinimedia.ca`) | Production (and Preview if you test there) |
-| **SMTP_PORT** | `465` (SSL, recommended for cPanel) or `587` (TLS) | Production; default is 465 if omitted |
-| **SMTP_USER** | `forms@clinimedia.ca` | Production |
-| **SMTP_PASS** | Password for forms@clinimedia.ca | Production |
+The test suite uses stubs for Resend and GHL. It checks form contracts, routing, all known form-source values, the explicit-send guard, the optional SMS-consent payload for checked/unchecked submissions, all 34 quote-form pages loading the shared consent script, and the GHL failure response. It does not send email, call a real webhook, create CRM records, or prove live delivery.
 
-Optional:
+For Preview QA, open the pages and inspect the form structure; do not submit a real customer form. Do not add Production credentials to Preview. The GHL inbound webhook trigger is marked premium in the current account UI and may charge per execution; do not run a live test without an isolated destination and explicit cost approval.
 
-| Name | Value |
-|------|--------|
-| **EMAIL_FROM** | Custom From line, e.g. `Seven Stones Landscape <forms@clinimedia.ca>`. If not set, the default is exactly that. |
+## Production release gate
 
----
+Do not merge or promote until the following are verified in an isolated, approved test setup:
 
-## 4. Redeploy
+- Owner and qualified reviewer approve the separate, optional SMS wording and updated Privacy/Terms copy; it remains unchecked and is not required for a quote.
+- The Draft workflow maps the five per-submission consent fields to project-level fields and readback proves them without changing contact DND/previous consent.
+- One synthetic submission creates/matches the right contact and one linked opportunity with all original fields.
+- A sequential retry with the same submission ID does not create a second opportunity or duplicate team email.
+- Provider failures have a documented, durable recovery path; no concurrent-duplicate guarantee is made without a passing concurrency test.
+- Resend and GHL success are confirmed separately, and the approved sender is verified.
+- The client-owned calendar, channel, AI usage stop, and customer-message controls are verified in HighLevel.
 
-After saving the env vars, **redeploy** the project (e.g. **Deployments** → … on latest → **Redeploy**) so the function gets the new SMTP config.
-
----
-
-## 5. Verifying it’s connected
-
-- On the **live** site, fill out any quote form and submit.
-- You should:
-  1. Be redirected to the contact page with a thank-you message.
-  2. Receive the same email at **both** inboxes (info@sevenstoneslandscape.ca and ahmadhamadi2002@gmail.com), with the email **From: Seven Stones Landscape &lt;forms@clinimedia.ca&gt;** (or your custom **EMAIL_FROM**).
-
-If the email doesn’t arrive, check **Vercel** → **Project** → **Logs** (or **Functions**) for SMTP errors. Common issues: wrong **SMTP_HOST** or **SMTP_PORT**, or cPanel only allowing SMTP from the server IP (in that case you may need to use a relay or “SMTP under SSL” from an allowed IP; Vercel’s IPs might need to be allowed in cPanel if your host restricts remote SMTP).
-
----
-
-## 6. Form fields and “form_source”
-
-All forms send: **full_name**, **email**, **phone**, **address**, **services** (or **project_type** on the two `/lp/` pages), **message**, and hidden **form_source** (hero, full, contact, hamilton, burlington, etc.). The email body includes “from [form_source]” so you can see which page was used.
-
-**full_name, email, phone and address are required on every form.** The property address replaced the old City dropdown: it is what lets us measure the job on satellite and confirm the lot is in the service area before calling, and it carries the city anyway, so the form got no longer. The 11 city pages still post their own city as a hidden field, and the email folds it into one `Property address` line (`42 King St W, Hamilton`) without repeating it if the customer already typed it.
-
-The **timeline** dropdown was removed from all forms. Optional rows with no value (project_type, services) are omitted from the email rather than printed blank.
-
-Address is deliberately **not** enforced server-side. Every form marks it `required` and both client validators check it, but a submission that somehow arrives without one is still delivered rather than rejected — losing a real lead is worse than an incomplete one.
-
----
-
-## 7. Quick checklist
-
-- [ ] **forms@clinimedia.ca** exists in cPanel and you know its password.
-- [ ] cPanel SMTP host, port (465 or 587), and secure option noted.
-- [ ] Vercel env vars **SMTP_HOST**, **SMTP_PORT**, **SMTP_USER**, **SMTP_PASS** set.
-- [ ] **EMAIL_FROM** set (optional) if you want a different From line.
-- [ ] Project redeployed.
-- [ ] Test: submit the form; both inboxes receive the email **from forms@clinimedia.ca** and you see the thank-you page.
-
----
-
-## 9. Fixing deliverability for real (do this — the code fix alone is not enough)
-
-Goal: stop sending as `clinimedia.ca` and start sending as `sevenstoneslandscape.ca`, so the From: domain matches the brand and the mail is authenticated end to end.
-
-### 9a. Create the sending mailbox in Google Workspace
-
-1. **Google Admin** (admin.google.com) → **Directory** → **Users** → add user **`forms@sevenstoneslandscape.ca`**.
-   - A full user works. A cheaper alternative is an alias on an existing user, but an alias cannot authenticate to SMTP — you need a real mailbox to send.
-2. On that user, turn on **2-Step Verification**, then create an **App Password** (Google Account → Security → App passwords). This 16-character password is what goes in `SMTP_PASS`. A normal account password will not authenticate.
-
-### 9b. Turn on DKIM for sevenstoneslandscape.ca
-
-**`sevenstoneslandscape.ca` currently has no DKIM key published** (`google._domainkey.sevenstoneslandscape.ca` → NXDOMAIN). Without it, DMARC can only pass on SPF, which breaks on any forward.
-
-1. **Google Admin** → **Apps** → **Google Workspace** → **Gmail** → **Authenticate email**.
-2. Select `sevenstoneslandscape.ca`, choose **2048-bit**, click **Generate new record**.
-3. Publish the TXT record it gives you at host **`google._domainkey`**.
-4. Wait for propagation, then click **Start authentication** in Admin.
-
-### 9c. Add DMARC for sevenstoneslandscape.ca
-
-There is **no DMARC record at all** today. Add a TXT record:
-
-| Host | Value |
-|---|---|
-| `_dmarc` | `v=DMARC1; p=none; rua=mailto:info@sevenstoneslandscape.ca; adkim=s; aspf=s; pct=100` |
-
-Start at `p=none` and read the aggregate reports for ~2 weeks. Once SPF+DKIM pass consistently, tighten to `p=quarantine`, then `p=reject`. **Do not jump straight to `p=reject`** — you will blackhole your own mail if anything is misaligned.
-
-### 9d. Point Vercel at Google
-
-**Vercel** → project → **Settings** → **Environment Variables** (Production):
-
-| Name | Value |
-|---|---|
-| `SMTP_HOST` | `smtp.gmail.com` |
-| `SMTP_PORT` | `587` |
-| `SMTP_USER` | `forms@sevenstoneslandscape.ca` |
-| `SMTP_PASS` | the 16-char **App Password** from 9a |
-| `EMAIL_FROM` | `Seven Stones Landscape <forms@sevenstoneslandscape.ca>` |
-
-`api/quote.js` already sets `requireTLS` on port 587 and pins the envelope sender to `SMTP_USER`, so SPF/DKIM/DMARC will all align once the DNS above is live. Then **redeploy**.
-
-### 9e. Clean up clinimedia.ca (housekeeping, do regardless)
-
-- Remove the stale `ip4:69.90.221.129` from the SPF record — it is not your mail host and every unnecessary mechanism costs you one of SPF's 10 DNS lookups.
-- Raise DMARC off `p=none` once you have report data.
-
-### 9f. Verify it actually worked
-
-1. Send a test through the live form.
-2. Open the received message in Gmail → **⋮** → **Show original**.
-3. You must see **all three**:
-   ```
-   SPF:   PASS with domain sevenstoneslandscape.ca
-   DKIM:  PASS with domain sevenstoneslandscape.ca
-   DMARC: PASS
-   ```
-   If DKIM says `neutral` or is absent, 9b has not propagated yet.
-4. Also send one test to **mail-tester.com** and confirm the score is **9/10 or better**.
-5. Have anyone who previously found these in spam click **Report not spam** and add `forms@sevenstoneslandscape.ca` to their contacts. Reputation is per-recipient and sticky — the existing spam history against `forms@clinimedia.ca` is part of why this kept happening, and moving domains resets it.
+The current Production deployment does not contain the Preview intake commit. Do not change Production environment variables, submit a live form, publish the client workflow, or enable AI as part of Preview testing.

@@ -66,6 +66,86 @@
   }
 
   function runUI() {
+    // Reuse a reference after an in-page retry or refresh so downstream lookup can
+    // correlate the attempt. The reference alone does not guarantee duplicate prevention.
+    document.querySelectorAll('form[action*="/api/quote"]').forEach(function(form, index) {
+      if (!form.querySelector('[name="sms_consent"]')) {
+        var consent = document.createElement('div');
+        consent.className = 'sms-consent';
+        var checkbox = document.createElement('input');
+        var checkboxId = 'seven-stones-sms-consent-' + index;
+        checkbox.type = 'checkbox';
+        checkbox.name = 'sms_consent';
+        checkbox.value = 'yes';
+        checkbox.id = checkboxId;
+        var label = document.createElement('label');
+        label.htmlFor = checkboxId;
+        label.textContent = 'I agree to receive text messages from Seven Stones Landscape about this estimate request and scheduling. Message frequency varies; message and data rates may apply. Reply STOP to opt out, HELP for help. Consent is not required to purchase.';
+        var policyLinks = document.createElement('p');
+        policyLinks.className = 'sms-consent-links';
+        policyLinks.innerHTML = 'Read our <a href="/privacy/">Privacy Policy</a> and <a href="/terms-of-service/">Terms of Service</a>.';
+        consent.appendChild(checkbox);
+        consent.appendChild(label);
+        consent.appendChild(policyLinks);
+        var submitButton = form.querySelector('button[type="submit"], input[type="submit"]');
+        if (submitButton) form.insertBefore(consent, submitButton);
+        else form.appendChild(consent);
+      }
+      var pagePathField = form.querySelector('[name="form_page_path"]');
+      if (!pagePathField) {
+        pagePathField = document.createElement('input');
+        pagePathField.type = 'hidden';
+        pagePathField.name = 'form_page_path';
+        form.appendChild(pagePathField);
+      }
+      pagePathField.value = window.location.pathname || '/';
+
+      var referrerHost = '';
+      try {
+        if (document.referrer) referrerHost = new URL(document.referrer).hostname;
+      } catch (_) {}
+      var referrerField = form.querySelector('[name="referrer_host"]');
+      if (!referrerField) {
+        referrerField = document.createElement('input');
+        referrerField.type = 'hidden';
+        referrerField.name = 'referrer_host';
+        form.appendChild(referrerField);
+      }
+      referrerField.value = referrerHost;
+
+      var trackingParams = new URLSearchParams(window.location.search);
+      ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'gclid', 'gbraid', 'wbraid', 'msclkid'].forEach(function(name) {
+        var field = form.querySelector('[name="' + name + '"]');
+        if (!field) {
+          field = document.createElement('input');
+          field.type = 'hidden';
+          field.name = name;
+          form.appendChild(field);
+        }
+        field.value = trackingParams.get(name) || '';
+      });
+
+      var source = form.querySelector('[name="form_source"]');
+      var storageKey = 'sevenstones-estimate:' + location.pathname + ':' + (source ? source.value : index);
+      form.dataset.submissionStorageKey = storageKey;
+      var field = form.querySelector('[name="submission_id"]');
+      if (!field) {
+        field = document.createElement('input');
+        field.type = 'hidden';
+        field.name = 'submission_id';
+        form.appendChild(field);
+      }
+      try {
+        var id = sessionStorage.getItem(storageKey);
+        if (!id || !/^[0-9a-f-]{36}$/i.test(id)) {
+          id = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) { var r = Math.random() * 16 | 0; return (c === 'x' ? r : (r & 3 | 8)).toString(16); });
+          sessionStorage.setItem(storageKey, id);
+        }
+        field.value = id;
+      } catch (_) {
+        if (!field.value) field.value = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) { var r = Math.random() * 16 | 0; return (c === 'x' ? r : (r & 3 | 8)).toString(16); });
+      }
+    });
     var header = document.getElementById('site-header');
     var toggle = document.querySelector('.nav-toggle');
     var mobileNav = document.querySelector('.nav-mobile');
@@ -311,6 +391,7 @@
           return resp.json().catch(function() { return {}; }).then(function(data) {
             // A silently-dropped bot submission comes back with an explicit redirect to
             // /contact/, so spam can never reach /thank-you/ and fire a conversion.
+            try { sessionStorage.removeItem(form.dataset.submissionStorageKey); } catch (_) {}
             window.location.href = (data && data.redirect) || '/thank-you/';
           });
         }).catch(function() {
