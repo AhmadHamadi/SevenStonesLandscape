@@ -307,9 +307,9 @@ ul { list-style: none; }
   margin-top: 8px;
 }
 .sms-consent {
-  display: grid;
-  grid-template-columns: 18px minmax(0, 1fr);
-  gap: 3px 9px;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
   grid-column: 1 / -1;
   margin: 10px 0 12px;
   color: var(--form-label);
@@ -317,7 +317,12 @@ ul { list-style: none; }
   line-height: 1.45;
   text-align: left;
 }
-.sms-consent input[type="checkbox"] {
+.sms-consent-choice {
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr);
+  gap: 3px 9px;
+}
+.sms-consent-choice input[type="checkbox"] {
   grid-column: 1;
   grid-row: 1;
   width: 18px;
@@ -326,11 +331,11 @@ ul { list-style: none; }
   padding: 0;
   accent-color: var(--cta);
 }
-.sms-consent input[type="checkbox"]:focus-visible {
+.sms-consent-choice input[type="checkbox"]:focus-visible {
   outline: 2px solid var(--cta);
   outline-offset: 2px;
 }
-.sms-consent label {
+.sms-consent-choice label {
   grid-column: 2;
   color: inherit;
   font-size: inherit;

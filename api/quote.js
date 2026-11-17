@@ -31,7 +31,7 @@ const DEFAULT_FROM = 'Seven Stones Landscape <forms@clinimedia.ca>';
 const DEFAULT_RESEND_FROM = 'Arveno Growth Website <website@arvenogrowth.com>';
 const EMPTY_FALLBACK = '&mdash;';
 const SMS_CONSENT_VERSION = 'sms-consent-v2-2026-11';
-const SMS_CONSENT_TEXT = 'I agree to receive text messages from Seven Stones Landscape about this estimate request and scheduling. Message frequency varies; message and data rates may apply. Reply STOP to opt out, HELP for help. Consent is not required to purchase.';
+const SMS_CONSENT_TEXT = 'I agree to receive non-promotional service text messages from Seven Stones Landscape about my estimate request and scheduling. Message frequency varies; message and data rates may apply. Reply HELP for help or STOP to opt out. Consent is not required to purchase. You must be 18 or older to enroll.';
 
 const RATE_WINDOW_MS = 10 * 60 * 1000; // 10 minutes
 const RATE_MAX_REQUESTS = 12;
@@ -480,13 +480,13 @@ export default async function handler(req, res) {
   const formSource = asTrimmedString(body.form_source) || 'website';
   const attributionFields = getAttributionFields(body);
   const isSmsOptIn = formSource === 'sms-opt-in';
-  const smsTransactionalConsent = asTrimmedString(body.sms_transactional_consent).toLowerCase() === 'yes';
+  const legacySmsConsent = asTrimmedString(body.sms_consent).toLowerCase() === 'yes';
+  const smsTransactionalConsent = asTrimmedString(body.sms_transactional_consent).toLowerCase() === 'yes' || legacySmsConsent;
   const smsMarketingConsent = asTrimmedString(body.sms_marketing_consent).toLowerCase() === 'yes';
   const smsConsentAccepted = asTrimmedString(body.sms_consent).toLowerCase() === 'yes' || smsTransactionalConsent || smsMarketingConsent;
   const smsConsentText = [
-    smsTransactionalConsent ? 'I agree to receive non-promotional text messages from Seven Stones Landscape about my service inquiry, estimate, and scheduling. Message frequency varies; message and data rates may apply. Reply STOP to opt out or HELP for help. Consent is not required to purchase.' : '',
-    smsMarketingConsent ? 'I agree to receive promotional and marketing text messages from Seven Stones Landscape. Message frequency varies; message and data rates may apply. Reply STOP to opt out or HELP for help. Consent is not required to purchase.' : '',
-    !isSmsOptIn && asTrimmedString(body.sms_consent).toLowerCase() === 'yes' ? SMS_CONSENT_TEXT : '',
+    smsTransactionalConsent ? SMS_CONSENT_TEXT : '',
+    smsMarketingConsent ? 'I agree to receive promotional and marketing text messages from Seven Stones Landscape. Message frequency varies; message and data rates may apply. Reply HELP for help or STOP to opt out. Consent is not required to purchase. You must be 18 or older to enroll.' : '',
   ].filter(Boolean).join(' ');
   // Keep evidence per enquiry; do not overwrite contact-level DND or consent state.
   const smsConsentFields = {
