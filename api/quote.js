@@ -30,8 +30,8 @@ const RECIPIENTS = [
 const DEFAULT_FROM = 'Seven Stones Landscape <forms@clinimedia.ca>';
 const DEFAULT_RESEND_FROM = 'Seven Stones Landscape <info@arvenogrowth.com>';
 const EMPTY_FALLBACK = '&mdash;';
-const SMS_CONSENT_VERSION = 'sms-consent-v2-2026-11';
-const SMS_CONSENT_TEXT = 'I agree to receive non-promotional service text messages from Seven Stones Landscape about my estimate request and scheduling. Message frequency varies; message and data rates may apply. Reply HELP for help or STOP to opt out. Consent is not required to purchase. You must be 18 or older to enroll.';
+const SMS_CONSENT_VERSION = 'quote-submit-service-sms-v3-2026-11';
+const SMS_CONSENT_TEXT = 'By sending my request, I agree that Seven Stones Landscape may text me about this quote, including scheduling an in-person estimate visit. Message frequency varies; message and data rates may apply. Reply STOP to opt out or HELP for help. Consent is not required to purchase. You must be 18 or older.';
 
 const RATE_WINDOW_MS = 10 * 60 * 1000; // 10 minutes
 const RATE_MAX_REQUESTS = 12;
