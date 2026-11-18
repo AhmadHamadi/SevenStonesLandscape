@@ -28,7 +28,7 @@ const RECIPIENTS = [
 // defaults separate means setting RESEND_API_KEY alone is safe; EMAIL_FROM still overrides
 // either transport.
 const DEFAULT_FROM = 'Seven Stones Landscape <forms@clinimedia.ca>';
-const DEFAULT_RESEND_FROM = 'Arveno Growth Website <website@arvenogrowth.com>';
+const DEFAULT_RESEND_FROM = 'Seven Stones Landscape <info@arvenogrowth.com>';
 const EMPTY_FALLBACK = '&mdash;';
 const SMS_CONSENT_VERSION = 'sms-consent-v2-2026-11';
 const SMS_CONSENT_TEXT = 'I agree to receive non-promotional service text messages from Seven Stones Landscape about my estimate request and scheduling. Message frequency varies; message and data rates may apply. Reply HELP for help or STOP to opt out. Consent is not required to purchase. You must be 18 or older to enroll.';
@@ -333,9 +333,9 @@ export function buildTextBody(body) {
 
 export function buildSubject(body, fullName) {
   const src = String(body.form_source || '').toLowerCase();
-  let tag = '';
-  if (src.includes('ads-concrete')) tag = '[Concrete LP] ';
-  else if (src.includes('ads-interlock')) tag = '[Interlock LP] ';
+  let page = 'Website';
+  if (src.includes('ads-concrete')) page = 'Concrete landing page';
+  else if (src.includes('ads-interlock')) page = 'Interlock landing page';
   // service-hero-* must be tested BEFORE the bare 'hero' check: every service page
   // source contains the substring 'hero', so testing 'hero' first swallowed all 20 of
   // them and tagged real service leads as [Homepage].
@@ -344,11 +344,16 @@ export function buildSubject(body, fullName) {
       .replace('service-hero-', '')
       .replace(/^(services|solutions)-/, '')
       .replace(/-/g, ' ');
-    tag = `[Service: ${slug}] `;
+    page = `Service page: ${slug}`;
   }
-  else if (src.includes('hero')) tag = '[Homepage] ';
-  else if (src.includes('contact')) tag = '[Contact page] ';
-  return `${tag}Quote request from ${fullName || 'Customer'}`;
+  else if (src === 'hero' || src === 'full' || src.includes('homepage')) page = 'Homepage';
+  else if (src.includes('contact')) page = 'Contact page';
+  else if (src.includes('sms-opt-in')) page = 'SMS opt-in page';
+  else if (src) {
+    const label = src.replace(/^(?:service-area-|area-)/, '').replace(/[-_]+/g, ' ').trim();
+    page = `Page: ${label.replace(/\b\w/g, (letter) => letter.toUpperCase())}`;
+  }
+  return `[${page}] Quote request from ${fullName || 'Customer'}`;
 }
 
 // --- Transports -------------------------------------------------------------
