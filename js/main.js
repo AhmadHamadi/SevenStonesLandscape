@@ -69,46 +69,40 @@
     // Reuse a reference after an in-page retry or refresh so downstream lookup can
     // correlate the attempt. The reference alone does not guarantee duplicate prevention.
     document.querySelectorAll('form[action*="/api/quote"]').forEach(function(form, index) {
-      var hasServiceConsent = !!form.querySelector('[name="sms_consent"], [name="sms_transactional_consent"]');
-      var hasMarketingConsent = !!form.querySelector('[name="sms_marketing_consent"]');
-      if (!hasServiceConsent || !hasMarketingConsent) {
-        var consent = document.createElement('div');
-        consent.className = 'sms-consent';
+      var source = form.querySelector('[name="form_source"]');
+      var isSmsPreferenceForm = !!(source && source.value === 'sms-opt-in');
 
-        function addConsentChoice(name, id, text) {
-          var choice = document.createElement('div');
-          choice.className = 'sms-consent-choice';
-          var checkbox = document.createElement('input');
-          checkbox.type = 'checkbox';
-          checkbox.name = name;
-          checkbox.value = 'yes';
-          checkbox.id = id;
-          var label = document.createElement('label');
-          label.htmlFor = id;
-          label.textContent = text;
-          choice.appendChild(checkbox);
-          choice.appendChild(label);
-          consent.appendChild(choice);
+      // Quote-form SMS is limited to the request the person is submitting. The
+      // disclosure sits immediately below the submit action; the SMS preference
+      // page keeps its separate, optional service/marketing checkboxes.
+      if (!isSmsPreferenceForm) {
+        var serviceConsent = form.querySelector('[name="sms_transactional_consent"]');
+        if (!serviceConsent) {
+          serviceConsent = document.createElement('input');
+          serviceConsent.type = 'hidden';
+          serviceConsent.name = 'sms_transactional_consent';
+          form.appendChild(serviceConsent);
         }
+        serviceConsent.value = 'yes';
 
-        if (!hasServiceConsent) {
-          addConsentChoice('sms_consent', 'seven-stones-sms-service-consent-' + index,
-            'I agree to receive non-promotional service text messages from Seven Stones Landscape about my estimate request and scheduling. Message frequency varies; message and data rates may apply. Reply HELP for help or STOP to opt out. Consent is not required to purchase. You must be 18 or older to enroll.');
+        if (!form.querySelector('.sms-consent')) {
+          var consent = document.createElement('p');
+          consent.className = 'sms-consent';
+          consent.innerHTML = 'By sending my request, I agree that Seven Stones Landscape may text me about this quote, including scheduling an in-person estimate visit. Message frequency varies; message and data rates may apply. Reply STOP to opt out or HELP for help. Consent is not required to purchase. You must be 18 or older. <a href="/privacy/">Privacy Policy</a> · <a href="/terms-of-service/">Terms</a>.';
+          var submitButton = form.querySelector('button[type="submit"], input[type="submit"]');
+          if (submitButton && submitButton.parentNode) submitButton.parentNode.insertBefore(consent, submitButton.nextSibling);
+          else form.appendChild(consent);
         }
-        if (!hasMarketingConsent) {
-          addConsentChoice('sms_marketing_consent', 'seven-stones-sms-marketing-consent-' + index,
-            'I agree to receive promotional and marketing text messages from Seven Stones Landscape. Message frequency varies; message and data rates may apply. Reply HELP for help or STOP to opt out. Consent is not required to purchase. You must be 18 or older to enroll.');
-        }
-        var policyLinks = form.querySelector('.sms-consent-links');
-        if (!policyLinks) {
-          policyLinks = document.createElement('p');
-          policyLinks.className = 'sms-consent-links';
-          policyLinks.innerHTML = 'Read our <a href="/privacy/">Privacy Policy</a> and <a href="/terms-of-service/">Terms of Service</a>.';
-          consent.appendChild(policyLinks);
-        }
-        var submitButton = form.querySelector('button[type="submit"], input[type="submit"]');
-        if (submitButton) form.insertBefore(consent, submitButton);
-        else form.appendChild(consent);
+      }
+
+      // Invisible honeypots are applied consistently, including to older
+      // location/service forms that predate the shared spam-trap markup.
+      if (!form.querySelector('[name="bot-field"]') && !form.querySelector('[name="website"]')) {
+        var honeypot = document.createElement('p');
+        honeypot.className = 'form-honeypot';
+        honeypot.setAttribute('aria-hidden', 'true');
+        honeypot.innerHTML = '<label>Leave this empty: <input name="bot-field" type="text" tabindex="-1" autocomplete="off" /></label>';
+        form.insertBefore(honeypot, form.firstChild);
       }
       var pagePathField = form.querySelector('[name="form_page_path"]');
       if (!pagePathField) {
@@ -144,7 +138,6 @@
         field.value = trackingParams.get(name) || '';
       });
 
-      var source = form.querySelector('[name="form_source"]');
       var storageKey = 'sevenstones-estimate:' + location.pathname + ':' + (source ? source.value : index);
       form.dataset.submissionStorageKey = storageKey;
       var field = form.querySelector('[name="submission_id"]');
