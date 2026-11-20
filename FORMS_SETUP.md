@@ -1,42 +1,67 @@
-# Website quote intake and reusable GHL baseline
+# Seven Stones lead system and reusable GHL baseline
 
-This is the source-of-truth checklist for Seven Stones Landscape's website intake and a reusable baseline for future Arveno client sub-accounts. Account IDs, webhook URLs, credentials, calendar IDs, and client-specific details must always be re-verified for each client; never copy those values from this document.
+Checked 2026-11-20. This file is the operating checklist for the Seven Stones website → HighLevel flow and the reusable base for future Arveno client locations. It distinguishes verified settings from the setup still needed before a production snapshot. Never copy a client's webhook, field IDs, calendar connection, sender, OAuth, contacts, or private conversation data into another account.
 
-## Seven Stones website flow
+## Target operating model (not all live yet)
 
-- All 35 quote and SMS preference forms use the shared `js/main.js` script and POST to `/api/quote`.
-- Quote form fields include `full_name`, `email`, `phone`, `address`, `services`, `message`, `form_source`, and a stable `submission_id`.
-- Quote forms disclose beside the submit button that submitting agrees to service-related texts about that quote and scheduling. This is limited to the request, estimate, and arranging an in-person estimate; it is not promotional consent. The separate `/sms-opt-in/` page retains optional, unchecked service and marketing choices.
-- The server forwards per-submission consent text, version, timestamp, source, and service/marketing flags to GHL. GHL custom-field mapping and readback are still required before calling that evidence stored or using it to gate an outbound AI step.
-- Every quote form receives an invisible honeypot (static or injected by the shared script). The server drops filled honeypots and also validates fields, rate-limits requests, and filters common spam/solicitations. This reduces bot submissions but is not a CAPTCHA or a guarantee that every bot is blocked.
-- The website sends internal quote notification email through Resend when configured, from `Seven Stones Landscape <info@arvenogrowth.com>`. The subject includes the source page and submitter name. The current internal recipients are configured in `api/quote.js`.
-- The success page/state is shown only after the server accepts both GHL and the configured email transport. HTTP success confirms provider acceptance, not inbox placement or human review.
+| Opportunity stage | What it means | Automation | Owner action |
+| --- | --- | --- | --- |
+| Contacting | New quote request received; awaiting estimate booking | Create/update contact; create one project per unique submission; send one approved, consent-gated first reply | Review new lead if no booking starts |
+| Follow-up Needed | Customer has not booked or needs a person | One bounded service follow-up, then create a call task and notify assigned salesperson | Call the customer; record outcome |
+| Appointment Booked | On-site estimate visit is confirmed | Move the matching project; send appointment confirmation/reminders | Attend the visit |
+| No-show / Reschedule | Visit missed or needs a new time | Stop lead nurture; offer rescheduling only if configured | Contact customer if rescheduling stalls |
+| Quote Sent | Estimate has been sent | Start a short, capped quote follow-up only where consent and timing allow | Send/adjust quote; log important context |
+| Accepted | Quote approved; job won | Stop lead nurture; create an internal handoff/task if configured | Schedule crew and do the work |
+| Completed | Job finished | Send one neutral review request if configured | Close out job |
+| Lost | Customer declined, was not serviceable, or chose someone else | Stop all sales follow-up | Record a simple loss reason |
 
-## Current Seven Stones GHL state (checked 2026-11-17)
+Keep stages few and unambiguous. The current Seven Stones pipeline is `Contacting` → `Follow-up Needed` → `Appointment Booked` → `No-show / Reschedule` → `Quote Sent` → `Accepted` → `Completed`; it has no explicit Lost stage. Do not rename or migrate live stages until the existing opportunities and workflow references have been checked. `Accepted` currently serves as the won outcome.
 
-- Location: Seven Stones Landscape, Mount Hope, Ontario. Reconfirm location before every edit or test.
-- Workflow list: `Website Form Intake - Contact + Opportunity` is Published, with 2 total enrollments and 0 active at time checked.
-- Its visible flow creates/matches a contact, finds an opportunity by submission reference, and creates an opportunity only when the match is not found. The create action targets the `Service Projects` pipeline and `Contacting` stage.
-- The flow does **not** start Conversation AI, book appointments, or create a follow-up task/notification. Do not tell the business these actions are automated yet.
-- Recommended simple pipeline for the demo and future home-service accounts: `Contacting` → `Estimate Booked` or `AI Follow-Up` → `Manual Follow-Up` → `Quote Sent` → `Job Won` → `Job Completed`; use `Job Lost` as the closed-lost outcome. Preserve the existing project pipeline and adjust stage labels only after checking current opportunities and their stage dependencies.
-- Recommended automation: on a consented new quote, assign the salesperson and let AI offer an in-person property estimate slot; a booking moves to `Estimate Booked`. If no booking, wait one day and send one service-related AI follow-up; if still no reply or booking after another day, move to `Manual Follow-Up`, create an assigned task named `Call lead to arrange on-site estimate` due next business day, and notify the salesperson. The salesperson makes the call and moves the opportunity to the correct next stage. When work is manually marked `Job Completed`, send a neutral Google review request to every completed customer without filtering by satisfaction.
-- The AI dashboard showed no conversations or appointment bookings for the selected range. The old Conversation AI agent was previously observed Off. A live form should not be described as triggering an AI booking attempt until the published workflow includes a consent-gated Conversation AI step and a successful controlled test.
-- Calendar settings showed one active calendar named `ggh`; the appointment list showed no upcoming appointments. Its public booking link, meeting type/location, working hours, owner availability, and Google Calendar conflict sync were not verified. For this contractor, the target booking is an **in-person estimate visit at the homeowner's property**, not an office consultation. Confirm calendar name, duration, visit-address handling, service area, timezone, availability, and sync before connecting the AI.
-- No manual follow-up task is currently created by the intake flow. Until AI booking and a no-booking fallback are implemented and tested, the owner must check new opportunities and contact the lead manually.
+## What is verified in Seven Stones (2026-11-20)
 
-## Reusable setup for future sub-accounts
+- The website has 35 quote/SMS preference forms using shared `js/main.js` and `POST /api/quote`. The endpoint validates fields, preserves a submission ID, uses a hidden honeypot, rate-limits and filters common junk. This reduces spam; it does not guarantee bots cannot submit.
+- The server sends the form facts and allowlisted UTM/ad click IDs to the GHL inbound webhook and internal email. Email is configured to use `Seven Stones Landscape <info@arvenogrowth.com>` when the production Resend transport is configured; subject includes the source page and submitter. A provider-accepted email does not prove inbox delivery.
+- The current intake workflow is set to Publish. It maps contact name/email/phone/source and address, finds an opportunity by exact `Submission Reference = submissionId`, ends safely when it already exists, and otherwise creates an opportunity in `Service Projects` → `Contacting` with name, property address, service, original message, and submission reference. This supports sequential retry handling; search-then-create is not atomic, so concurrent duplicate deliveries have not been proven safe.
+- Contact source is hardcoded to `Seven Stones Website`. The web payload includes UTMs and click IDs, but those campaign values are not mapped into GHL opportunity fields. Google Ads/source reporting in GHL is therefore not verified.
+- The website currently sends `sms_transactional_consent=yes` for every quote submission because it uses an inline disclosure beside the submit action. The workflow sends its first estimate SMS only when the field is `True`. Do not treat this implicit field as proof of compliant optional consent or enable blanket texting. HighLevel A2P review guidance expects explicit optional SMS consent; resolve the form choice and verify stored consent before enabling broad sends.
+- `Seven Stones Estimate Assistant` is deployed for inbound SMS to all contacts and has appointment booking and human handover actions. This means it can reply to inbound messages; it does not by itself start the first outbound text. The intake workflow's separate SMS action starts that conversation when its consent condition passes. AI auto-follow-up scenarios were Off at last inspection; the test chat says its messages are not sent to contacts; email AI is not configured.
+- The appointment-confirmed workflow is published and first finds an open `Service Projects` opportunity in `Contacting`, then moves the found opportunity to `Appointment Booked`. It chooses the most recently created match in that stage, so a returning contact with multiple open projects could still attach the booking to the wrong project. Store and use an exact opportunity/project reference before claiming this edge case is solved. No recent workflow execution was observed.
+- The user's Google Calendar account is connected in HighLevel. This does not verify the bookable calendar, public booking link, visit duration, owner hours, timezone, service-area rules, property-address handling, reminders, or conflict checking. Seven Stones needs an in-person estimate at the customer's property.
+- No verified one-day AI follow-up → manual-call task path, owner SMS alert for every lifecycle event, quote-sent nurture, completion/review workflow, or GHL campaign attribution was observed. The owner must monitor opportunities and call leads who do not book until those flows are built and tested. Website email notifications are not AI email replies.
+- Published status is not proof of a live website submission. No recent intake execution was visible. End-to-end proof still requires an owner-controlled test contact and number, followed through `submissionId → contactId → opportunityId → appointmentId`.
 
-Use this short baseline, then customize only documented client details:
+## Automation rules
 
-1. Verify the exact client sub-account, timezone, owner/staff, contact channels, pipeline, calendars, active workflows, sender, AI plan/usage controls, and billing responsibility. Never infer account identity from a browser tab or reuse another client's secrets or IDs.
-2. Keep one website intake endpoint and one inbound-webhook workflow. Do not run a second website-side CRM creation path or overlapping opportunity trigger.
-3. Keep contact identity on the contact. Keep each distinct project on its own opportunity, including service, property/site address, original scope/message, source page, and submission reference. Match retries by that reference; do not select a contact's latest opportunity or overwrite a prior project.
-4. Use the client's real booking outcome. For in-person home-service estimates, collect/confirm the property address and book the estimate visit in the correct calendar, owner, timezone, and availability. Do not use a generic meeting calendar or treat a phone call as a site visit.
-5. After contact/opportunity creation, start Conversation AI only for submissions with the agreed, recorded service-text consent. The agent should answer only about the inquiry, gather missing project details, and offer available estimate-visit slots. Keep promotional messaging separate and optional.
-6. Add the fallback branch: if no appointment is booked after the chosen AI attempt and one follow-up, move the opportunity to `Manual Follow-Up`, create a clearly named call task for the assigned salesperson with a due date and in-app notification, and stop further AI messages. If an appointment is booked, move it to `Estimate Booked` and route to visit confirmation/reminders instead. Test both branches before publish.
-7. Keep external messaging off during test submissions. Use a controlled test contact and confirm each link in `submissionId → contactId → opportunityId → appointmentId`, then test no-booking fallback, duplicate submission, reschedule, cancellation, STOP/DND, and provider failure.
-8. Publish only after field mapping/readback, assignment, calendar details, consent gates, duplicate handling, owner notifications, pricing/usage, and recovery behavior are verified. Record the exact test result and remaining owner actions for each sub-account.
+Automate predictable work: capture the form once; preserve project facts; assign the lead; send one approved first response; offer only real calendar availability; move the exact project on confirmed booking; send bounded reminders; create a clearly named call task when the AI cannot book; stop on opt-out, human takeover, booking, or closed status; and send one neutral review request after work is genuinely complete.
 
-## Current release and limitations
+Keep judgment with the contractor: decide whether the job is in the service area, inspect the property, prepare/send the quote, call a stalled lead, decide won/lost, schedule crews, perform work, and resolve complaints. AI must not invent prices, project scope, service coverage, availability, or completion status. The original form message stays intact; any AI qualification summary belongs in a separate field.
 
-The quote-intake code is being updated in this branch to replace the quote-form SMS checkbox with a clear affirmative disclosure beside the submit action and to ensure all quote forms have a honeypot. Promotional consent remains separate and unchecked. The live GHL workflow remains limited to contact/opportunity handling; no claim of automatic SMS, AI booking, or a task fallback is valid until those GHL steps are configured, consent is mapped/read back, and the booking/no-booking paths pass controlled tests.
+For each distinct project use its own opportunity. Never use “latest opportunity” as the project identity. A booking must preserve the relationship to the correct project through booking, reschedule, and cancellation. Use one first-message path and one follow-up owner to avoid duplicate texts. Quote follow-up is triggered by the `Quote Sent` stage, not by lead creation; stop when accepted/lost or opted out.
+
+## Reusable onboarding: keep it to one page per client
+
+Reuse the structure; replace these client-specific values every time:
+
+1. **Business:** legal/brand name, services, service area, estimate type, hours, timezone, support email/phone, privacy/terms URLs.
+2. **People:** owner and sales rep, assignment rule, notification target, task owner, access roles.
+3. **Pipeline:** stage labels/IDs, won and lost outcomes, required custom fields and field IDs.
+4. **Website intake:** endpoint, one webhook, form fields, exact source page, submission ID, UTM/click-ID fields, spam controls, email sender/recipient/subject.
+5. **Messaging:** sender/channel, consent language/version and stored evidence, stop/help behavior, allowed message types, business-hour window, usage payer and budget.
+6. **Calendar/AI:** actual calendar and booking link, owner, availability/buffers, on-site address handling, AI knowledge/fallback, human handoff, booking-to-opportunity reference.
+7. **Release:** test contact/number, duplicate submission, new project for returning contact, consent absent/present, opt-out, booking, no booking/manual task, quote won/lost, completion, provider failure, exact pass/fail evidence.
+
+Load a snapshot as configuration only. Reconnect user-owned Google/Outlook calendars, phone/SMS registration, email provider, domains, sender IDs, AI billing and other OAuth services per client. Inspect every workflow trigger, filter, action, branch, assignment, sender, and publish switch after import. Remove sample records. Use a test contact and keep outbound messaging disabled until the client authorizes the test destination and the consent path is verified.
+
+## Readiness gate and current blockers
+
+Do not call this a production-ready, transferable snapshot until all these pass in the Seven Stones location:
+
+- Change SMS capture from an automatically true quote-submit flag to the client-approved, explicitly optional consent model; read back the consent evidence in GHL before any outbound send.
+- Map website page/source, UTMs and ad click IDs to defined GHL fields and verify a website lead and a tagged test Google Ads lead.
+- Configure exact opportunity context on appointment creation so multiple projects for one contact cannot be confused.
+- Confirm the real on-site estimate calendar, user, link, hours, visit address, timezone, availability and conflict checking.
+- Build the single first-reply path, one-day bounded follow-up, manual-call task/notification, booked branch, quote-sent follow-up, won/lost stop logic, and completed-job review request. Validate STOP/DND and human takeover at every messaging branch.
+- Run controlled end-to-end tests and inspect provider logs plus CRM record IDs. Verify email and GHL outcomes independently, failure behavior, duplicate sequential and concurrent deliveries, and the actual inbound AI reply.
+- Record SMS/AI/workflow costs and who pays. Phone/SMS, HighLevel subscription, AI usage, email, and any premium workflow execution fees may be separate; verify current account billing rather than assuming they are included.
+
+Until these checks pass, the reliable demo claim is limited to: **the website captures a quote and sends it to the configured GHL/email providers; GHL is designed to create/update the contact and create a project opportunity.** Automatic customer texting, AI booking for every lead, owner SMS alerts, true Google Ads attribution, and a transferable production snapshot remain unproven or blocked above.
